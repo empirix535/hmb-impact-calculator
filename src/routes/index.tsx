@@ -37,7 +37,8 @@ function BiaDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-100">
+      <div className="mx-auto max-w-[1440px] bg-background border-x shadow-sm min-h-screen">
       <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur">
         <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
