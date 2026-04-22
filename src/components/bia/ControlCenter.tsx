@@ -94,9 +94,11 @@ export function ControlCenter({ model }: Props) {
             <div className="space-y-2">
               <Label className="text-xs">Women of child-bearing age (WCBA)</Label>
               <Input
-                type="number"
-                value={inputs.wcba}
-                onChange={(e) => model.setWcba(Number(e.target.value))}
+                type="text"
+                readOnly
+                tabIndex={-1}
+                value={inputs.wcba.toLocaleString("en-US")}
+                className="bg-muted/50 cursor-not-allowed"
               />
             </div>
             <div className="space-y-2">
@@ -259,7 +261,7 @@ export function ControlCenter({ model }: Props) {
                     These parameters are fixed scalars sourced from clinical evidence and
                     Kenya-specific cost data. They are not user-editable.
                   </p>
-                  <ParamGroup label="5-yr cost per patient ($)" values={inputs.costs} type="number" />
+                  <ParamGroup label="5-yr cost per patient (LCU)" values={inputs.costs} type="number" />
                   <ParamGroup
                     label="Effectiveness (HMB resolved)"
                     values={inputs.effectiveness}
