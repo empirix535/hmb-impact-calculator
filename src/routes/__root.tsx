@@ -29,14 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "HMB Budget Impact Tool (FHI 360)" },
+      { name: "description", content: "Budget Impact Analysis dashboard for H-IUD in Heavy Menstrual Bleeding." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "HMB Budget Impact Tool (FHI 360)" },
+      { property: "og:description", content: "Budget Impact Analysis dashboard for H-IUD in Heavy Menstrual Bleeding." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "HMB Budget Impact Tool (FHI 360)" },
+      { name: "twitter:description", content: "Budget Impact Analysis dashboard for H-IUD in Heavy Menstrual Bleeding." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d8e42f15-b877-4bcb-bd7b-5cf17cb61c7e/id-preview-13bea7b5--68d140e4-5577-48ef-96bb-6709886a5ee4.lovable.app-1776892706656.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d8e42f15-b877-4bcb-bd7b-5cf17cb61c7e/id-preview-13bea7b5--68d140e4-5577-48ef-96bb-6709886a5ee4.lovable.app-1776892706656.png" },
     ],
     links: [
       {
