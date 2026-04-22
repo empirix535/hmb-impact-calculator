@@ -3,14 +3,19 @@ import { runBia } from "@/lib/bia/engine";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/bia/countries";
 import {
   DEFAULT_COSTS,
+  DEFAULT_DELTAS,
   DEFAULT_EFFECTIVENESS,
 } from "@/lib/bia/defaults";
 import type {
+  AltArm,
+  AltWeights,
   ArmValues,
   BiaInputs,
   Currency,
   MarketShares,
 } from "@/lib/bia/types";
+
+const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
 
 const ARMS: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"];
 
