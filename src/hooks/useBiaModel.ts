@@ -3,20 +3,16 @@ import { runBia } from "@/lib/bia/engine";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/bia/countries";
 import {
   DEFAULT_COSTS,
-  DEFAULT_DELTAS,
   DEFAULT_EFFECTIVENESS,
-  DEFAULT_TARGET_HIUD,
 } from "@/lib/bia/defaults";
 import type {
-  AltArm,
-  AltWeights,
   ArmValues,
   BiaInputs,
   Currency,
   MarketShares,
 } from "@/lib/bia/types";
 
-const ALT: AltArm[] = ["ns", "surgical", "untreated"];
+const ARMS: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"];
 
 function presetToInputs(countryKey: string): BiaInputs {
   const c = COUNTRIES[countryKey];
@@ -25,8 +21,7 @@ function presetToInputs(countryKey: string): BiaInputs {
     wcba: c.wcba,
     hmbPrevalence: c.hmbPrevalence,
     marketShares0: ms,
-    targetHIud: Math.max(ms.hIud, DEFAULT_TARGET_HIUD),
-    deltas: { ...DEFAULT_DELTAS },
+    marketShares1: { ...ms },
     costs: { ...DEFAULT_COSTS },
     effectiveness: { ...DEFAULT_EFFECTIVENESS },
     anemia: { ...c.anemia },
@@ -53,25 +48,36 @@ export function useBiaModel() {
 
   const markCustom = () => setIsCustom(true);
 
-  const setWcba = (v: number) => {
-    markCustom();
-    setInputs((p) => ({ ...p, wcba: Math.max(0, v) }));
-  };
   const setHmbPrevalence = (v: number) => {
     markCustom();
     setInputs((p) => ({ ...p, hmbPrevalence: Math.max(0, Math.min(1, v)) }));
   };
-  const setTargetHIud = (v: number) => {
+
+  // Set MS₁ for one arm; auto-balance the other 3 proportionally so Σ = 1.
+  const setMarketShare1 = useCallback((arm: keyof MarketShares, raw: number) => {
     markCustom();
-    setInputs((p) => ({ ...p, targetHIud: Math.max(0, Math.min(1, v)) }));
-  };
-  const setMarketShare0 = (arm: keyof MarketShares, v: number) => {
-    markCustom();
-    setInputs((p) => ({
-      ...p,
-      marketShares0: { ...p.marketShares0, [arm]: Math.max(0, Math.min(1, v)) },
-    }));
-  };
+    setInputs((p) => {
+      const v = Math.max(0, Math.min(1, raw));
+      const others = ARMS.filter((a) => a !== arm);
+      const remaining = 1 - v;
+      const o0 = p.marketShares1[others[0]];
+      const o1 = p.marketShares1[others[1]];
+      const o2 = p.marketShares1[others[2]];
+      const oSum = o0 + o1 + o2;
+      const next: MarketShares = { ...p.marketShares1, [arm]: v };
+      if (oSum <= 1e-9) {
+        next[others[0]] = remaining / 3;
+        next[others[1]] = remaining / 3;
+        next[others[2]] = remaining / 3;
+      } else {
+        next[others[0]] = remaining * (o0 / oSum);
+        next[others[1]] = remaining * (o1 / oSum);
+        next[others[2]] = remaining * (o2 / oSum);
+      }
+      return { ...p, marketShares1: next };
+    });
+  }, []);
+
   const setCost = (arm: keyof ArmValues, v: number) => {
     markCustom();
     setInputs((p) => ({ ...p, costs: { ...p.costs, [arm]: Math.max(0, v) } }));
@@ -91,33 +97,7 @@ export function useBiaModel() {
     }));
   };
 
-  // Linked delta sliders — always sum to 1
-  const setDelta = useCallback((arm: AltArm, raw: number) => {
-    markCustom();
-    setInputs((p) => {
-      const v = Math.max(0, Math.min(1, raw));
-      const others = ALT.filter((a) => a !== arm);
-      const remaining = 1 - v;
-      const o0 = p.deltas[others[0]];
-      const o1 = p.deltas[others[1]];
-      const oSum = o0 + o1;
-      const next: AltWeights = { ...p.deltas, [arm]: v } as AltWeights;
-      if (oSum <= 1e-9) {
-        next[others[0]] = remaining / 2;
-        next[others[1]] = remaining / 2;
-      } else {
-        next[others[0]] = remaining * (o0 / oSum);
-        next[others[1]] = remaining * (o1 / oSum);
-      }
-      return { ...p, deltas: next };
-    });
-  }, []);
-
   const result = useMemo(() => runBia(inputs), [inputs]);
-
-  const snapHIudToMax = useCallback(() => {
-    setInputs((p) => ({ ...p, targetHIud: result.shift.achievableHIud }));
-  }, [result.shift.achievableHIud]);
 
   const country = COUNTRIES[countryKey];
   const currency = useMemo(
@@ -137,14 +117,10 @@ export function useBiaModel() {
     setCurrencyMode,
     selectCountry,
     reset,
-    setWcba,
     setHmbPrevalence,
-    setTargetHIud,
-    setMarketShare0,
+    setMarketShare1,
     setCost,
     setEffectiveness,
     setAnemia,
-    setDelta,
-    snapHIudToMax,
   };
 }
