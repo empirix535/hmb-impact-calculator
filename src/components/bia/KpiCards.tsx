@@ -1,13 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDownRight, ArrowUpRight, Activity, DollarSign, HeartPulse, Users } from "lucide-react";
-import { fmtCurrency, fmtCurrencyExact, fmtInt, fmtPct } from "@/lib/bia/format";
+import { fmtInt, fmtPct, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaResult } from "@/lib/bia/types";
 
 interface Props {
   result: BiaResult;
+  currency: CurrencyFormatters;
 }
 
-export function KpiCards({ result }: Props) {
+export function KpiCards({ result, currency }: Props) {
+  const { fmtCurrency, fmtCurrencyExact } = currency;
   const positiveBudget = result.budgetImpact >= 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

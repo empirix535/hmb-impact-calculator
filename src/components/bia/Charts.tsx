@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ARM_LABELS, fmtCurrency, fmtPct } from "@/lib/bia/format";
+import { ARM_LABELS, fmtPct, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaResult } from "@/lib/bia/types";
 
 const ARM_COLORS: Record<string, string> = {
@@ -22,9 +22,10 @@ const ARM_COLORS: Record<string, string> = {
 
 interface Props {
   result: BiaResult;
+  currency: CurrencyFormatters;
 }
 
-export function MarketShareChart({ result }: Props) {
+export function MarketShareChart({ result }: { result: BiaResult }) {
   const data = [
     {
       name: "Status Quo",
@@ -60,7 +61,8 @@ export function MarketShareChart({ result }: Props) {
   );
 }
 
-export function CostChart({ result }: Props) {
+export function CostChart({ result, currency }: Props) {
+  const { fmtCurrency } = currency;
   const data = result.breakdown.map((b) => ({
     arm: ARM_LABELS[b.arm],
     "Status Quo": b.cost0,
@@ -88,7 +90,7 @@ export function CostChart({ result }: Props) {
   );
 }
 
-export function ClinicalChart({ result }: Props) {
+export function ClinicalChart({ result }: { result: BiaResult }) {
   const data = [
     {
       metric: "HMB resolved",
@@ -123,7 +125,8 @@ export function ClinicalChart({ result }: Props) {
   );
 }
 
-export function WaterfallChart({ result }: Props) {
+export function WaterfallChart({ result, currency }: Props) {
+  const { fmtCurrency } = currency;
   const data = result.breakdown
     .filter((b) => Math.abs(b.deltaCost) > 0.01)
     .map((b) => ({
