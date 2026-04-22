@@ -10,14 +10,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ARM_LABELS, fmtCurrency, fmtInt, fmtPct } from "@/lib/bia/format";
+import { ARM_LABELS, fmtInt, fmtPct, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaResult } from "@/lib/bia/types";
 
 interface Props {
   result: BiaResult;
+  currency: CurrencyFormatters;
 }
 
-export function BreakdownTable({ result }: Props) {
+export function BreakdownTable({ result, currency }: Props) {
+  const { fmtCurrency, unit, rate } = currency;
+
   const exportCsv = () => {
     const header = [
       "Arm",
@@ -25,9 +28,9 @@ export function BreakdownTable({ result }: Props) {
       "MS_1",
       "ΔMS",
       "Patients shifted",
-      "Cost SQ",
-      "Cost Int",
-      "ΔCost",
+      `Cost SQ (${unit})`,
+      `Cost Int (${unit})`,
+      `ΔCost (${unit})`,
       "Status",
     ];
     const rows = result.breakdown.map((b) => [
@@ -36,9 +39,9 @@ export function BreakdownTable({ result }: Props) {
       b.ms1.toFixed(4),
       b.deltaMs.toFixed(4),
       Math.round(b.patientsShifted),
-      Math.round(b.cost0),
-      Math.round(b.cost1),
-      Math.round(b.deltaCost),
+      Math.round(b.cost0 * rate),
+      Math.round(b.cost1 * rate),
+      Math.round(b.deltaCost * rate),
       b.status,
     ]);
     const csv = [header, ...rows].map((r) => r.join(",")).join("\n");

@@ -11,6 +11,8 @@ import {
 } from "@/components/bia/Charts";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
 import { COUNTRIES } from "@/lib/bia/countries";
+import { makeCurrencyFormatters } from "@/lib/bia/format";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/")({
@@ -30,6 +32,10 @@ export const Route = createFileRoute("/")({
 function BiaDashboard() {
   const model = useBiaModel();
   const country = COUNTRIES[model.countryKey];
+  const currencyFmt = useMemo(
+    () => makeCurrencyFormatters({ unit: model.currency.label, rate: model.currency.rate }),
+    [model.currency.label, model.currency.rate],
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,14 +67,14 @@ function BiaDashboard() {
         </aside>
 
         <main className="space-y-6 min-w-0">
-          <KpiCards result={model.result} />
+          <KpiCards result={model.result} currency={currencyFmt} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <MarketShareChart result={model.result} />
-            <CostChart result={model.result} />
+            <CostChart result={model.result} currency={currencyFmt} />
             <ClinicalChart result={model.result} />
-            <WaterfallChart result={model.result} />
+            <WaterfallChart result={model.result} currency={currencyFmt} />
           </div>
-          <BreakdownTable result={model.result} />
+          <BreakdownTable result={model.result} currency={currencyFmt} />
         </main>
       </div>
     </div>

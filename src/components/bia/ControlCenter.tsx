@@ -79,6 +79,29 @@ export function ControlCenter({ model }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground">Display currency</Label>
+              <div className="grid grid-cols-2 gap-1 rounded-md border p-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={model.currency.mode === "LCU" ? "default" : "ghost"}
+                  className="h-7 text-xs"
+                  onClick={() => model.setCurrencyMode("LCU")}
+                >
+                  {COUNTRIES[countryKey].currencyCode}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={model.currency.mode === "USD" ? "default" : "ghost"}
+                  className="h-7 text-xs"
+                  onClick={() => model.setCurrencyMode("USD")}
+                >
+                  USD
+                </Button>
+              </div>
+            </div>
             <Button variant="ghost" size="sm" className="w-full" onClick={model.reset}>
               <RotateCcw /> Reset to country defaults
             </Button>
@@ -261,7 +284,12 @@ export function ControlCenter({ model }: Props) {
                     These parameters are fixed scalars sourced from clinical evidence and
                     Kenya-specific cost data. They are not user-editable.
                   </p>
-                  <ParamGroup label="5-yr cost per patient (LCU)" values={inputs.costs} type="number" />
+                  <ParamGroup
+                    label={`5-yr cost per patient (${model.currency.label})`}
+                    values={inputs.costs}
+                    type="currency"
+                    rate={model.currency.rate}
+                  />
                   <ParamGroup
                     label="Effectiveness (HMB resolved)"
                     values={inputs.effectiveness}
@@ -281,30 +309,41 @@ export function ControlCenter({ model }: Props) {
 interface ParamGroupProps {
   label: string;
   values: ArmValues;
-  type: "number" | "pct";
+  type: "number" | "pct" | "currency";
+  rate?: number;
 }
 
-function ParamGroup({ label, values, type }: ParamGroupProps) {
+function ParamGroup({ label, values, type, rate = 1 }: ParamGroupProps) {
   return (
     <div className="space-y-2">
       <div className="text-xs font-semibold text-muted-foreground">{label}</div>
       <div className="grid grid-cols-2 gap-2">
-        {(["hIud", "ns", "surgical", "untreated"] as const).map((arm) => (
-          <div key={arm} className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">{ARM_LABELS[arm]}</Label>
-            <Input
-              type="text"
-              readOnly
-              tabIndex={-1}
-              value={
-                type === "pct"
-                  ? `${(values[arm] * 100).toFixed(2)}%`
-                  : values[arm].toLocaleString("en-US")
-              }
-              className="h-8 text-xs bg-muted/50 cursor-not-allowed"
-            />
-          </div>
-        ))}
+        {(["hIud", "ns", "surgical", "untreated"] as const).map((arm) => {
+          let display: string;
+          if (type === "pct") {
+            display = `${(values[arm] * 100).toFixed(2)}%`;
+          } else if (type === "currency") {
+            const conv = values[arm] * rate;
+            display =
+              conv >= 100
+                ? Math.round(conv).toLocaleString("en-US")
+                : conv.toLocaleString("en-US", { maximumFractionDigits: 2 });
+          } else {
+            display = values[arm].toLocaleString("en-US");
+          }
+          return (
+            <div key={arm} className="space-y-1">
+              <Label className="text-[11px] text-muted-foreground">{ARM_LABELS[arm]}</Label>
+              <Input
+                type="text"
+                readOnly
+                tabIndex={-1}
+                value={display}
+                className="h-8 text-xs bg-muted/50 cursor-not-allowed"
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
