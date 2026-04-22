@@ -142,3 +142,47 @@
     color: var(--color-foreground);
   }
 }
+
+/* Key-input highlight: applied to the most important user controls
+ * (HMB prevalence rate, H-IUD market share after intervention).
+ * A warm amber accent that stays consistent in light & dark mode. */
+@layer components {
+  .key-input {
+    --key-accent: oklch(0.74 0.17 65);
+    background: color-mix(in oklab, var(--key-accent) 8%, transparent);
+    border: 1px solid color-mix(in oklab, var(--key-accent) 45%, transparent);
+    border-radius: var(--radius-md);
+    padding: 0.625rem 0.75rem;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--key-accent) 10%, transparent);
+    transition: box-shadow 150ms ease, background 150ms ease;
+  }
+  .key-input:hover {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--key-accent) 18%, transparent);
+  }
+  .key-input-label {
+    color: color-mix(in oklab, var(--key-accent) 75%, var(--color-foreground));
+    font-weight: 600;
+  }
+  .key-input-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--key-accent) 18%, transparent);
+    color: color-mix(in oklab, var(--key-accent) 70%, var(--color-foreground));
+  }
+  /* Tint the slider track + thumb when inside .key-input */
+  .key-input [data-slot="slider-range"],
+  .key-input [role="slider"] {
+    background-color: var(--key-accent) !important;
+  }
+  .key-input [role="slider"] {
+    border-color: var(--key-accent) !important;
+  }
+}
+
