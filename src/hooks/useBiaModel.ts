@@ -17,7 +17,7 @@ import type {
 
 const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
 
-const ARMS: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"];
+
 
 function presetToInputs(countryKey: string): BiaInputs {
   const c = COUNTRIES[countryKey];
