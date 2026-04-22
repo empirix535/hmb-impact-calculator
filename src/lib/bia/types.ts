@@ -37,8 +37,7 @@ export interface BiaInputs {
   wcba: number;
   hmbPrevalence: number;
   marketShares0: MarketShares;
-  targetHIud: number; // 0..1
-  deltas: AltWeights; // sum = 1
+  marketShares1: MarketShares; // user-controlled, sum = 1
   costs: ArmValues;
   effectiveness: ArmValues; // 0..1 (HMB resolved share)
   anemia: ArmValues; // 0..1
