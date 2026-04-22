@@ -1,7 +1,6 @@
 import { Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -21,6 +20,17 @@ interface Props {
 export function BreakdownTable({ result, currency }: Props) {
   const { fmtCurrency, unit, rate } = currency;
 
+  const totals = result.breakdown.reduce(
+    (acc, b) => {
+      acc.cost0 += b.cost0;
+      acc.cost1 += b.cost1;
+      acc.deltaCost += b.deltaCost;
+      acc.patientsShifted += b.patientsShifted;
+      return acc;
+    },
+    { cost0: 0, cost1: 0, deltaCost: 0, patientsShifted: 0 },
+  );
+
   const exportCsv = () => {
     const header = [
       "Arm",
@@ -31,7 +41,6 @@ export function BreakdownTable({ result, currency }: Props) {
       `Cost SQ (${unit})`,
       `Cost Int (${unit})`,
       `ΔCost (${unit})`,
-      "Status",
     ];
     const rows = result.breakdown.map((b) => [
       ARM_LABELS[b.arm],
@@ -42,7 +51,16 @@ export function BreakdownTable({ result, currency }: Props) {
       Math.round(b.cost0 * rate),
       Math.round(b.cost1 * rate),
       Math.round(b.deltaCost * rate),
-      b.status,
+    ]);
+    rows.push([
+      "Grand Total",
+      "",
+      "",
+      "",
+      Math.round(totals.patientsShifted).toString(),
+      Math.round(totals.cost0 * rate).toString(),
+      Math.round(totals.cost1 * rate).toString(),
+      Math.round(totals.deltaCost * rate).toString(),
     ]);
     const csv = [header, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -74,7 +92,6 @@ export function BreakdownTable({ result, currency }: Props) {
               <TableHead className="text-right">Cost SQ</TableHead>
               <TableHead className="text-right">Cost Int</TableHead>
               <TableHead className="text-right">ΔCost</TableHead>
-              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -103,21 +120,34 @@ export function BreakdownTable({ result, currency }: Props) {
                 >
                   {fmtCurrency(b.deltaCost)}
                 </TableCell>
-                <TableCell>
-                  {b.status === "—" ? (
-                    <span className="text-muted-foreground text-xs">—</span>
-                  ) : b.status === "Clamped to 0%" ? (
-                    <Badge variant="outline" className="border-amber-500/60 text-amber-700 text-[10px]">
-                      Clamped to 0%
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-[10px]">
-                      Re-allocated
-                    </Badge>
-                  )}
-                </TableCell>
               </TableRow>
             ))}
+            <TableRow className="bg-muted/50 border-t-2 font-semibold">
+              <TableCell>Grand Total</TableCell>
+              <TableCell className="text-right text-muted-foreground">—</TableCell>
+              <TableCell className="text-right text-muted-foreground">—</TableCell>
+              <TableCell className="text-right text-muted-foreground">—</TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {fmtInt(totals.patientsShifted)}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {fmtCurrency(totals.cost0)}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {fmtCurrency(totals.cost1)}
+              </TableCell>
+              <TableCell
+                className={`text-right font-mono text-xs ${
+                  totals.deltaCost > 0
+                    ? "text-rose-600"
+                    : totals.deltaCost < 0
+                      ? "text-emerald-600"
+                      : ""
+                }`}
+              >
+                {fmtCurrency(totals.deltaCost)}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </CardContent>

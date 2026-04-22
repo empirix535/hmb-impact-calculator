@@ -56,6 +56,23 @@ export function useBiaModel() {
 
   const markCustom = () => setIsCustom(true);
 
+  // Set MS₀ for one arm; auto-balance the other 3 proportionally so Σ = 1.
+  const setMarketShare0 = useCallback((arm: keyof MarketShares, raw: number) => {
+    markCustom();
+    setInputs((p) => {
+      const v = Math.max(0, Math.min(1, raw));
+      const all: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"];
+      const others = all.filter((a) => a !== arm);
+      const remaining = Math.max(0, 1 - v);
+      const oSum = others.reduce((s, a) => s + p.marketShares0[a], 0);
+      const next: MarketShares = { ...p.marketShares0, [arm]: v };
+      others.forEach((o) => {
+        next[o] = oSum <= 1e-9 ? remaining / 3 : remaining * (p.marketShares0[o] / oSum);
+      });
+      return { ...p, marketShares0: next };
+    });
+  }, []);
+
   const setHmbPrevalence = (v: number) => {
     markCustom();
     setInputs((p) => ({ ...p, hmbPrevalence: Math.max(0, Math.min(1, v)) }));
@@ -173,5 +190,6 @@ export function useBiaModel() {
     setCost,
     setEffectiveness,
     setAnemia,
+    setMarketShare0,
   };
 }
