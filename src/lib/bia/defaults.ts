@@ -26,9 +26,9 @@ export const DEFAULT_DALYS: ArmValues = {
 
 // Default cannibalization weights (sum to 1)
 export const DEFAULT_DELTAS: AltWeights = {
-  ns: 0.5,
+  ns: 0.15,
   surgical: 0.05,
-  untreated: 0.45,
+  untreated: 0.8,
 };
 
 export const DEFAULT_TARGET_HIUD = 0.25;
