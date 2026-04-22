@@ -171,13 +171,24 @@ export function ControlCenter({ model }: Props) {
             {ALL_ARMS.map((arm) => (
               <div key={arm} className="space-y-1">
                 <Label className="text-[11px] text-muted-foreground">{ARM_LABELS[arm]}</Label>
-                <Input
-                  type="text"
-                  readOnly
-                  tabIndex={-1}
-                  value={fmtPct(inputs.marketShares0[arm], 2)}
-                  className="h-8 text-xs bg-muted/50 cursor-not-allowed font-mono"
-                />
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={(inputs.marketShares0[arm] * 100).toFixed(2)}
+                    onChange={(e) => {
+                      const n = parseFloat(e.target.value);
+                      if (!Number.isFinite(n)) return;
+                      model.setMarketShare0(arm, n / 100);
+                    }}
+                    className="h-8 text-xs font-mono pr-6"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
+                    %
+                  </span>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -198,7 +209,8 @@ export function ControlCenter({ model }: Props) {
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground pt-1">
-              Adjust any arm — the others auto-balance to keep the total at 100%.
+              Adjust H-IUD coverage — NS, Surgical, and Untreated react automatically based on
+              the cannibalization weights below.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -214,10 +226,16 @@ export function ControlCenter({ model }: Props) {
               const v0 = inputs.marketShares0[arm];
               const v1 = inputs.marketShares1[arm];
               const dv = v1 - v0;
+              const isHIud = arm === "hIud";
               return (
                 <div key={arm} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs">{ARM_LABELS[arm]}</Label>
+                    <Label className={`text-xs ${!isHIud ? "text-muted-foreground" : ""}`}>
+                      {ARM_LABELS[arm]}
+                      {!isHIud && (
+                        <span className="ml-1 text-[10px] font-normal">(derived)</span>
+                      )}
+                    </Label>
                     <span className="text-xs font-mono">{fmtPct(v1, 1)}</span>
                   </div>
                   <Slider
@@ -225,7 +243,9 @@ export function ControlCenter({ model }: Props) {
                     min={0}
                     max={100}
                     step={0.5}
-                    onValueChange={([v]) => model.setMarketShare1(arm, v / 100)}
+                    disabled={!isHIud}
+                    onValueChange={isHIud ? ([v]) => model.setMarketShare1(arm, v / 100) : undefined}
+                    className={!isHIud ? "opacity-60 pointer-events-none" : ""}
                   />
                   <div className="text-[10px] text-muted-foreground font-mono">
                     Baseline {fmtPct(v0, 1)} · Δ {dv >= 0 ? "+" : ""}
