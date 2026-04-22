@@ -126,10 +126,13 @@ export function ControlCenter({ model }: Props) {
                 className="bg-muted/50 cursor-not-allowed"
               />
             </div>
-            <div className="space-y-2">
+            <div className="key-input space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs">HMB prevalence rate</Label>
-                <span className="text-xs font-mono">{fmtPct(inputs.hmbPrevalence, 1)}</span>
+                <Label className="text-xs key-input-label">HMB prevalence rate</Label>
+                <div className="flex items-center gap-2">
+                  <span className="key-input-badge">Key input</span>
+                  <span className="text-xs font-mono font-semibold">{fmtPct(inputs.hmbPrevalence, 1)}</span>
+                </div>
               </div>
               <Slider
                 value={[inputs.hmbPrevalence * 100]}
@@ -228,15 +231,29 @@ export function ControlCenter({ model }: Props) {
               const dv = v1 - v0;
               const isHIud = arm === "hIud";
               return (
-                <div key={arm} className="space-y-2">
+                <div
+                  key={arm}
+                  className={isHIud ? "key-input space-y-2" : "space-y-2"}
+                >
                   <div className="flex items-center justify-between">
-                    <Label className={`text-xs ${!isHIud ? "text-muted-foreground" : ""}`}>
+                    <Label
+                      className={`text-xs ${
+                        isHIud ? "key-input-label" : "text-muted-foreground"
+                      }`}
+                    >
                       {ARM_LABELS[arm]}
                       {!isHIud && (
                         <span className="ml-1 text-[10px] font-normal">(derived)</span>
                       )}
                     </Label>
-                    <span className="text-xs font-mono">{fmtPct(v1, 1)}</span>
+                    <div className="flex items-center gap-2">
+                      {isHIud && <span className="key-input-badge">Key input</span>}
+                      <span
+                        className={`text-xs font-mono ${isHIud ? "font-semibold" : ""}`}
+                      >
+                        {fmtPct(v1, 1)}
+                      </span>
+                    </div>
                   </div>
                   <Slider
                     value={[v1 * 100]}
