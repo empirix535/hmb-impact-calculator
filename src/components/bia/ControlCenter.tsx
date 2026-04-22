@@ -252,27 +252,20 @@ export function ControlCenter({ model }: Props) {
             <Accordion type="single" collapsible>
               <AccordionItem value="adv" className="border-0">
                 <AccordionTrigger className="text-sm font-semibold py-2">
-                  Advanced — Costs, Effectiveness & Anemia
+                  Advanced — Costs, Effectiveness & Anemia (read-only)
                 </AccordionTrigger>
                 <AccordionContent className="space-y-5 pt-3">
-                  <ParamGroup
-                    label="5-yr cost per patient ($)"
-                    values={inputs.costs}
-                    onChange={model.setCost}
-                    type="number"
-                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    These parameters are fixed scalars sourced from clinical evidence and
+                    Kenya-specific cost data. They are not user-editable.
+                  </p>
+                  <ParamGroup label="5-yr cost per patient ($)" values={inputs.costs} type="number" />
                   <ParamGroup
                     label="Effectiveness (HMB resolved)"
                     values={inputs.effectiveness}
-                    onChange={model.setEffectiveness}
                     type="pct"
                   />
-                  <ParamGroup
-                    label="Anemia prevalence"
-                    values={inputs.anemia}
-                    onChange={model.setAnemia}
-                    type="pct"
-                  />
+                  <ParamGroup label="Anemia prevalence" values={inputs.anemia} type="pct" />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -286,11 +279,10 @@ export function ControlCenter({ model }: Props) {
 interface ParamGroupProps {
   label: string;
   values: ArmValues;
-  onChange: (arm: keyof ArmValues, v: number) => void;
   type: "number" | "pct";
 }
 
-function ParamGroup({ label, values, onChange, type }: ParamGroupProps) {
+function ParamGroup({ label, values, type }: ParamGroupProps) {
   return (
     <div className="space-y-2">
       <div className="text-xs font-semibold text-muted-foreground">{label}</div>
@@ -299,11 +291,15 @@ function ParamGroup({ label, values, onChange, type }: ParamGroupProps) {
           <div key={arm} className="space-y-1">
             <Label className="text-[11px] text-muted-foreground">{ARM_LABELS[arm]}</Label>
             <Input
-              type="number"
-              step={type === "pct" ? 0.01 : 50}
-              value={type === "pct" ? values[arm] : values[arm]}
-              onChange={(e) => onChange(arm, Number(e.target.value))}
-              className="h-8 text-xs"
+              type="text"
+              readOnly
+              tabIndex={-1}
+              value={
+                type === "pct"
+                  ? `${(values[arm] * 100).toFixed(2)}%`
+                  : values[arm].toLocaleString("en-US")
+              }
+              className="h-8 text-xs bg-muted/50 cursor-not-allowed"
             />
           </div>
         ))}
