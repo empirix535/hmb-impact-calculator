@@ -97,11 +97,23 @@ export function WaterfallChart({ result, currency }: Props) {
       isTotal: false,
     }));
   const totalDelta = result.breakdown.reduce((s, b) => s + b.deltaCost, 0);
-  const data = [...perArm, { arm: "Grand Total Δ", delta: totalDelta, isTotal: true }];
+  const data = [...perArm, { arm: "Net Budget Impact", delta: totalDelta, isTotal: true }];
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Total)</CardTitle>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Net Impact)</CardTitle>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0 75% 45%)" }} />
+              Net cost
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(160 70% 35%)" }} />
+              Net savings
+            </span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
