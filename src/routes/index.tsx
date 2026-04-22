@@ -6,7 +6,6 @@ import { KpiCards } from "@/components/bia/KpiCards";
 import {
   ClinicalChart,
   CostChart,
-  MarketShareChart,
   WaterfallChart,
 } from "@/components/bia/Charts";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
@@ -68,13 +67,12 @@ function BiaDashboard() {
 
         <main className="space-y-6 min-w-0">
           <KpiCards result={model.result} currency={currencyFmt} />
+          <BreakdownTable result={model.result} currency={currencyFmt} />
+          <ClinicalChart result={model.result} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <MarketShareChart result={model.result} />
             <CostChart result={model.result} currency={currencyFmt} />
-            <ClinicalChart result={model.result} />
             <WaterfallChart result={model.result} currency={currencyFmt} />
           </div>
-          <BreakdownTable result={model.result} currency={currencyFmt} />
         </main>
       </div>
     </div>
