@@ -10,55 +10,12 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ARM_LABELS, fmtPct, type CurrencyFormatters } from "@/lib/bia/format";
+import { ARM_LABELS, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaResult } from "@/lib/bia/types";
-
-const ARM_COLORS: Record<string, string> = {
-  hIud: "hsl(217 91% 60%)",
-  ns: "hsl(173 58% 45%)",
-  surgical: "hsl(280 60% 55%)",
-  untreated: "hsl(30 80% 55%)",
-};
 
 interface Props {
   result: BiaResult;
   currency: CurrencyFormatters;
-}
-
-export function MarketShareChart({ result }: { result: BiaResult }) {
-  const data = [
-    {
-      name: "Status Quo",
-      ...Object.fromEntries(result.breakdown.map((b) => [b.arm, b.ms0 * 100])),
-    },
-    {
-      name: "Intervention",
-      ...Object.fromEntries(result.breakdown.map((b) => [b.arm, b.ms1 * 100])),
-    },
-  ];
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Market Share Mix</CardTitle>
-      </CardHeader>
-      <CardContent className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} stackOffset="expand" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fontSize: 12 }} />
-            <Tooltip
-              formatter={(v: number, name) => [fmtPct(Number(v) / 100, 1), ARM_LABELS[name as string] ?? name]}
-            />
-            <Legend formatter={(v) => ARM_LABELS[v] ?? v} wrapperStyle={{ fontSize: 12 }} />
-            {(["hIud", "ns", "surgical", "untreated"] as const).map((arm) => (
-              <Bar key={arm} dataKey={arm} stackId="a" fill={ARM_COLORS[arm]} />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
 }
 
 export function CostChart({ result, currency }: Props) {
