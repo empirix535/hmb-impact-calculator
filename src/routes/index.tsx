@@ -11,6 +11,8 @@ import {
 } from "@/components/bia/Charts";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
 import { COUNTRIES } from "@/lib/bia/countries";
+import { makeCurrencyFormatters } from "@/lib/bia/format";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/")({
@@ -61,14 +63,14 @@ function BiaDashboard() {
         </aside>
 
         <main className="space-y-6 min-w-0">
-          <KpiCards result={model.result} currency={model.currency as never} />
+          <KpiCards result={model.result} currency={currencyFmt} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <MarketShareChart result={model.result} />
-            <CostChart result={model.result} currency={model.currency as never} />
+            <CostChart result={model.result} currency={currencyFmt} />
             <ClinicalChart result={model.result} />
-            <WaterfallChart result={model.result} currency={model.currency as never} />
+            <WaterfallChart result={model.result} currency={currencyFmt} />
           </div>
-          <BreakdownTable result={model.result} currency={model.currency as never} />
+          <BreakdownTable result={model.result} currency={currencyFmt} />
         </main>
       </div>
     </div>
