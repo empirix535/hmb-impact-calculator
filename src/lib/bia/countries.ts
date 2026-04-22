@@ -3,10 +3,10 @@ import type { CountryPreset } from "./types";
 export const COUNTRIES: Record<string, CountryPreset> = {
   KE: {
     name: "Kenya",
-    wcba: 13_500_000,
-    hmbPrevalence: 0.3,
-    anemia: { hIud: 0.12, ns: 0.25, surgical: 0.08, untreated: 0.45 },
-    marketShares: { hIud: 0.03, ns: 0.3, surgical: 0.1, untreated: 0.57 },
+    wcba: 17_300_000,
+    hmbPrevalence: 0.25,
+    anemia: { hIud: 0.1185, ns: 0.4051, surgical: 0.1063, untreated: 0.455 },
+    marketShares: { hIud: 0.0, ns: 0.2015, surgical: 0.0545, untreated: 0.744 },
   },
 };
 
