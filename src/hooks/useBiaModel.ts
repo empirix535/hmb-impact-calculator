@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { computeShift, runBia } from "@/lib/bia/engine";
-import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/bia/countries";
 import {
-  DEFAULT_COSTS,
-  DEFAULT_DELTAS,
-  DEFAULT_EFFECTIVENESS,
-} from "@/lib/bia/defaults";
+  COUNTRIES,
+  COUNTRY_COSTS,
+  COUNTRY_EFFECTIVENESS,
+  DEFAULT_COUNTRY,
+} from "@/lib/bia/countries";
+import { DEFAULT_DELTAS } from "@/lib/bia/defaults";
 import type {
   AltArm,
   AltWeights,
@@ -33,8 +34,8 @@ function presetToBase(countryKey: string): BaseInputs {
     wcba: c.wcba,
     hmbPrevalence: c.hmbPrevalence,
     marketShares0: { ...ms },
-    costs: { ...DEFAULT_COSTS },
-    effectiveness: { ...DEFAULT_EFFECTIVENESS },
+    costs: { ...COUNTRY_COSTS[countryKey] },
+    effectiveness: { ...COUNTRY_EFFECTIVENESS[countryKey] },
     anemia: { ...c.anemia },
   };
 }
