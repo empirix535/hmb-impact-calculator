@@ -76,6 +76,7 @@ function BiaDashboard() {
           </div>
         </main>
       </div>
+      </div>
     </div>
   );
 }
