@@ -38,17 +38,20 @@ export function useBiaModel() {
   const [isCustom, setIsCustom] = useState(false);
   const [inputs, setInputs] = useState<BiaInputs>(() => presetToInputs(DEFAULT_COUNTRY));
   const [currencyMode, setCurrencyMode] = useState<Currency>("LCU");
+  const [deltas, setDeltas] = useState<AltWeights>({ ...DEFAULT_DELTAS });
 
   const selectCountry = useCallback((key: string) => {
     if (!COUNTRIES[key]) return;
     setCountryKey(key);
     setIsCustom(false);
     setInputs(presetToInputs(key));
+    setDeltas({ ...DEFAULT_DELTAS });
   }, []);
 
   const reset = useCallback(() => {
     setIsCustom(false);
     setInputs(presetToInputs(countryKey));
+    setDeltas({ ...DEFAULT_DELTAS });
   }, [countryKey]);
 
   const markCustom = () => setIsCustom(true);
