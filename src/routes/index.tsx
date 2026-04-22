@@ -61,14 +61,14 @@ function BiaDashboard() {
         </aside>
 
         <main className="space-y-6 min-w-0">
-          <KpiCards result={model.result} />
+          <KpiCards result={model.result} currency={model.currency as never} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <MarketShareChart result={model.result} />
-            <CostChart result={model.result} />
+            <CostChart result={model.result} currency={model.currency as never} />
             <ClinicalChart result={model.result} />
-            <WaterfallChart result={model.result} />
+            <WaterfallChart result={model.result} currency={model.currency as never} />
           </div>
-          <BreakdownTable result={model.result} />
+          <BreakdownTable result={model.result} currency={model.currency as never} />
         </main>
       </div>
     </div>
