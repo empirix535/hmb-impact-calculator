@@ -1,4 +1,5 @@
 import type {
+  AltArm,
   ArmBreakdown,
   BiaInputs,
   BiaResult,
@@ -7,6 +8,7 @@ import type {
 } from "./types";
 
 const ZERO_MS: MarketShares = { hIud: 0, ns: 0, surgical: 0, untreated: 0 };
+const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
 
 function weightedSum(
   ms: MarketShares,
@@ -18,6 +20,91 @@ function weightedSum(
     ms.surgical * vals.surgical +
     ms.untreated * vals.untreated
   );
+}
+
+/**
+ * Compute MS₁ from a fixed baseline MS₀, a target H-IUD share, and
+ * cannibalization weights δ across the alt arms (ns/surgical/untreated).
+ *
+ * The H-IUD delta (ΔH = targetHIud - ms0.hIud) is taken from the alt arms
+ * proportionally to δ. If any alt arm would go below 0 (or above its
+ * baseline when ΔH < 0 isn't relevant — only positive ΔH can clamp at 0),
+ * that arm is clamped and its remaining share of the shift is re-allocated
+ * proportionally across the remaining unclamped alt arms.
+ */
+export function computeShift(
+  ms0: MarketShares,
+  targetHIud: number,
+  deltas: { ns: number; surgical: number; untreated: number },
+): ShiftResult {
+  const hIud = Math.max(0, Math.min(1, targetHIud));
+  const deltaH = hIud - ms0.hIud;
+
+  // Start from baseline alt shares.
+  const alt: Record<AltArm, number> = {
+    ns: ms0.ns,
+    surgical: ms0.surgical,
+    untreated: ms0.untreated,
+  };
+
+  const clamped: AltArm[] = [];
+  let reallocated = false;
+  let remainingShift = deltaH; // amount still to take from (positive) or give to (negative) alt arms
+  // Working weights (mutable copy of normalized δ over unclamped arms)
+  const activeWeights: Record<AltArm, number> = { ...deltas };
+
+  // Iterative re-allocation. At most 3 passes (one per alt arm).
+  for (let iter = 0; iter < 4 && Math.abs(remainingShift) > 1e-12; iter++) {
+    const active = ALT_ARMS.filter((a) => !clamped.includes(a));
+    if (active.length === 0) break;
+    const wSum = active.reduce((s, a) => s + activeWeights[a], 0);
+    // If all weights are zero, distribute equally.
+    const newClamps: AltArm[] = [];
+    let absorbed = 0;
+    for (const a of active) {
+      const w = wSum <= 1e-12 ? 1 / active.length : activeWeights[a] / wSum;
+      const take = remainingShift * w; // amount removed from arm a
+      let next = alt[a] - take;
+      if (next < 0) {
+        // Clamp to zero, only absorb what's available.
+        absorbed += alt[a];
+        next = 0;
+        newClamps.push(a);
+      } else if (next > 1) {
+        // Shouldn't happen for sane inputs, but clamp to 1.
+        absorbed += alt[a] - 1;
+        next = 1;
+        newClamps.push(a);
+      } else {
+        absorbed += take;
+      }
+      alt[a] = next;
+    }
+    remainingShift -= absorbed;
+    if (newClamps.length === 0) break;
+    reallocated = true;
+    clamped.push(...newClamps);
+  }
+
+  const marketShares1: MarketShares = {
+    hIud,
+    ns: alt.ns,
+    surgical: alt.surgical,
+    untreated: alt.untreated,
+  };
+
+  const sum = marketShares1.hIud + marketShares1.ns + marketShares1.surgical + marketShares1.untreated;
+  // Achievable H-IUD: if not all shift could be absorbed, reduce hIud accordingly.
+  const achievableHIud = hIud - remainingShift;
+  const feasible = Math.abs(sum - 1) < 0.005 && Math.abs(remainingShift) < 1e-6;
+
+  return {
+    marketShares1,
+    clampedArms: clamped,
+    reallocated,
+    feasible,
+    achievableHIud,
+  };
 }
 
 export function runBia(inputs: BiaInputs): BiaResult {
