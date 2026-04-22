@@ -28,7 +28,7 @@ import {
 import { COUNTRIES } from "@/lib/bia/countries";
 import { ARM_LABELS, fmtInt, fmtPct } from "@/lib/bia/format";
 import type { useBiaModel } from "@/hooks/useBiaModel";
-import type { ArmValues, MarketShares } from "@/lib/bia/types";
+import type { AltArm, ArmValues, MarketShares } from "@/lib/bia/types";
 
 type Model = ReturnType<typeof useBiaModel>;
 
@@ -234,6 +234,40 @@ export function ControlCenter({ model }: Props) {
                 </div>
               );
             })}
+          </CardContent>
+        </Card>
+
+        {/* Cannibalization weights — drives how H-IUD gains are taken from NS/S/U */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold">Cannibalization Weights</CardTitle>
+              <Badge variant="outline" className="font-mono text-[10px]">
+                Σ ={" "}
+                {fmtPct(model.deltas.ns + model.deltas.surgical + model.deltas.untreated, 1)}
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted-foreground pt-1">
+              When you adjust the H-IUD share, the gain (or loss) is redistributed across NS,
+              Surgical, and Untreated in proportion to these weights. Σ across NS + S + U = 100%.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {(["ns", "surgical", "untreated"] as AltArm[]).map((arm) => (
+              <div key={arm} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">{ARM_LABELS[arm]}</Label>
+                  <span className="text-xs font-mono">{fmtPct(model.deltas[arm], 1)}</span>
+                </div>
+                <Slider
+                  value={[model.deltas[arm] * 100]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={([v]) => model.setDelta(arm, v / 100)}
+                />
+              </div>
+            ))}
           </CardContent>
         </Card>
 
