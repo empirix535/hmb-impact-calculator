@@ -21,8 +21,12 @@ export interface ArmValues {
   untreated: number;
 }
 
+export type Currency = "LCU" | "USD";
+
 export interface CountryPreset {
   name: string;
+  currencyCode: string; // ISO label for LCU, e.g. "KES"
+  usdPerLcu: number; // FX multiplier: USD = LCU * usdPerLcu
   wcba: number;
   hmbPrevalence: number; // 0..1
   anemia: ArmValues; // 0..1

@@ -12,6 +12,7 @@ import type {
   AltWeights,
   ArmValues,
   BiaInputs,
+  Currency,
   MarketShares,
 } from "@/lib/bia/types";
 
@@ -36,6 +37,7 @@ export function useBiaModel() {
   const [countryKey, setCountryKey] = useState<string>(DEFAULT_COUNTRY);
   const [isCustom, setIsCustom] = useState(false);
   const [inputs, setInputs] = useState<BiaInputs>(() => presetToInputs(DEFAULT_COUNTRY));
+  const [currencyMode, setCurrencyMode] = useState<Currency>("LCU");
 
   const selectCountry = useCallback((key: string) => {
     if (!COUNTRIES[key]) return;
@@ -117,11 +119,22 @@ export function useBiaModel() {
     setInputs((p) => ({ ...p, targetHIud: result.shift.achievableHIud }));
   }, [result.shift.achievableHIud]);
 
+  const country = COUNTRIES[countryKey];
+  const currency = useMemo(
+    () =>
+      currencyMode === "USD"
+        ? { mode: "USD" as Currency, label: "USD", rate: country.usdPerLcu }
+        : { mode: "LCU" as Currency, label: country.currencyCode, rate: 1 },
+    [currencyMode, country.currencyCode, country.usdPerLcu],
+  );
+
   return {
     countryKey,
     isCustom,
     inputs,
     result,
+    currency,
+    setCurrencyMode,
     selectCountry,
     reset,
     setWcba,
