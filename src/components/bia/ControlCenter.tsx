@@ -28,7 +28,7 @@ import {
 import { COUNTRIES } from "@/lib/bia/countries";
 import { ARM_LABELS, fmtInt, fmtPct } from "@/lib/bia/format";
 import type { useBiaModel } from "@/hooks/useBiaModel";
-import type { ArmValues, MarketShares } from "@/lib/bia/types";
+import type { AltArm, ArmValues, MarketShares } from "@/lib/bia/types";
 
 type Model = ReturnType<typeof useBiaModel>;
 
