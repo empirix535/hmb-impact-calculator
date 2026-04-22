@@ -27,9 +27,8 @@ import {
 } from "@/components/ui/accordion";
 import { COUNTRIES } from "@/lib/bia/countries";
 import { ARM_LABELS, fmtInt, fmtPct } from "@/lib/bia/format";
-import { normalizeDeltas } from "@/lib/bia/engine";
 import type { useBiaModel } from "@/hooks/useBiaModel";
-import type { AltArm, ArmValues, MarketShares } from "@/lib/bia/types";
+import type { ArmValues, MarketShares } from "@/lib/bia/types";
 
 type Model = ReturnType<typeof useBiaModel>;
 
@@ -37,19 +36,22 @@ interface Props {
   model: Model;
 }
 
-const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
 const ALL_ARMS: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"];
 
 export function ControlCenter({ model }: Props) {
-  const { inputs, result, isCustom, countryKey } = model;
+  const { inputs, isCustom, countryKey } = model;
   const population = Math.round(inputs.wcba * inputs.hmbPrevalence);
-  const msSum =
+  const ms0Sum =
     inputs.marketShares0.hIud +
     inputs.marketShares0.ns +
     inputs.marketShares0.surgical +
     inputs.marketShares0.untreated;
-  const msSumOk = Math.abs(msSum - 1) < 0.005;
-  const deltasN = normalizeDeltas(inputs.deltas);
+  const ms1Sum =
+    inputs.marketShares1.hIud +
+    inputs.marketShares1.ns +
+    inputs.marketShares1.surgical +
+    inputs.marketShares1.untreated;
+  const ms1SumOk = Math.abs(ms1Sum - 1) < 0.005;
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -152,122 +154,86 @@ export function ControlCenter({ model }: Props) {
           </CardContent>
         </Card>
 
-        {/* Intervention coverage */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">Intervention Coverage</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {!result.shift.feasible && (
-              <Alert className="border-amber-500/50 bg-amber-500/10">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-xs">
-                  Target H-IUD share exceeds available baseline. Maximum achievable:{" "}
-                  <strong>{fmtPct(result.shift.achievableHIud)}</strong>.
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="ml-2 h-6 text-xs"
-                    onClick={model.snapHIudToMax}
-                  >
-                    Snap to max
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Target H-IUD market share (MS_H,1)</Label>
-                <span className="text-xs font-mono">{fmtPct(inputs.targetHIud)}</span>
-              </div>
-              <Slider
-                value={[inputs.targetHIud * 100]}
-                min={0}
-                max={100}
-                step={0.5}
-                onValueChange={([v]) => model.setTargetHIud(v / 100)}
-              />
-              <div className="text-[11px] text-muted-foreground">
-                Baseline: {fmtPct(inputs.marketShares0.hIud)} → ΔMS_H ={" "}
-                {fmtPct(inputs.targetHIud - inputs.marketShares0.hIud)}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Cannibalization weights */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Cannibalization Weights (δ)</CardTitle>
-              <Badge variant="outline" className="font-mono text-[10px]">
-                Σδ = 100%
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {ALT_ARMS.map((arm) => {
-              const clamped = result.shift.clampedArms.includes(arm);
-              return (
-                <div key={arm} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs flex items-center gap-1.5">
-                      δ {ARM_LABELS[arm]}
-                      {clamped && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-[220px]">
-                            This arm reached 0% — its remaining share was re-allocated to the other
-                            treatment arms based on their weights.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                    </Label>
-                    <span className="text-xs font-mono">{fmtPct(deltasN[arm])}</span>
-                  </div>
-                  <Slider
-                    value={[deltasN[arm] * 100]}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onValueChange={([v]) => model.setDelta(arm, v / 100)}
-                  />
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {/* Status quo market shares */}
+        {/* Status quo market shares — read-only model assumption */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">Status Quo Market Shares</CardTitle>
-              <Badge variant={msSumOk ? "outline" : "destructive"} className="font-mono text-[10px]">
-                Σ = {fmtPct(msSum, 1)}
+              <Badge variant="outline" className="font-mono text-[10px]">
+                Σ = {fmtPct(ms0Sum, 1)}
               </Badge>
             </div>
+            <p className="text-[11px] text-muted-foreground pt-1">
+              Model input assumption — sourced from country baseline data.
+            </p>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="grid grid-cols-2 gap-2">
             {ALL_ARMS.map((arm) => (
-              <div key={arm} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">{ARM_LABELS[arm]}</Label>
-                  <span className="text-xs font-mono">
-                    {fmtPct(inputs.marketShares0[arm])}
-                  </span>
-                </div>
-                <Slider
-                  value={[inputs.marketShares0[arm] * 100]}
-                  min={0}
-                  max={100}
-                  step={0.5}
-                  onValueChange={([v]) => model.setMarketShare0(arm, v / 100)}
+              <div key={arm} className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground">{ARM_LABELS[arm]}</Label>
+                <Input
+                  type="text"
+                  readOnly
+                  tabIndex={-1}
+                  value={fmtPct(inputs.marketShares0[arm], 2)}
+                  className="h-8 text-xs bg-muted/50 cursor-not-allowed font-mono"
                 />
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* Market shares after intervention — user-controlled, sum to 100% */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold">
+                Market Shares After Intervention
+              </CardTitle>
+              <Badge
+                variant={ms1SumOk ? "outline" : "destructive"}
+                className="font-mono text-[10px]"
+              >
+                Σ = {fmtPct(ms1Sum, 1)}
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted-foreground pt-1">
+              Adjust any arm — the others auto-balance to keep the total at 100%.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!ms1SumOk && (
+              <Alert className="border-amber-500/50 bg-amber-500/10">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-xs">
+                  Market shares must sum to exactly 100%.
+                </AlertDescription>
+              </Alert>
+            )}
+            {ALL_ARMS.map((arm) => {
+              const v0 = inputs.marketShares0[arm];
+              const v1 = inputs.marketShares1[arm];
+              const dv = v1 - v0;
+              return (
+                <div key={arm} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">{ARM_LABELS[arm]}</Label>
+                    <span className="text-xs font-mono">{fmtPct(v1, 1)}</span>
+                  </div>
+                  <Slider
+                    value={[v1 * 100]}
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    onValueChange={([v]) => model.setMarketShare1(arm, v / 100)}
+                  />
+                  <div className="text-[10px] text-muted-foreground font-mono">
+                    Baseline {fmtPct(v0, 1)} · Δ {dv >= 0 ? "+" : ""}
+                    {fmtPct(dv, 1)}
+                  </div>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
