@@ -31,7 +31,7 @@ export function KpiCards({ result, currency }: Props) {
         icon={<Activity className="h-4 w-4" />}
         label="HMB cases averted"
         value={fmtInt(result.hmbCasesAverted)}
-        sub={`Effectiveness +${fmtPct(result.weightedEffInt - result.weightedEffSq, 2)}`}
+        sub={`HMB −${fmtPct(result.hmbPrevalenceSq - result.hmbPrevalenceInt, 2)}`}
         accent="pos"
       />
       <Kpi
