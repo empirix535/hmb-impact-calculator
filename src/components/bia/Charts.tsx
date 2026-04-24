@@ -55,9 +55,9 @@ export function CostChart({ result, currency }: Props) {
 export function ClinicalChart({ result }: { result: BiaResult }) {
   const data = [
     {
-      metric: "HMB resolved",
-      "Status Quo": result.weightedEffSq * 100,
-      Intervention: result.weightedEffInt * 100,
+      metric: "HMB prevalence",
+      "Status Quo": result.hmbPrevalenceSq * 100,
+      Intervention: result.hmbPrevalenceInt * 100,
     },
     {
       metric: "Anemia prevalence",
@@ -76,7 +76,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
             <XAxis dataKey="metric" tick={{ fontSize: 12 }} />
             <YAxis tickFormatter={(v) => `${v.toFixed(0)}%`} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v: number) => `${Number(v).toFixed(2)}%`} />
+            <Tooltip formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
             <Bar dataKey="Intervention" fill="hsl(173 58% 45%)" />
