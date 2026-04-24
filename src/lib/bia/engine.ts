@@ -134,6 +134,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
   const weightedEffInt = weightedSum(ms1, inputs.effectiveness);
   const weightedAnemiaSq = weightedSum(ms0, inputs.anemia);
   const weightedAnemiaInt = weightedSum(ms1, inputs.anemia);
+  const hmbPrevalenceSq = inputs.hmbPrevalence * (1 - weightedEffSq);
+  const hmbPrevalenceInt = inputs.hmbPrevalence * (1 - weightedEffInt);
 
   const hmbCasesAverted = population * (weightedEffInt - weightedEffSq);
   const anemiaCasesAverted = population * (weightedAnemiaSq - weightedAnemiaInt);
@@ -171,6 +173,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
     weightedEffInt,
     weightedAnemiaSq,
     weightedAnemiaInt,
+    hmbPrevalenceSq,
+    hmbPrevalenceInt,
     hmbCasesAverted,
     anemiaCasesAverted,
     breakdown,

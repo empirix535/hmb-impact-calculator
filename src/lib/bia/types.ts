@@ -76,6 +76,8 @@ export interface BiaResult {
   weightedEffInt: number;
   weightedAnemiaSq: number;
   weightedAnemiaInt: number;
+  hmbPrevalenceSq: number;
+  hmbPrevalenceInt: number;
   hmbCasesAverted: number;
   anemiaCasesAverted: number;
   breakdown: ArmBreakdown[];
