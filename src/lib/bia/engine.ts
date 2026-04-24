@@ -134,8 +134,13 @@ export function runBia(inputs: BiaInputs): BiaResult {
   const weightedEffInt = weightedSum(ms1, inputs.effectiveness);
   const weightedAnemiaSq = weightedSum(ms0, inputs.anemia);
   const weightedAnemiaInt = weightedSum(ms1, inputs.anemia);
-  const hmbPrevalenceSq = inputs.hmbPrevalence * (1 - weightedEffSq);
-  const hmbPrevalenceInt = inputs.hmbPrevalence * (1 - weightedEffInt);
+  // Anchor Status Quo to the raw observed prevalence input.
+  // Intervention prevalence shifts relative to the change in treatment failure rate.
+  const hmbPrevalenceSq = inputs.hmbPrevalence;
+  const failSq = 1 - weightedEffSq;
+  const failInt = 1 - weightedEffInt;
+  const hmbPrevalenceInt =
+    failSq > 1e-12 ? inputs.hmbPrevalence * (failInt / failSq) : inputs.hmbPrevalence;
 
   const hmbCasesAverted = population * (weightedEffInt - weightedEffSq);
   const anemiaCasesAverted = population * (weightedAnemiaSq - weightedAnemiaInt);
