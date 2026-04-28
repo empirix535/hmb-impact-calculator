@@ -1,4 +1,6 @@
-import { Layer, Rectangle, ResponsiveContainer, Sankey, Tooltip } from "recharts";
+import { useState, type MouseEvent as ReactMouseEvent } from "react";
+import { createPortal } from "react-dom";
+import { Layer, Rectangle, ResponsiveContainer, Sankey } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BiaResult } from "@/lib/bia/types";
 import type { AltWeights } from "@/lib/bia/types";
@@ -7,6 +9,20 @@ interface Props {
   result: BiaResult;
   deltas: AltWeights;
 }
+
+type SankeyLinkPayload = {
+  key: string;
+  source: { name: string };
+  target: { name: string };
+  value: number;
+  actualValue: number;
+};
+
+type ActiveLink = {
+  key: string;
+  x: number;
+  y: number;
+};
 
 const NODE_COLORS: Record<string, string> = {
   "Baseline H-IUD": "hsl(173 58% 55%)",
@@ -61,26 +77,86 @@ function CustomLink(props: any) {
     linkWidth,
     index,
     payload,
+    activeLinkKey,
+    hasActiveLink,
+    onLinkEnter,
+    onLinkMove,
+    onLinkLeave,
     ...rest
   } = props;
+  const linkPayload = payload as SankeyLinkPayload;
+  const isActive = activeLinkKey === linkPayload.key;
+  const isVisible = linkPayload.actualValue > 0;
+  const opacity = !isVisible ? 0 : isActive ? 0.8 : hasActiveLink ? 0.2 : 0.35;
+  const path = `
+    M${sourceX},${sourceY}
+    C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
+  `;
   return (
-    <path
-      key={`link-${index}`}
-      d={`
-        M${sourceX},${sourceY}
-        C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
-      `}
-      fill="none"
-      stroke="hsl(215 25% 50%)"
-      strokeOpacity={0.25}
-      strokeWidth={linkWidth}
-      style={{ pointerEvents: "stroke", cursor: "pointer" }}
-      {...rest}
-    />
+    <Layer key={`link-${index}`} {...rest}>
+      {isActive ? (
+        <path
+          d={path}
+          fill="none"
+          stroke="var(--background)"
+          strokeOpacity={0.95}
+          strokeWidth={Math.max(linkWidth + 4, 5)}
+          style={{ pointerEvents: "none" }}
+        />
+      ) : null}
+      <path
+        d={path}
+        fill="none"
+        stroke={isActive ? "var(--primary)" : "var(--muted-foreground)"}
+        strokeOpacity={opacity}
+        strokeWidth={linkWidth}
+        style={{ pointerEvents: "none", transition: "stroke-opacity 120ms ease" }}
+      />
+      <path
+        d={path}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={isVisible ? Math.max(linkWidth, 12) : 0}
+        style={{ pointerEvents: isVisible ? "stroke" : "none", cursor: "pointer" }}
+        onMouseEnter={(event: ReactMouseEvent<SVGPathElement>) => onLinkEnter(linkPayload, event)}
+        onMouseMove={(event: ReactMouseEvent<SVGPathElement>) => onLinkMove(linkPayload, event)}
+        onMouseLeave={onLinkLeave}
+      />
+    </Layer>
   );
 }
 
-export function SankeyChart({ result, deltas }: Props) {
+function PortalTooltip({ activeLink, link, population }: { activeLink: ActiveLink; link: SankeyLinkPayload; population: number }) {
+  if (typeof document === "undefined") return null;
+
+  const value = link.actualValue;
+  const deltaPopulation = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
+    value * population,
+  );
+
+  return createPortal(
+    <div
+      className="rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-lg"
+      style={{
+        position: "fixed",
+        left: activeLink.x + 14,
+        top: activeLink.y + 14,
+        zIndex: 9999,
+        pointerEvents: "none",
+      }}
+    >
+      <div className="font-medium">
+        {link.source.name} → {link.target.name}
+      </div>
+      <div className="text-muted-foreground">Δ Population: {deltaPopulation}</div>
+      <div className="text-muted-foreground">% of Cohort: {(value * 100).toFixed(2)}%</div>
+    </div>,
+    document.body,
+  );
+}
+
+export function SankeyChart({ result }: Props) {
+  const [activeLink, setActiveLink] = useState<ActiveLink | null>(null);
   const population = result.population;
   const ms0 = result.breakdown.reduce(
     (acc, b) => ({ ...acc, [b.arm]: b.ms0 }),
