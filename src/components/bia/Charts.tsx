@@ -423,8 +423,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const xTicks = niceTicks(xMin, xMax);
   const yTicks = niceTicks(yMin, yMax);
 
-  // Local-state tooltip (the "nuclear fix").
-  const wrapRef = useRef<HTMLDivElement | null>(null);
+  // Local-state tooltip (the "nuclear fix"). wrapRef declared above for sizing.
   const [tip, setTip] = useState<{
     x: number;
     y: number;
