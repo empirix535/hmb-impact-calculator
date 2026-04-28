@@ -19,18 +19,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared palette — keep all charts visually consistent.
-// Per-arm colors match the Benefit-Cost Efficiency Frontier.
+// Shared "Professional Academic" palette — keep all charts visually consistent.
 export const PALETTE = {
-  hIud: "hsl(265 70% 50%)", // purple — intervention / H-IUD
-  ns: "hsl(173 58% 45%)", // teal — non-surgical
-  surgical: "hsl(217 91% 60%)", // blue — surgical
-  untreated: "hsl(0 70% 55%)", // red — untreated
-  pool: "hsl(35 90% 50%)", // orange — pooled / total
-  statusQuo: "hsl(220 13% 65%)", // neutral gray — baseline
-  positive: "hsl(160 70% 35%)", // green — savings / good
-  negative: "hsl(0 75% 45%)", // deep red — added cost / bad
+  // Global comparison
+  statusQuo: "#94A3B8", // slate — baseline / status quo
+  intervention: "#4338CA", // indigo — H-IUD intervention
+  // Per-arm (frontier scatter retains distinct hues for identification)
+  hIud: "#4338CA", // indigo — H-IUD
+  ns: "#0D9488", // teal — non-surgical
+  surgical: "#2563EB", // blue — surgical
+  untreated: "#991B1B", // brick — untreated
+  pool: "#F59E0B", // amber — pooled / population average
+  // Semantic
+  positive: "#0D9488", // teal — savings / good
+  negative: "#991B1B", // brick — added cost / bad
+  // Chrome
+  grid: "#E2E8F0",
+  gridOpacity: 0.5,
 } as const;
+
+// Indigo gradient (varying alpha) for DALY attribution — all facets of one benefit.
+const INDIGO_GRADIENT = [
+  "rgba(67, 56, 202, 0.55)",
+  "rgba(67, 56, 202, 0.75)",
+  "rgba(67, 56, 202, 0.90)",
+  "rgba(67, 56, 202, 1.00)",
+];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
   hIud: PALETTE.hIud,
@@ -64,13 +78,13 @@ export function CostChart({ result, currency }: Props) {
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} />
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} />
-            <Bar dataKey="Intervention" fill={PALETTE.hIud} />
+            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" />
+            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -104,7 +118,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} style={{ pointerEvents: "none" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} style={{ pointerEvents: "none" }} />
               <XAxis dataKey="metric" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
               <YAxis
                 tickFormatter={(v) => `${v.toFixed(0)}%`}
@@ -127,16 +141,18 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
               <Bar
                 dataKey="Status Quo"
                 fill={PALETTE.statusQuo}
+                stroke="none"
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
-                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+                activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
               <Bar
                 dataKey="Intervention"
-                fill={PALETTE.hIud}
+                fill={PALETTE.intervention}
+                stroke="none"
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
-                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+                activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -177,23 +193,16 @@ export function WaterfallChart({ result, currency }: Props) {
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} />
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta">
+            <Bar dataKey="delta" stroke="none">
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={
-                    d.isTotal
-                      ? d.delta >= 0
-                        ? PALETTE.negative
-                        : PALETTE.positive
-                      : d.delta >= 0
-                        ? "hsl(0 70% 55%)"
-                        : "hsl(160 60% 45%)"
-                  }
+                  stroke="none"
+                  fill={d.delta >= 0 ? PALETTE.negative : PALETTE.positive}
                 />
               ))}
             </Bar>
@@ -225,7 +234,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} style={{ pointerEvents: "none" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} horizontal vertical={false} style={{ pointerEvents: "none" }} />
             <XAxis
               dataKey="src"
               interval={0}
@@ -288,14 +297,16 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
             />
             <Bar
               dataKey="value"
+              stroke="none"
               radius={3}
               {...({ tooltipType: "item" } as any)}
-              activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+              activeBar={{ stroke: "none", style: { filter: "brightness(1.08)" } }}
             >
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={d.value >= 0 ? d.color : PALETTE.negative}
+                  stroke="none"
+                  fill={d.value >= 0 ? INDIGO_GRADIENT[i % INDIGO_GRADIENT.length] : PALETTE.negative}
                 />
               ))}
             </Bar>
