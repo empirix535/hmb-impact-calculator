@@ -5,7 +5,7 @@ import {
   Cell,
   Legend,
   Line,
-  
+  ReferenceLine,
   ResponsiveContainer,
   Scatter,
   ComposedChart,
@@ -353,8 +353,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const bMax = Math.max(...bs);
   const padC = (cMax - cMin) * 0.12 || cMax * 0.1 || 1;
   const padB = (bMax - bMin) * 0.15 || bMax * 0.15 || 1;
-  const xDomain: [number, number] = [Math.max(0, cMin - padC), cMax + padC];
-  const yDomain: [number, number] = [bMin - padB * 0.4, bMax + padB];
+  const xDomain: [number, number] = [0, cMax + padC];
+  const yDomain: [number, number] = [0, bMax + padB];
 
   const colorFor = (p: CEPoint) => {
     if (p.isHIud) return "hsl(265 70% 50%)";
@@ -369,6 +369,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     fill: colorFor(p),
     size: p.isHIud ? 280 : p.isPool ? 220 : 160,
   }));
+
+  const poolPoint = points.find((p) => p.isPool);
 
   // ICER lookup by destination point name (for frontier-segment tooltips)
   const icerByTo = new Map(icers.map((s) => [s.to, s]));
@@ -417,16 +419,60 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 }}
               />
               <ZAxis type="number" dataKey="size" range={[120, 320]} />
-              {/* Top-left value zone label */}
-              <text
-                x="6%"
-                y="8%"
-                fontSize={11}
-                fontWeight={600}
-                fill="hsl(160 60% 35%)"
-              >
-                ↖ Optimal Value Zone (Max Benefit, Min Cost)
-              </text>
+              {/* Pooled Counterfactual crosshair drop-lines */}
+              {poolPoint && (
+                <>
+                  <ReferenceLine
+                    x={poolPoint.c}
+                    stroke="hsl(var(--muted-foreground))"
+                    strokeDasharray="3 3"
+                    strokeOpacity={0.3}
+                    ifOverflow="extendDomain"
+                  />
+                  <ReferenceLine
+                    y={poolPoint.b}
+                    stroke="hsl(var(--muted-foreground))"
+                    strokeDasharray="3 3"
+                    strokeOpacity={0.3}
+                    ifOverflow="extendDomain"
+                  />
+                </>
+              )}
+              {/* Directional value vector — bottom-right, points to top-left */}
+              <g>
+                <defs>
+                  <marker
+                    id="ce-arrowhead"
+                    viewBox="0 0 10 10"
+                    refX="8"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(160 60% 35%)" />
+                  </marker>
+                </defs>
+                <line
+                  x1="92%"
+                  y1="82%"
+                  x2="80%"
+                  y2="68%"
+                  stroke="hsl(160 60% 35%)"
+                  strokeWidth={1.75}
+                  markerEnd="url(#ce-arrowhead)"
+                />
+                <text
+                  x="92%"
+                  y="90%"
+                  textAnchor="end"
+                  fontSize={11}
+                  fontWeight={600}
+                  fill="hsl(160 60% 35%)"
+                >
+                  Higher Benefit, Lower Cost
+                </text>
+              </g>
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
                 content={({ active, payload }: any) => {
@@ -477,13 +523,15 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   );
                 }}
               />
-              {/* Efficiency Frontier line (solid, concave upper-left envelope) */}
+              {/* Efficiency Frontier line — dashed & translucent */}
               <Line
                 data={frontier}
                 dataKey="b"
                 type="linear"
                 stroke="hsl(217 91% 50%)"
                 strokeWidth={2}
+                strokeDasharray="5 5"
+                strokeOpacity={0.4}
                 dot={false}
                 activeDot={false}
                 isAnimationActive={false}
@@ -494,6 +542,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 shape={(props: any) => {
                   const { cx, cy, payload } = props;
                   const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
+                  // Reposition labels to ~1-2 o'clock (positive dx, negative dy)
+                  const lx = cx + r + 6;
+                  const ly = cy - r - 2;
                   return (
                     <g>
                       {payload.isHIud && (
@@ -515,8 +566,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         strokeWidth={payload.isHIud ? 2.5 : 1.5}
                       />
                       <text
-                        x={cx + r + 4}
-                        y={cy + 3}
+                        x={lx}
+                        y={ly}
                         fontSize={10}
                         fill="hsl(var(--foreground))"
                         fontWeight={payload.isHIud ? 600 : 500}
@@ -534,3 +585,4 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     </Card>
   );
 }
+
