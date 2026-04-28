@@ -353,8 +353,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const bMax = Math.max(...bs);
   const padC = (cMax - cMin) * 0.12 || cMax * 0.1 || 1;
   const padB = (bMax - bMin) * 0.15 || bMax * 0.15 || 1;
-  const xDomain: [number, number] = [Math.max(0, cMin - padC), cMax + padC];
-  const yDomain: [number, number] = [bMin - padB * 0.4, bMax + padB];
+  const xDomain: [number, number] = [0, cMax + padC];
+  const yDomain: [number, number] = [0, bMax + padB];
 
   const colorFor = (p: CEPoint) => {
     if (p.isHIud) return "hsl(265 70% 50%)";
