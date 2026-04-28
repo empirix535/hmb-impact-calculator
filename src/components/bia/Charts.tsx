@@ -357,7 +357,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     })),
     {
       key: "pool" as const,
-      name: "Pooled Counterfactual",
+      name: "Population Average",
       c: poolC,
       b: poolB,
       isHIud: false,
