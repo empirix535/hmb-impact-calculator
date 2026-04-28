@@ -73,8 +73,10 @@ function BiaDashboard() {
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
           <SankeyChart result={model.result} deltas={model.deltas} />
-          <ClinicalChart result={model.result} />
-          <DalyAttributionChart result={model.result} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <DalyAttributionChart result={model.result} />
+            <ClinicalChart result={model.result} />
+          </div>
           <ValueFrontierChart inputs={model.inputs} deltas={model.deltas} currency={currencyFmt} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <CostChart result={model.result} currency={currencyFmt} />
