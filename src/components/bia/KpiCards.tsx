@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowDownRight, ArrowUpRight, Activity, DollarSign, HeartPulse, Users } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Activity, DollarSign, HeartPulse, Heart, Users } from "lucide-react";
 import { fmtInt, fmtPct, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaResult } from "@/lib/bia/types";
 
@@ -12,7 +12,7 @@ export function KpiCards({ result, currency }: Props) {
   const { fmtCurrency, fmtCurrencyExact } = currency;
   const positiveBudget = result.budgetImpact >= 0;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       <Kpi
         icon={<DollarSign className="h-4 w-4" />}
         label="5-yr Budget Impact"
@@ -39,6 +39,13 @@ export function KpiCards({ result, currency }: Props) {
         label="Anemia cases averted"
         value={fmtInt(result.anemiaCasesAverted)}
         sub={`Anemia −${fmtPct(result.weightedAnemiaSq - result.weightedAnemiaInt, 2)}`}
+        accent="pos"
+      />
+      <Kpi
+        icon={<Heart className="h-4 w-4" />}
+        label="Total DALYs averted"
+        value={fmtInt(result.dalysAverted)}
+        sub="Discounted, 5-yr horizon"
         accent="pos"
       />
     </div>
