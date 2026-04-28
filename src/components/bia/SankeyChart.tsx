@@ -22,6 +22,7 @@ type ActiveLink = {
   key: string;
   x: number;
   y: number;
+  payload: SankeyLinkPayload;
 };
 
 const NODE_COLORS: Record<string, string> = {
@@ -126,9 +127,10 @@ function CustomLink(props: any) {
   );
 }
 
-function PortalTooltip({ activeLink, link, population }: { activeLink: ActiveLink; link: SankeyLinkPayload; population: number }) {
+function PortalTooltip({ activeLink, population }: { activeLink: ActiveLink; population: number }) {
   if (typeof document === "undefined") return null;
 
+  const link = activeLink.payload;
   const value = link.actualValue;
   const deltaPopulation = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
     value * population,
