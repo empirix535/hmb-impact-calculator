@@ -188,8 +188,8 @@ export function WaterfallChart({ result, currency }: Props) {
                   fill={
                     d.isTotal
                       ? d.delta >= 0
-                        ? "hsl(0 75% 45%)"
-                        : "hsl(160 70% 35%)"
+                        ? PALETTE.negative
+                        : PALETTE.positive
                       : d.delta >= 0
                         ? "hsl(0 70% 55%)"
                         : "hsl(160 60% 45%)"
