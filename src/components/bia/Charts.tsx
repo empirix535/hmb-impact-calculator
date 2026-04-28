@@ -19,31 +19,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared "Professional Academic" palette — keep all charts visually consistent.
+// Shared "Deep Pine & Stone" monochromatic palette — keep all charts visually consistent.
 export const PALETTE = {
   // Global comparison
-  statusQuo: "#94A3B8", // slate — baseline / status quo
-  intervention: "#4338CA", // indigo — H-IUD intervention
-  // Per-arm (frontier scatter retains distinct hues for identification)
-  hIud: "#4338CA", // indigo — H-IUD
-  ns: "#0D9488", // teal — non-surgical
-  surgical: "#2563EB", // blue — surgical
-  untreated: "#991B1B", // brick — untreated
-  pool: "#F59E0B", // amber — pooled / population average
-  // Semantic
-  positive: "#0D9488", // teal — savings / good
-  negative: "#991B1B", // brick — added cost / bad
+  statusQuo: "#CBD5E1", // light slate — baseline
+  intervention: "#064E3B", // deep pine green — H-IUD intervention
+  // Per-arm (frontier scatter retains distinct hues for identification,
+  // but tuned within the pine/stone family)
+  hIud: "#064E3B", // deep pine — H-IUD
+  ns: "#10B981", // emerald — non-surgical
+  surgical: "#475569", // slate — surgical
+  untreated: "#0F172A", // deep stone — untreated
+  pool: "#34D399", // mint — pooled / population average ("Simulated Market Mix")
+  // Semantic — Budget Impact
+  positive: "#34D399", // mint — savings
+  negative: "#64748B", // muted slate — added cost
   // Chrome
-  grid: "#E2E8F0",
+  grid: "#F1F5F9",
   gridOpacity: 0.5,
 } as const;
 
-// Indigo gradient (varying alpha) for DALY attribution — all facets of one benefit.
-const INDIGO_GRADIENT = [
-  "rgba(67, 56, 202, 0.55)",
-  "rgba(67, 56, 202, 0.75)",
-  "rgba(67, 56, 202, 0.90)",
-  "rgba(67, 56, 202, 1.00)",
+// Sequential green gradient for DALY attribution.
+// Bar order: [From Non-Surgical, From Surgical, From Untreated, Total Averted].
+// Requirement: deepest for Untreated, lightest for Surgical.
+const DALY_GREENS = [
+  "#10B981", // From Non-Surgical — mid emerald
+  "#A7F3D0", // From Surgical — lightest mint
+  "#064E3B", // From Untreated — deepest pine
+  "#065F46", // Total Averted — deep accent
 ];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
