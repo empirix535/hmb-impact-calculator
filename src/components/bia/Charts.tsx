@@ -14,6 +14,7 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
