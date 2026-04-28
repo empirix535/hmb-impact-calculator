@@ -205,7 +205,46 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
           <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} style={{ pointerEvents: "none" }} />
-            <XAxis dataKey="src" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
+            <XAxis
+              dataKey="src"
+              interval={0}
+              tickLine={false}
+              height={48}
+              tick={(props: any) => {
+                const { x, y, payload } = props;
+                const words = String(payload.value).split(" ");
+                const lines: string[] = [];
+                let cur = "";
+                const maxChars = 12;
+                words.forEach((w) => {
+                  if ((cur + " " + w).trim().length > maxChars) {
+                    if (cur) lines.push(cur);
+                    cur = w;
+                  } else {
+                    cur = (cur + " " + w).trim();
+                  }
+                });
+                if (cur) lines.push(cur);
+                return (
+                  <g transform={`translate(${x},${y + 4})`} style={{ pointerEvents: "none" }}>
+                    {lines.map((ln, i) => (
+                      <text
+                        key={i}
+                        x={0}
+                        y={i * 12}
+                        dy={10}
+                        textAnchor="middle"
+                        fontSize={11}
+                        fill="hsl(var(--muted-foreground))"
+                      >
+                        {ln}
+                      </text>
+                    ))}
+                  </g>
+                );
+              }}
+              style={{ pointerEvents: "none" }}
+            />
             <YAxis
               tickFormatter={(v) => fmtInt(Number(v))}
               tick={{ fontSize: 11 }}
