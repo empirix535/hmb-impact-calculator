@@ -419,16 +419,60 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 }}
               />
               <ZAxis type="number" dataKey="size" range={[120, 320]} />
-              {/* Top-left value zone label */}
-              <text
-                x="6%"
-                y="8%"
-                fontSize={11}
-                fontWeight={600}
-                fill="hsl(160 60% 35%)"
-              >
-                ↖ Optimal Value Zone (Max Benefit, Min Cost)
-              </text>
+              {/* Pooled Counterfactual crosshair drop-lines */}
+              {poolPoint && (
+                <>
+                  <ReferenceLine
+                    x={poolPoint.c}
+                    stroke="hsl(var(--muted-foreground))"
+                    strokeDasharray="3 3"
+                    strokeOpacity={0.3}
+                    ifOverflow="extendDomain"
+                  />
+                  <ReferenceLine
+                    y={poolPoint.b}
+                    stroke="hsl(var(--muted-foreground))"
+                    strokeDasharray="3 3"
+                    strokeOpacity={0.3}
+                    ifOverflow="extendDomain"
+                  />
+                </>
+              )}
+              {/* Directional value vector — bottom-right, points to top-left */}
+              <g>
+                <defs>
+                  <marker
+                    id="ce-arrowhead"
+                    viewBox="0 0 10 10"
+                    refX="8"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(160 60% 35%)" />
+                  </marker>
+                </defs>
+                <line
+                  x1="92%"
+                  y1="82%"
+                  x2="80%"
+                  y2="68%"
+                  stroke="hsl(160 60% 35%)"
+                  strokeWidth={1.75}
+                  markerEnd="url(#ce-arrowhead)"
+                />
+                <text
+                  x="92%"
+                  y="90%"
+                  textAnchor="end"
+                  fontSize={11}
+                  fontWeight={600}
+                  fill="hsl(160 60% 35%)"
+                >
+                  Higher Benefit, Lower Cost
+                </text>
+              </g>
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
                 content={({ active, payload }: any) => {
