@@ -174,11 +174,24 @@ export function WaterfallChart({ result, currency }: Props) {
     .filter((b) => Math.abs(b.deltaCost) > 0.01)
     .map((b) => ({
       arm: ARM_LABELS[b.arm],
+      armKey: b.arm,
       delta: b.deltaCost,
       isTotal: false,
     }));
   const totalDelta = result.breakdown.reduce((s, b) => s + b.deltaCost, 0);
-  const data = [...perArm, { arm: "Net Budget Impact", delta: totalDelta, isTotal: true }];
+  const data = [
+    ...perArm,
+    { arm: "Net Budget Impact", armKey: "total" as const, delta: totalDelta, isTotal: true },
+  ];
+
+  // Sequential greys for non-H-IUD arms (light → dark).
+  const ARM_GREYS = ["#CBD5E1", "#94A3B8", "#64748B", "#475569"];
+  const colorForArm = (armKey: string, isTotal: boolean, idx: number): string => {
+    if (isTotal) return PALETTE.netTotal;
+    if (armKey === "hIud") return PALETTE.intervention;
+    return ARM_GREYS[idx % ARM_GREYS.length];
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -186,12 +199,16 @@ export function WaterfallChart({ result, currency }: Props) {
           <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Net Impact)</CardTitle>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.negative }} />
-              Net cost
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.intervention }} />
+              H-IUD
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.positive }} />
-              Net savings
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#94A3B8" }} />
+              Other arms
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.netTotal }} />
+              Net Budget Impact
             </span>
           </div>
         </div>
@@ -208,7 +225,7 @@ export function WaterfallChart({ result, currency }: Props) {
                 <Cell
                   key={i}
                   stroke="none"
-                  fill={d.delta >= 0 ? PALETTE.negative : PALETTE.positive}
+                  fill={colorForArm(d.armKey, d.isTotal, i)}
                 />
               ))}
             </Bar>
