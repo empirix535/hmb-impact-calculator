@@ -499,6 +499,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             preserveAspectRatio="none"
             style={{ display: "block", width: "100%", height: "100%" }}
           >
+            <defs>
+              <filter id="frontier-pool-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#0F172A" floodOpacity="0.35" />
+              </filter>
+            </defs>
             {/* Per-dot grid lines (excluding pooled counterfactual) */}
             {points.filter((p) => !p.isPool).map((p) => (
               <g key={`grid-${p.key}`}>
