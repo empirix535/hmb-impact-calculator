@@ -207,7 +207,11 @@ export function SankeyChart({ result, deltas }: Props) {
                 node={<CustomNode />}
                 link={<CustomLink />}
               >
-                <Tooltip content={<TooltipContent />} />
+                <Tooltip
+                  content={<TooltipContent />}
+                  wrapperStyle={{ zIndex: 50, pointerEvents: "none" }}
+                  isAnimationActive={false}
+                />
               </Sankey>
             </ResponsiveContainer>
           </div>
