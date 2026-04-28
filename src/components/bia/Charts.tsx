@@ -464,7 +464,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         </p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
-        <div ref={wrapRef} className="relative w-full flex-1 min-h-[420px]">
+        <div ref={wrapRef} className="relative w-full flex-1 min-h-[320px] max-h-[440px] aspect-[16/7]">
           <svg
             viewBox={`0 0 ${W} ${H}`}
             width="100%"
@@ -665,14 +665,14 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             </div>
           )}
 
-          {/* Value Direction key — overlay, bottom-right */}
+          {/* Value Direction key — inside plot area, bottom-right */}
           <div
             className="absolute pointer-events-none select-none"
             style={{
-              right: 16,
-              bottom: 56,
-              width: 96,
-              height: 96,
+              right: `calc(${(M.right / W) * 100}% + 12px)`,
+              bottom: `calc(${(M.bottom / H) * 100}% + 12px)`,
+              width: 84,
+              height: 84,
               color: "hsl(160 60% 32%)",
             }}
             aria-label="Value Direction key"
@@ -698,7 +698,6 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <text x="64" y="24" fontSize="7" fill="currentColor" fontWeight="600">Benefit</text>
               <text x="18" y="74" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
               <text x="18" y="82" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
-              <text x="2" y="96" fontSize="6.5" fill="currentColor" opacity="0.7" fontStyle="italic">Target Direction</text>
             </svg>
           </div>
         </div>
