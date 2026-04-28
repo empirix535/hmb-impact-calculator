@@ -649,7 +649,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             >
               <div className="font-semibold mb-0.5">{tip.point.name}</div>
               <div>Cost: {fmtCurrency(tip.point.c)}</div>
-              <div>DALYs Averted: {fmtInt(tip.point.b)}</div>
+              <div>DALYs: {fmtInt(tip.point.b)}</div>
             </div>
           )}
 
