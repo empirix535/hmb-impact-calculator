@@ -133,10 +133,15 @@ function PortalTooltip({ activeLink, population }: { activeLink: ActiveLink; pop
   if (typeof document === "undefined") return null;
 
   const link = activeLink.payload;
-  const value = link.actualValue;
-  const deltaPopulation = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
-    value * population,
-  );
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
+
+  const baselinePop = link.baselineShare * population;
+  const interventionPop = link.interventionShare * population;
+  const delta = interventionPop - baselinePop;
+  const deltaSign = delta > 0 ? "+" : delta < 0 ? "−" : "";
+  const deltaColor =
+    delta > 0 ? "text-emerald-500" : delta < 0 ? "text-red-500" : "text-muted-foreground";
 
   return createPortal(
     <div
@@ -149,11 +154,14 @@ function PortalTooltip({ activeLink, population }: { activeLink: ActiveLink; pop
         pointerEvents: "none",
       }}
     >
-      <div className="font-medium">
+      <div className="font-medium mb-1">
         {link.source.name} → {link.target.name}
       </div>
-      <div className="text-muted-foreground">Δ Population: {deltaPopulation}</div>
-      <div className="text-muted-foreground">% of Cohort: {(value * 100).toFixed(2)}%</div>
+      <div className="text-muted-foreground">Baseline: {fmt(baselinePop)}</div>
+      <div className="text-muted-foreground">Intervention: {fmt(interventionPop)}</div>
+      <div className={`font-medium ${deltaColor}`}>
+        Δ: {deltaSign}{fmt(Math.abs(delta))}
+      </div>
     </div>,
     document.body,
   );
