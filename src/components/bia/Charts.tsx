@@ -19,6 +19,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
+// Shared palette — keep all charts visually consistent.
+// Per-arm colors match the Benefit-Cost Efficiency Frontier.
+export const PALETTE = {
+  hIud: "hsl(265 70% 50%)", // purple — intervention / H-IUD
+  ns: "hsl(173 58% 45%)", // teal — non-surgical
+  surgical: "hsl(217 91% 60%)", // blue — surgical
+  untreated: "hsl(0 70% 55%)", // red — untreated
+  pool: "hsl(35 90% 50%)", // orange — pooled / total
+  statusQuo: "hsl(220 13% 65%)", // neutral gray — baseline
+  positive: "hsl(160 70% 35%)", // green — savings / good
+  negative: "hsl(0 75% 45%)", // deep red — added cost / bad
+} as const;
+
+const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
+  hIud: PALETTE.hIud,
+  ns: PALETTE.ns,
+  surgical: PALETTE.surgical,
+  untreated: PALETTE.untreated,
+};
+
 interface Props {
   result: BiaResult;
   currency: CurrencyFormatters;
