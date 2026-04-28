@@ -472,30 +472,28 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             preserveAspectRatio="none"
             style={{ display: "block", width: "100%", height: "100%" }}
           >
-            {/* Grid */}
-            {xTicks.map((t, i) => (
-              <line
-                key={`xg-${i}`}
-                x1={xScale(t)}
-                x2={xScale(t)}
-                y1={M.top}
-                y2={M.top + innerH}
-                stroke="var(--muted-foreground)"
-                strokeOpacity={0.12}
-                strokeDasharray="3 3"
-              />
-            ))}
-            {yTicks.map((t, i) => (
-              <line
-                key={`yg-${i}`}
-                x1={M.left}
-                x2={M.left + innerW}
-                y1={yScale(t)}
-                y2={yScale(t)}
-                stroke="var(--muted-foreground)"
-                strokeOpacity={0.12}
-                strokeDasharray="3 3"
-              />
+            {/* Per-dot grid lines (excluding pooled counterfactual) */}
+            {points.filter((p) => !p.isPool).map((p) => (
+              <g key={`grid-${p.key}`}>
+                <line
+                  x1={xScale(p.c)}
+                  x2={xScale(p.c)}
+                  y1={M.top}
+                  y2={M.top + innerH}
+                  stroke="var(--muted-foreground)"
+                  strokeOpacity={0.18}
+                  strokeDasharray="3 3"
+                />
+                <line
+                  x1={M.left}
+                  x2={M.left + innerW}
+                  y1={yScale(p.b)}
+                  y2={yScale(p.b)}
+                  stroke="var(--muted-foreground)"
+                  strokeOpacity={0.18}
+                  strokeDasharray="3 3"
+                />
+              </g>
             ))}
 
             {/* Axes */}
@@ -516,31 +514,30 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               strokeOpacity={0.5}
             />
 
-            {/* X tick labels */}
-            {xTicks.map((t, i) => (
-              <text
-                key={`xt-${i}`}
-                x={xScale(t)}
-                y={M.top + innerH + 14}
-                textAnchor="middle"
-                fontSize={10}
-                fill="var(--muted-foreground)"
-              >
-                {fmtCurrency(t)}
-              </text>
-            ))}
-            {/* Y tick labels */}
-            {yTicks.map((t, i) => (
-              <text
-                key={`yt-${i}`}
-                x={M.left - 8}
-                y={yScale(t) + 3}
-                textAnchor="end"
-                fontSize={10}
-                fill="var(--muted-foreground)"
-              >
-                {fmtInt(t)}
-              </text>
+            {/* Per-dot axis value labels (only fixed strategy dots) */}
+            {points.filter((p) => !p.isPool).map((p) => (
+              <g key={`val-${p.key}`}>
+                <text
+                  x={xScale(p.c)}
+                  y={M.top + innerH + 14}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill={p.fill}
+                  fontWeight={600}
+                >
+                  {fmtCurrency(p.c)}
+                </text>
+                <text
+                  x={M.left - 8}
+                  y={yScale(p.b) + 3}
+                  textAnchor="end"
+                  fontSize={10}
+                  fill={p.fill}
+                  fontWeight={600}
+                >
+                  {fmtInt(p.b)}
+                </text>
+              </g>
             ))}
 
             {/* Axis titles */}
