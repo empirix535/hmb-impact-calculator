@@ -204,12 +204,13 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} />
-            <XAxis dataKey="src" tick={{ fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} style={{ pointerEvents: "none" }} />
+            <XAxis dataKey="src" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
             <YAxis
               tickFormatter={(v) => fmtInt(Number(v))}
               tick={{ fontSize: 11 }}
               domain={["auto", "auto"]}
+              style={{ pointerEvents: "none" }}
               label={{
                 value: "Total Discounted DALYs Averted",
                 angle: -90,
@@ -218,13 +219,17 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
               }}
             />
             <Tooltip
-              cursor={{ fill: "rgba(0,0,0,0.04)" }}
+              cursor={false}
+              shared={false}
+              {...({ tooltipType: "item" } as any)}
               formatter={(v: number) => [`Total DALYs Averted: ${fmtInt(Number(v))}`, ""]}
               labelFormatter={(l: string) => l}
               separator=""
             />
             <Bar
               dataKey="value"
+              radius={3}
+              {...({ tooltipType: "item" } as any)}
               activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
             >
               {data.map((d, i) => (
