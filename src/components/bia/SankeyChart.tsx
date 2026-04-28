@@ -93,7 +93,15 @@ function CustomLink(props: any) {
   const linkPayload = payload as SankeyLinkPayload;
   const isActive = activeLinkKey === linkPayload.key;
   const isVisible = linkPayload.actualValue > 0;
-  const opacity = !isVisible ? 0 : isActive ? 0.8 : hasActiveLink ? 0.2 : 0.35;
+  const opacity = !isVisible ? 0 : isActive ? 0.85 : hasActiveLink ? 0.2 : 0.55;
+  const toHIud = linkPayload.target?.name === "H-IUD";
+  const fromHIud = linkPayload.source?.name === "Baseline H-IUD";
+  // Grey-to-orange gradient for any link flowing into H-IUD; H-IUD→H-IUD stays solid orange.
+  const baseStroke = toHIud
+    ? fromHIud
+      ? "#FF4719"
+      : "url(#sankey-grey-to-orange)"
+    : "#94A3B8";
   const path = `
     M${sourceX},${sourceY}
     C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
@@ -113,7 +121,7 @@ function CustomLink(props: any) {
       <path
         d={path}
         fill="none"
-        stroke={isActive ? "var(--primary)" : "var(--muted-foreground)"}
+        stroke={isActive ? "#FF4719" : baseStroke}
         strokeOpacity={opacity}
         strokeWidth={linkWidth}
         style={{ pointerEvents: "none", transition: "stroke-opacity 120ms ease" }}
