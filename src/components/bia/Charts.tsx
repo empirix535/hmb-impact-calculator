@@ -510,7 +510,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               />
               <Scatter
                 data={scatterData}
-                tooltipType="item"
+                {...({ tooltipType: "item" } as any)}
                 isAnimationActive={false}
                 activeShape={(props: any) => {
                   const { cx, cy, payload } = props;
