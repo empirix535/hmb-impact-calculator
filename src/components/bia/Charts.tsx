@@ -126,14 +126,14 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar
                 dataKey="Status Quo"
-                fill="hsl(220 13% 65%)"
+                fill={PALETTE.statusQuo}
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
               />
               <Bar
                 dataKey="Intervention"
-                fill="hsl(173 58% 45%)"
+                fill={PALETTE.hIud}
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
