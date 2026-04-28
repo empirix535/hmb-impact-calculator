@@ -69,8 +69,8 @@ export function CostChart({ result, currency }: Props) {
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
-            <Bar dataKey="Intervention" fill="hsl(217 91% 60%)" />
+            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} />
+            <Bar dataKey="Intervention" fill={PALETTE.hIud} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
