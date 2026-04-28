@@ -83,11 +83,12 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} style={{ pointerEvents: "none" }} />
+              <XAxis dataKey="metric" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
               <YAxis
                 tickFormatter={(v) => `${v.toFixed(0)}%`}
                 tick={{ fontSize: 11 }}
+                style={{ pointerEvents: "none" }}
                 label={{
                   value: "Prevalence (%)",
                   angle: -90,
@@ -96,18 +97,24 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 }}
               />
               <Tooltip
-                cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                cursor={false}
+                shared={false}
+                {...({ tooltipType: "item" } as any)}
                 formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]}
               />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar
                 dataKey="Status Quo"
                 fill="hsl(220 13% 65%)"
+                radius={3}
+                {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
               />
               <Bar
                 dataKey="Intervention"
                 fill="hsl(173 58% 45%)"
+                radius={3}
+                {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
               />
             </BarChart>
