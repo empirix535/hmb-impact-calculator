@@ -352,11 +352,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const poolB = (dU - poolDaly) * pop;
 
   const colorFor = (key: string): string => {
-    if (key === "hIud") return "hsl(265 70% 50%)";
-    if (key === "pool") return "hsl(35 90% 50%)";
-    if (key === "ns") return "hsl(173 58% 45%)";
-    if (key === "surgical") return "hsl(217 91% 60%)";
-    return "hsl(0 70% 55%)"; // untreated
+    if (key === "hIud") return PALETTE.hIud;
+    if (key === "pool") return PALETTE.pool;
+    if (key === "ns") return PALETTE.ns;
+    if (key === "surgical") return PALETTE.surgical;
+    return PALETTE.untreated;
   };
 
   const points: CEPoint[] = [
