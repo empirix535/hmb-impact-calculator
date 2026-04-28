@@ -151,3 +151,191 @@ export function WaterfallChart({ result, currency }: Props) {
     </Card>
   );
 }
+
+export function DalyAttributionChart({ result }: { result: BiaResult }) {
+  const data = [
+    { src: "From Non-Surgical", value: Math.max(0, result.dalysAvertedByArm.ns), isTotal: false, arm: "ns" as const },
+    { src: "From Surgical", value: Math.max(0, result.dalysAvertedByArm.surgical), isTotal: false, arm: "surgical" as const },
+    { src: "From Untreated", value: Math.max(0, result.dalysAvertedByArm.untreated), isTotal: false, arm: "untreated" as const },
+    { src: "Total Averted (Pooled)", value: Math.max(0, result.dalysAverted), isTotal: true, arm: null },
+  ];
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">DALY Attribution Analysis</CardTitle>
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Health gain from women transitioned to H-IUD from each baseline arm.
+          Reflects a marginal gain of (Dᵢ − D_H) DALYs saved per woman transitioned.
+        </p>
+      </CardHeader>
+      <CardContent className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <XAxis dataKey="src" tick={{ fontSize: 11 }} />
+            <YAxis tickFormatter={(v) => fmtInt(Number(v))} tick={{ fontSize: 12 }} />
+            <Tooltip
+              formatter={(v: number) => [`Total DALYs Averted: ${fmtInt(Number(v))}`, ""]}
+              labelFormatter={(l: string) => l}
+            />
+            <Bar dataKey="value">
+              {data.map((d, i) => (
+                <Cell
+                  key={i}
+                  fill={d.isTotal ? "hsl(265 70% 50%)" : "hsl(173 58% 45%)"}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface ValueFrontierProps {
+  inputs: BiaInputs;
+  deltas: { ns: number; surgical: number; untreated: number };
+  currency: CurrencyFormatters;
+}
+
+export function ValueFrontierChart({ inputs, deltas, currency }: ValueFrontierProps) {
+  const [wtp, setWtp] = useState<number>(200_000); // in LCU per DALY averted
+  const { fmtCurrency, unit, rate } = currency;
+
+  const data = useMemo(() => {
+    const points: Array<{
+      coverage: number;
+      budget: number;
+      dalys: number;
+      benchmark: number;
+      netValue: number | null;
+    }> = [];
+    for (let pct = 0; pct <= 100; pct += 2) {
+      const target = pct / 100;
+      const shift = computeShift(inputs.marketShares0, target, deltas);
+      const r = runBia({ ...inputs, marketShares1: shift.marketShares1 });
+      const benchmark = r.dalysAverted * wtp;
+      points.push({
+        coverage: pct,
+        budget: r.budgetImpact,
+        dalys: r.dalysAverted,
+        benchmark,
+        netValue: r.budgetImpact < benchmark ? r.budgetImpact : null,
+      });
+    }
+    return points;
+  }, [inputs, deltas, wtp]);
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle className="text-sm">WTP Value Frontier</CardTitle>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0 75% 45%)" }} />
+              Net Budget Impact
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(265 70% 50%)" }} />
+              Benchmark (WTP × DALYs)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(173 58% 45%)" }} />
+              DALYs Averted
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">WTP Threshold per DALY Averted</Label>
+            <span className="text-xs font-mono font-semibold">
+              {Math.round(wtp * rate).toLocaleString("en-US")} {unit}
+            </span>
+          </div>
+          <Slider
+            value={[wtp]}
+            min={0}
+            max={1_000_000}
+            step={10_000}
+            onValueChange={([v]) => setWtp(v)}
+          />
+        </div>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis
+                dataKey="coverage"
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `${v}%`}
+                label={{ value: "H-IUD Coverage", position: "insideBottom", offset: -2, style: { fontSize: 11 } }}
+              />
+              <YAxis
+                yAxisId="left"
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => fmtCurrency(Number(v))}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => fmtInt(Number(v))}
+              />
+              <Tooltip
+                formatter={(v: number, name: string) => {
+                  if (name === "DALYs Averted") return [`Total DALYs Averted: ${fmtInt(Number(v))}`, name];
+                  if (name === "Net Value Zone") return [fmtCurrency(Number(v)), name];
+                  return [fmtCurrency(Number(v)), name];
+                }}
+                labelFormatter={(l) => `Coverage: ${l}%`}
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="netValue"
+                name="Net Value Zone"
+                stroke="none"
+                fill="hsl(160 70% 45%)"
+                fillOpacity={0.18}
+                isAnimationActive={false}
+                connectNulls={false}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="budget"
+                name="Net Budget Impact"
+                stroke="hsl(0 75% 45%)"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="benchmark"
+                name="Value Benchmark"
+                stroke="hsl(265 70% 50%)"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="dalys"
+                name="DALYs Averted"
+                stroke="hsl(173 58% 45%)"
+                strokeWidth={2}
+                dot={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
