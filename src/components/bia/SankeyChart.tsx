@@ -171,11 +171,7 @@ export function SankeyChart({ result, deltas }: Props) {
       </CardHeader>
       <CardContent className="h-96">
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-2 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <span>Status Quo</span>
-            <span>Intervention</span>
-          </div>
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <Sankey
                 data={data}
