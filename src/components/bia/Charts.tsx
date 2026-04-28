@@ -1,24 +1,17 @@
-import { useMemo, useState } from "react";
 import {
-  Area,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
-  ComposedChart,
   Legend,
-  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
-import { computeShift, runBia } from "@/lib/bia/engine";
-import type { BiaInputs, BiaResult } from "@/lib/bia/types";
+import type { BiaResult } from "@/lib/bia/types";
 
 interface Props {
   result: BiaResult;
