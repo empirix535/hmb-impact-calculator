@@ -27,15 +27,18 @@ type ActiveLink = {
   payload: SankeyLinkPayload;
 };
 
+// Aligned with the shared chart palette in Charts.tsx (PALETTE).
+// Baseline (left) nodes use a lighter tint of each arm's color so flows are
+// readable, while destination (right) nodes use the canonical arm color.
 const NODE_COLORS: Record<string, string> = {
-  "Baseline H-IUD": "hsl(173 58% 55%)",
-  "Baseline Surgical": "hsl(215 20% 55%)",
-  "Baseline Non-Surgical": "hsl(215 20% 65%)",
-  "Baseline Untreated": "hsl(215 20% 75%)",
-  "H-IUD": "hsl(173 58% 45%)",
-  "Remaining Surgical": "hsl(231 48% 55%)",
-  "Remaining Non-Surgical": "hsl(231 48% 65%)",
-  "Remaining Untreated": "hsl(231 48% 75%)",
+  "Baseline H-IUD": "hsl(265 70% 70%)",
+  "Baseline Surgical": "hsl(217 91% 75%)",
+  "Baseline Non-Surgical": "hsl(173 58% 65%)",
+  "Baseline Untreated": "hsl(0 70% 72%)",
+  "H-IUD": "hsl(265 70% 50%)",
+  "Remaining Surgical": "hsl(217 91% 60%)",
+  "Remaining Non-Surgical": "hsl(173 58% 45%)",
+  "Remaining Untreated": "hsl(0 70% 55%)",
 };
 
 function CustomNode(props: any) {
