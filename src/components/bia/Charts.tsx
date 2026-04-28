@@ -395,7 +395,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <XAxis
                 type="number"
                 dataKey="c"
-                domain={xDomain}
+                domain={[0, xDomain[1]]}
+                allowDataOverflow={false}
+                minTickGap={0}
                 tickFormatter={(v) => fmtCurrency(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
@@ -408,7 +410,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <YAxis
                 type="number"
                 dataKey="b"
-                domain={yDomain}
+                domain={[0, yDomain[1]]}
+                allowDataOverflow={false}
+                minTickGap={0}
                 tickFormatter={(v) => fmtInt(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
@@ -419,60 +423,27 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 }}
               />
               <ZAxis type="number" dataKey="size" range={[120, 320]} />
-              {/* Pooled Counterfactual crosshair drop-lines */}
-              {poolPoint && (
-                <>
-                  <ReferenceLine
-                    x={poolPoint.c}
-                    stroke="hsl(var(--muted-foreground))"
-                    strokeDasharray="3 3"
-                    strokeOpacity={0.3}
-                    ifOverflow="extendDomain"
-                  />
-                  <ReferenceLine
-                    y={poolPoint.b}
-                    stroke="hsl(var(--muted-foreground))"
-                    strokeDasharray="3 3"
-                    strokeOpacity={0.3}
-                    ifOverflow="extendDomain"
-                  />
-                </>
-              )}
-              {/* Directional value vector — bottom-right, points to top-left */}
-              <g>
-                <defs>
-                  <marker
-                    id="ce-arrowhead"
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="6"
-                    markerHeight="6"
-                    orient="auto-start-reverse"
-                  >
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(160 60% 35%)" />
-                  </marker>
-                </defs>
-                <line
-                  x1="92%"
-                  y1="82%"
-                  x2="80%"
-                  y2="68%"
-                  stroke="hsl(160 60% 35%)"
-                  strokeWidth={1.75}
-                  markerEnd="url(#ce-arrowhead)"
+              {/* Pooled Counterfactual crosshair drop-lines (behind dots) */}
+              {poolPoint ? (
+                <ReferenceLine
+                  x={poolPoint.c}
+                  stroke="hsl(35 90% 50%)"
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.45}
+                  ifOverflow="extendDomain"
+                  isFront={false}
                 />
-                <text
-                  x="92%"
-                  y="90%"
-                  textAnchor="end"
-                  fontSize={11}
-                  fontWeight={600}
-                  fill="hsl(160 60% 35%)"
-                >
-                  Higher Benefit, Lower Cost
-                </text>
-              </g>
+              ) : null}
+              {poolPoint ? (
+                <ReferenceLine
+                  y={poolPoint.b}
+                  stroke="hsl(35 90% 50%)"
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.45}
+                  ifOverflow="extendDomain"
+                  isFront={false}
+                />
+              ) : null}
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
                 content={({ active, payload }: any) => {
