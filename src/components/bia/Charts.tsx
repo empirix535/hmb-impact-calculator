@@ -5,7 +5,7 @@ import {
   Cell,
   Legend,
   Line,
-  ReferenceArea,
+  
   ResponsiveContainer,
   Scatter,
   ComposedChart,
