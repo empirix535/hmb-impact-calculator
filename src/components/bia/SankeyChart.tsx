@@ -27,20 +27,18 @@ type ActiveLink = {
   payload: SankeyLinkPayload;
 };
 
-// Aligned with the shared chart palette in Charts.tsx (PALETTE).
-// Baseline (left) nodes use a lighter tint of each arm's color so flows are
-// readable, while destination (right) nodes use the canonical arm color.
+// "Horizon Minimalist" — all nodes in greys, H-IUD nodes in horizon orange.
 const NODE_COLORS: Record<string, string> = {
-  // Baseline (left) — boundless-blue family at varying tints
-  "Baseline H-IUD": "#FF8A6B", // soft horizon
-  "Baseline Surgical": "#7D8794", // muted slate
-  "Baseline Non-Surgical": "#A8B0BA", // light slate
-  "Baseline Untreated": "#293745", // boundless blue
-  // Destination (right) — full saturation
+  // Baseline (left) — sequential greys
+  "Baseline H-IUD": "#FF4719", // horizon orange (H-IUD baseline)
+  "Baseline Surgical": "#64748B", // dark grey
+  "Baseline Non-Surgical": "#94A3B8", // mid grey
+  "Baseline Untreated": "#CBD5E1", // light grey
+  // Destination (right)
   "H-IUD": "#FF4719", // horizon orange
-  "Remaining Surgical": "#0D9488", // deep teal
-  "Remaining Non-Surgical": "#7D8794", // muted slate
-  "Remaining Untreated": "#293745", // boundless blue
+  "Remaining Surgical": "#64748B",
+  "Remaining Non-Surgical": "#94A3B8",
+  "Remaining Untreated": "#CBD5E1",
 };
 
 function CustomNode(props: any) {
