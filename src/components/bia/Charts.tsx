@@ -193,23 +193,16 @@ export function WaterfallChart({ result, currency }: Props) {
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} />
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta">
+            <Bar dataKey="delta" stroke="none">
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={
-                    d.isTotal
-                      ? d.delta >= 0
-                        ? PALETTE.negative
-                        : PALETTE.positive
-                      : d.delta >= 0
-                        ? "hsl(0 70% 55%)"
-                        : "hsl(160 60% 45%)"
-                  }
+                  stroke="none"
+                  fill={d.delta >= 0 ? PALETTE.negative : PALETTE.positive}
                 />
               ))}
             </Bar>
