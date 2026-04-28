@@ -88,8 +88,8 @@ export function CostChart({ result, currency }: Props) {
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -147,7 +147,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Status Quo"
                 fill={PALETTE.statusQuo}
                 stroke="none"
-                radius={[6, 6, 0, 0]}
+                radius={[4, 4, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
@@ -155,7 +155,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Intervention"
                 fill={PALETTE.intervention}
                 stroke="none"
-                radius={[6, 6, 0, 0]}
+                radius={[4, 4, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
@@ -202,7 +202,7 @@ export function WaterfallChart({ result, currency }: Props) {
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta" stroke="none" radius={6}>
+            <Bar dataKey="delta" stroke="none" radius={4}>
               {data.map((d, i) => (
                 <Cell
                   key={i}
@@ -303,7 +303,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
             <Bar
               dataKey="value"
               stroke="none"
-              radius={[6, 6, 0, 0]}
+              radius={[4, 4, 0, 0]}
               {...({ tooltipType: "item" } as any)}
               activeBar={{ stroke: "none", style: { filter: "brightness(1.08)" } }}
             >
