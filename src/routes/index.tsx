@@ -77,15 +77,15 @@ function BiaDashboard() {
             <DalyAttributionChart result={model.result} />
             <ClinicalChart result={model.result} />
           </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <CostChart result={model.result} currency={currencyFmt} />
+            <WaterfallChart result={model.result} currency={currencyFmt} />
+          </div>
           <CostEffectivenessPlane
             result={model.result}
             inputs={model.inputs}
             currency={currencyFmt}
           />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <CostChart result={model.result} currency={currencyFmt} />
-            <WaterfallChart result={model.result} currency={currencyFmt} />
-          </div>
         </main>
       </div>
       </div>
