@@ -198,99 +198,61 @@ export function SankeyChart({ result }: Props) {
       { name: "Remaining Untreated" },      // 7
     ],
     links: [
-      { source: 0, target: 4, value: safe(baselineH) },
-      { source: 1, target: 4, value: safe(pullS) },
-      { source: 1, target: 5, value: safe(remainS) },
-      { source: 2, target: 4, value: safe(pullNS) },
-      { source: 2, target: 6, value: safe(remainNS) },
-      { source: 3, target: 4, value: safe(pullU) },
-      { source: 3, target: 7, value: safe(remainU) },
+      { key: "h-iud-to-h-iud", source: 0, target: 4, value: safe(baselineH), actualValue: baselineH },
+      { key: "surgical-to-h-iud", source: 1, target: 4, value: safe(pullS), actualValue: pullS },
+      { key: "surgical-to-remaining", source: 1, target: 5, value: safe(remainS), actualValue: remainS },
+      { key: "ns-to-h-iud", source: 2, target: 4, value: safe(pullNS), actualValue: pullNS },
+      { key: "ns-to-remaining", source: 2, target: 6, value: safe(remainNS), actualValue: remainNS },
+      { key: "untreated-to-h-iud", source: 3, target: 4, value: safe(pullU), actualValue: pullU },
+      { key: "untreated-to-remaining", source: 3, target: 7, value: safe(remainU), actualValue: remainU },
     ],
   };
 
-  const fmtPeople = (n: number) =>
-    new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
-
-  // Net change per node (intervention vs status quo) in share units.
-  const nodeDelta: Record<string, number> = {
-    "Baseline H-IUD": 0,
-    "Baseline Surgical": 0,
-    "Baseline Non-Surgical": 0,
-    "Baseline Untreated": 0,
-    "H-IUD": (ms1.hIud ?? 0) - (ms0.hIud ?? 0),
-    "Remaining Surgical": remainS - (ms0.surgical ?? 0),
-    "Remaining Non-Surgical": remainNS - (ms0.ns ?? 0),
-    "Remaining Untreated": remainU - (ms0.untreated ?? 0),
-  };
-
-  const fmtSigned = (n: number) =>
-    `${n >= 0 ? "+" : "−"}${fmtPeople(Math.abs(n))}`;
-
-  const TooltipContent = ({ active, payload }: any) => {
-    if (!active || !payload || !payload.length) return null;
-    const p = payload[0]?.payload;
-    if (!p) return null;
-
-    // Link payload has source/target objects; node payload has a name.
-    if (p.source && p.target) {
-      const share = p.value as number;
-      const people = population * share;
-      return (
-        <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
-          <div className="font-medium">
-            {p.source.name} → {p.target.name}
-          </div>
-          <div className="text-muted-foreground">
-            {fmtPeople(people)} women ({(share * 100).toFixed(2)}%)
-          </div>
-        </div>
-      );
-    }
-
-    const name = p.name as string;
-    const share = (p.value as number) ?? 0;
-    const people = population * share;
-    const delta = nodeDelta[name] ?? 0;
-    const deltaPeople = population * delta;
-    return (
-      <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
-        <div className="font-medium">{name}</div>
-        <div className="text-muted-foreground">
-          {fmtPeople(people)} women ({(share * 100).toFixed(2)}%)
-        </div>
-        {name.startsWith("Baseline") ? null : (
-          <div className={delta >= 0 ? "text-emerald-600" : "text-rose-600"}>
-            Δ vs Status Quo: {fmtSigned(deltaPeople)} ({fmtSigned(delta * 100)}%)
-          </div>
-        )}
-      </div>
-    );
+  const activePayload = activeLink?.payload;
+  const handleLinkHover = (payload: SankeyLinkPayload, event: ReactMouseEvent<SVGPathElement>) => {
+    console.debug("Sankey link hover payload", {
+      label: `${payload.source.name} → ${payload.target.name}`,
+      deltaPopulation: new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
+        payload.actualValue * population,
+      ),
+      percentage: `${(payload.actualValue * 100).toFixed(2)}%`,
+      payload,
+    });
+    setActiveLink({ key: payload.key, x: event.clientX, y: event.clientY, payload });
   };
 
   return (
-    <Card>
+    <Card className="overflow-visible">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
       <CardContent className="h-96 overflow-visible">
-        <div className="flex h-full flex-col">
-          <div className="flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="flex h-full flex-col overflow-visible">
+          <div className="min-h-0 flex-1 overflow-visible">
+            <ResponsiveContainer width="100%" height="100%" className="overflow-visible">
               <Sankey
+                className="patient-migration-sankey"
                 data={data}
                 nodePadding={28}
                 nodeWidth={14}
                 iterations={0}
                 margin={{ top: 10, right: 160, bottom: 10, left: 140 }}
+                style={{ overflow: "visible" }}
                 node={<CustomNode />}
-                link={<CustomLink />}
-              >
-                <Tooltip
-                  content={<TooltipContent />}
-                  wrapperStyle={{ zIndex: 50, pointerEvents: "none" }}
-                  isAnimationActive={false}
-                />
-              </Sankey>
+                link={
+                  <CustomLink
+                    activeLinkKey={activeLink?.key}
+                    hasActiveLink={Boolean(activeLink)}
+                    onLinkEnter={handleLinkHover}
+                    onLinkMove={handleLinkHover}
+                    onLinkLeave={() => setActiveLink(null)}
+                  />
+                }
+                overflow="visible"
+              />
+              {activeLink && activePayload ? (
+                <PortalTooltip activeLink={activeLink} population={population} />
+              ) : null}
             </ResponsiveContainer>
           </div>
           <div className="flex items-center justify-between px-2 pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
