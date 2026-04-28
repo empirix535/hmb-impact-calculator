@@ -518,15 +518,38 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 activeShape={(props: any) => {
                   const { cx, cy, payload } = props;
                   const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
+                  const lx = cx + r + 10;
+                  const ly = cy - r - 4;
                   return (
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={r + 1.5}
-                      fill={payload.fill}
-                      stroke="hsl(0 0% 100%)"
-                      strokeWidth={2}
-                    />
+                    <g style={{ pointerEvents: "none" }}>
+                      {payload.isHIud && (
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={r + 6}
+                          fill={payload.fill}
+                          opacity={0.18}
+                          style={{ animation: "pulse 2s ease-in-out infinite" }}
+                        />
+                      )}
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={r + 1.5}
+                        fill={payload.fill}
+                        stroke="hsl(0 0% 100%)"
+                        strokeWidth={2}
+                      />
+                      <text
+                        x={lx}
+                        y={ly}
+                        fontSize={10}
+                        fill="hsl(var(--foreground))"
+                        fontWeight={payload.isHIud ? 600 : 500}
+                      >
+                        {payload.name}
+                      </text>
+                    </g>
                   );
                 }}
                 shape={(props: any) => {
