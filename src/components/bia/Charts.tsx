@@ -206,10 +206,10 @@ export function WaterfallChart({ result, currency }: Props) {
 
 export function DalyAttributionChart({ result }: { result: BiaResult }) {
   const data = [
-    { src: "From Non-Surgical", value: result.dalysAvertedByArm.ns, isTotal: false },
-    { src: "From Surgical", value: result.dalysAvertedByArm.surgical, isTotal: false },
-    { src: "From Untreated", value: result.dalysAvertedByArm.untreated, isTotal: false },
-    { src: "Total Averted (Pooled)", value: result.dalysAverted, isTotal: true },
+    { src: "From Non-Surgical", value: result.dalysAvertedByArm.ns, color: PALETTE.ns, isTotal: false },
+    { src: "From Surgical", value: result.dalysAvertedByArm.surgical, color: PALETTE.surgical, isTotal: false },
+    { src: "From Untreated", value: result.dalysAvertedByArm.untreated, color: PALETTE.untreated, isTotal: false },
+    { src: "Total Averted (Pooled)", value: result.dalysAverted, color: PALETTE.pool, isTotal: true },
   ];
   const hasNegative = data.some((d) => d.value < 0);
   return (
