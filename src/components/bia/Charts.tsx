@@ -145,7 +145,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Status Quo"
                 fill={PALETTE.statusQuo}
                 stroke="none"
-                radius={3}
+                radius={[6, 6, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
