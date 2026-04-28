@@ -550,7 +550,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
             >
-              Total 5-Year DALYs
+              Total 5-Year DALYs Averted
             </text>
 
             {/* Pooled crosshair drop-lines (very subtle) */}
