@@ -31,16 +31,16 @@ type ActiveLink = {
 // Baseline (left) nodes use a lighter tint of each arm's color so flows are
 // readable, while destination (right) nodes use the canonical arm color.
 const NODE_COLORS: Record<string, string> = {
-  // Baseline (left) — lighter pine/stone tints
-  "Baseline H-IUD": "#6EE7B7",
-  "Baseline Surgical": "#94A3B8",
-  "Baseline Non-Surgical": "#A7F3D0",
-  "Baseline Untreated": "#475569",
-  // Destination (right) — deeper canonical tones
-  "H-IUD": "#064E3B",
-  "Remaining Surgical": "#475569",
-  "Remaining Non-Surgical": "#10B981",
-  "Remaining Untreated": "#0F172A",
+  // Baseline (left) — boundless-blue family at varying tints
+  "Baseline H-IUD": "#FF8A6B", // soft horizon
+  "Baseline Surgical": "#7D8794", // muted slate
+  "Baseline Non-Surgical": "#A8B0BA", // light slate
+  "Baseline Untreated": "#293745", // boundless blue
+  // Destination (right) — full saturation
+  "H-IUD": "#FF4719", // horizon orange
+  "Remaining Surgical": "#0D9488", // deep teal
+  "Remaining Non-Surgical": "#7D8794", // muted slate
+  "Remaining Untreated": "#293745", // boundless blue
 };
 
 function CustomNode(props: any) {
