@@ -16,6 +16,8 @@ type SankeyLinkPayload = {
   target: { name: string };
   value: number;
   actualValue: number;
+  baselineShare: number;
+  interventionShare: number;
 };
 
 type ActiveLink = {
