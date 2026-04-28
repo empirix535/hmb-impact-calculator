@@ -680,13 +680,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
                 </marker>
               </defs>
-              <line x1="40" y1="40" x2="40" y2="80" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              <line x1="40" y1="40" x2="8" y2="40" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              <line x1="40" y1="40" x2="16" y2="64" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
-              <text x="46" y="78" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
-              <text x="46" y="86" fontSize="7" fill="currentColor" fontWeight="600">DALYs</text>
-              <text x="2" y="32" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
-              <text x="2" y="40" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
+              <line x1="60" y1="60" x2="60" y2="20" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              <line x1="60" y1="60" x2="20" y2="60" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              <line x1="60" y1="60" x2="34" y2="34" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
+              <text x="64" y="16" fontSize="7" fill="currentColor" fontWeight="600">Higher</text>
+              <text x="64" y="24" fontSize="7" fill="currentColor" fontWeight="600">Benefit</text>
+              <text x="18" y="74" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
+              <text x="18" y="82" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
               <text x="2" y="96" fontSize="6.5" fill="currentColor" opacity="0.7" fontStyle="italic">Target Direction</text>
             </svg>
           </div>
