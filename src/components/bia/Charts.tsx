@@ -316,15 +316,12 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const pop = result.population;
   const arms = ["hIud", "ns", "surgical", "untreated"] as const;
 
-  const dU = inputs.dalys.untreated;
-  const cU = inputs.costs.untreated * pop;
-
-  // Untreated is the origin (0, 0): cost relative to baseline, DALYs averted vs baseline.
+  // Absolute level values — total 5-year cost vs total 5-year DALYs (lower is better on both).
   const armPts = arms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
-    c: inputs.costs[a] * pop - cU,
-    b: (dU - inputs.dalys[a]) * pop,
+    c: inputs.costs[a] * pop,
+    b: inputs.dalys[a] * pop,
   }));
 
   const ms = inputs.marketShares1;
@@ -333,14 +330,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
       ms.ns * inputs.costs.ns +
       ms.surgical * inputs.costs.surgical +
       ms.untreated * inputs.costs.untreated) *
-      pop -
-    cU;
-  const poolDaly =
-    ms.hIud * inputs.dalys.hIud +
-    ms.ns * inputs.dalys.ns +
-    ms.surgical * inputs.dalys.surgical +
-    ms.untreated * inputs.dalys.untreated;
-  const poolB = (dU - poolDaly) * pop;
+    pop;
+  const poolB =
+    (ms.hIud * inputs.dalys.hIud +
+      ms.ns * inputs.dalys.ns +
+      ms.surgical * inputs.dalys.surgical +
+      ms.untreated * inputs.dalys.untreated) *
+    pop;
 
   const colorFor = (key: string): string => {
     if (key === "hIud") return "hsl(265 70% 50%)";
