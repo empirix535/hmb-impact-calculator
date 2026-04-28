@@ -182,8 +182,9 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
           Reflects a marginal change of (Dᵢ − D_H) DALYs per woman transitioned.
         </p>
       </CardHeader>
-      <CardContent className="flex-1 h-80">
-        <ResponsiveContainer width="100%" height="100%">
+      <CardContent>
+        <div style={{ width: "100%", height: 320 }}>
+          <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} />
             <XAxis dataKey="src" tick={{ fontSize: 11 }} />
@@ -222,6 +223,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
