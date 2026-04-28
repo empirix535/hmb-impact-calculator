@@ -186,6 +186,10 @@ export function SankeyChart({ result, deltas }: Props) {
               </Sankey>
             </ResponsiveContainer>
           </div>
+          <div className="flex items-center justify-between px-2 pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span>Status Quo</span>
+            <span>Intervention</span>
+          </div>
         </div>
       </CardContent>
     </Card>
