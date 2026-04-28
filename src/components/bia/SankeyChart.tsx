@@ -208,7 +208,6 @@ export function SankeyChart({ result }: Props) {
     ],
   };
 
-  const activePayload = activeLink?.payload;
   const handleLinkHover = (payload: SankeyLinkPayload, event: ReactMouseEvent<SVGPathElement>) => {
     console.debug("Sankey link hover payload", {
       label: `${payload.source.name} → ${payload.target.name}`,
@@ -250,10 +249,8 @@ export function SankeyChart({ result }: Props) {
                 }
                 overflow="visible"
               />
-              {activeLink && activePayload ? (
-                <PortalTooltip activeLink={activeLink} population={population} />
-              ) : null}
             </ResponsiveContainer>
+            {activeLink ? <PortalTooltip activeLink={activeLink} population={population} /> : null}
           </div>
           <div className="flex items-center justify-between px-2 pt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             <span>Status Quo</span>
