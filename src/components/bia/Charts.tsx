@@ -4,14 +4,19 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  ReferenceArea,
   ResponsiveContainer,
+  Scatter,
+  ComposedChart,
   Tooltip,
   XAxis,
   YAxis,
+  ZAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
-import type { BiaResult } from "@/lib/bia/types";
+import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
 interface Props {
   result: BiaResult;
