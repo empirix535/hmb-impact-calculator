@@ -297,14 +297,16 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
             />
             <Bar
               dataKey="value"
+              stroke="none"
               radius={3}
               {...({ tooltipType: "item" } as any)}
-              activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+              activeBar={{ stroke: "none", style: { filter: "brightness(1.08)" } }}
             >
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={d.value >= 0 ? d.color : PALETTE.negative}
+                  stroke="none"
+                  fill={d.value >= 0 ? INDIGO_GRADIENT[i % INDIGO_GRADIENT.length] : PALETTE.negative}
                 />
               ))}
             </Bar>
