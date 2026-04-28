@@ -8,7 +8,6 @@ import {
   ComposedChart,
   Legend,
   Line,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -74,18 +73,31 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
     },
   ];
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Clinical Outcomes (Population-Weighted)</CardTitle>
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Estimated population-level prevalence of HMB and Anemia, reflecting the net clinical
+          impact of shifting treatment distributions across the cohort.
+        </p>
       </CardHeader>
-      <CardContent className="h-72">
+      <CardContent className="flex-1 h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+          <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-            <XAxis dataKey="metric" tick={{ fontSize: 12 }} />
-            <YAxis tickFormatter={(v) => `${v.toFixed(0)}%`} tick={{ fontSize: 12 }} />
+            <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
+            <YAxis
+              tickFormatter={(v) => `${v.toFixed(0)}%`}
+              tick={{ fontSize: 11 }}
+              label={{
+                value: "Prevalence (%)",
+                angle: -90,
+                position: "insideLeft",
+                style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+              }}
+            />
             <Tooltip formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
             <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
             <Bar dataKey="Intervention" fill="hsl(173 58% 45%)" />
           </BarChart>
