@@ -19,18 +19,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared palette — keep all charts visually consistent.
-// Per-arm colors match the Benefit-Cost Efficiency Frontier.
+// Shared "Professional Academic" palette — keep all charts visually consistent.
 export const PALETTE = {
-  hIud: "hsl(265 70% 50%)", // purple — intervention / H-IUD
-  ns: "hsl(173 58% 45%)", // teal — non-surgical
-  surgical: "hsl(217 91% 60%)", // blue — surgical
-  untreated: "hsl(0 70% 55%)", // red — untreated
-  pool: "hsl(35 90% 50%)", // orange — pooled / total
-  statusQuo: "hsl(220 13% 65%)", // neutral gray — baseline
-  positive: "hsl(160 70% 35%)", // green — savings / good
-  negative: "hsl(0 75% 45%)", // deep red — added cost / bad
+  // Global comparison
+  statusQuo: "#94A3B8", // slate — baseline / status quo
+  intervention: "#4338CA", // indigo — H-IUD intervention
+  // Per-arm (frontier scatter retains distinct hues for identification)
+  hIud: "#4338CA", // indigo — H-IUD
+  ns: "#0D9488", // teal — non-surgical
+  surgical: "#2563EB", // blue — surgical
+  untreated: "#991B1B", // brick — untreated
+  pool: "#F59E0B", // amber — pooled / population average
+  // Semantic
+  positive: "#0D9488", // teal — savings / good
+  negative: "#991B1B", // brick — added cost / bad
+  // Chrome
+  grid: "#E2E8F0",
+  gridOpacity: 0.5,
 } as const;
+
+// Indigo gradient (varying alpha) for DALY attribution — all facets of one benefit.
+const INDIGO_GRADIENT = [
+  "rgba(67, 56, 202, 0.55)",
+  "rgba(67, 56, 202, 0.75)",
+  "rgba(67, 56, 202, 0.90)",
+  "rgba(67, 56, 202, 1.00)",
+];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
   hIud: PALETTE.hIud,
