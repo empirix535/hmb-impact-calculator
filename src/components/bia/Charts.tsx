@@ -154,18 +154,19 @@ export function WaterfallChart({ result, currency }: Props) {
 
 export function DalyAttributionChart({ result }: { result: BiaResult }) {
   const data = [
-    { src: "From Non-Surgical", value: Math.max(0, result.dalysAvertedByArm.ns), isTotal: false, arm: "ns" as const },
-    { src: "From Surgical", value: Math.max(0, result.dalysAvertedByArm.surgical), isTotal: false, arm: "surgical" as const },
-    { src: "From Untreated", value: Math.max(0, result.dalysAvertedByArm.untreated), isTotal: false, arm: "untreated" as const },
-    { src: "Total Averted (Pooled)", value: Math.max(0, result.dalysAverted), isTotal: true, arm: null },
+    { src: "From Non-Surgical", value: result.dalysAvertedByArm.ns, isTotal: false },
+    { src: "From Surgical", value: result.dalysAvertedByArm.surgical, isTotal: false },
+    { src: "From Untreated", value: result.dalysAvertedByArm.untreated, isTotal: false },
+    { src: "Total Averted (Pooled)", value: result.dalysAverted, isTotal: true },
   ];
+  const hasNegative = data.some((d) => d.value < 0);
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">DALY Attribution Analysis</CardTitle>
         <p className="text-[11px] text-muted-foreground pt-1">
-          Health gain from women transitioned to H-IUD from each baseline arm.
-          Reflects a marginal gain of (Dᵢ − D_H) DALYs saved per woman transitioned.
+          Net population health gain from women transitioned to H-IUD from each baseline arm.
+          Reflects a marginal change of (Dᵢ − D_H) DALYs per woman transitioned.
         </p>
       </CardHeader>
       <CardContent className="h-80">
@@ -173,16 +174,32 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
             <XAxis dataKey="src" tick={{ fontSize: 11 }} />
-            <YAxis tickFormatter={(v) => fmtInt(Number(v))} tick={{ fontSize: 12 }} />
+            <YAxis
+              tickFormatter={(v) => fmtInt(Number(v))}
+              tick={{ fontSize: 12 }}
+              domain={hasNegative ? ["auto", "auto"] : [0, "auto"]}
+            />
+            <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.6} />
             <Tooltip
-              formatter={(v: number) => [`Total DALYs Averted: ${fmtInt(Number(v))}`, ""]}
+              formatter={(v: number) => [
+                `Total DALYs Averted: ${fmtInt(Number(v))}`,
+                "A negative value indicates a marginal health loss relative to the baseline modality for the migrated population.",
+              ]}
               labelFormatter={(l: string) => l}
             />
             <Bar dataKey="value">
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={d.isTotal ? "hsl(265 70% 50%)" : "hsl(173 58% 45%)"}
+                  fill={
+                    d.isTotal
+                      ? d.value >= 0
+                        ? "hsl(265 70% 50%)"
+                        : "hsl(0 75% 45%)"
+                      : d.value >= 0
+                        ? "hsl(173 58% 45%)"
+                        : "hsl(0 70% 55%)"
+                  }
                 />
               ))}
             </Bar>
