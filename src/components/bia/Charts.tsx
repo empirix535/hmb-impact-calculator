@@ -309,7 +309,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
                 <Cell
                   key={i}
                   stroke="none"
-                  fill={d.value >= 0 ? INDIGO_GRADIENT[i % INDIGO_GRADIENT.length] : PALETTE.negative}
+                  fill={d.value >= 0 ? DALY_GREENS[i % DALY_GREENS.length] : PALETTE.negative}
                 />
               ))}
             </Bar>
