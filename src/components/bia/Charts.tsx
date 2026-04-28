@@ -598,7 +598,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         fill={payload.fill}
                         stroke="hsl(0 0% 100%)"
                         strokeWidth={payload.isHIud ? 2.5 : 1.5}
-                        style={{ pointerEvents: "auto" }}
+                        style={{ pointerEvents: "visiblePainted" }}
                       />
                       <text
                         x={lx}
