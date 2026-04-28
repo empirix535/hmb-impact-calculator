@@ -119,6 +119,7 @@ export function SankeyChart({ result, deltas }: Props) {
             data={data}
             nodePadding={28}
             nodeWidth={14}
+            iterations={0}
             margin={{ top: 10, right: 160, bottom: 10, left: 140 }}
             node={<CustomNode />}
             link={<CustomLink />}
