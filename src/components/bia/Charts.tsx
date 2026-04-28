@@ -498,51 +498,21 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <Tooltip
                 cursor={false}
                 trigger="hover"
+                shared={false}
                 isAnimationActive={false}
+                {...({ tooltipType: "item" } as any)}
                 content={({ active, payload }: any) => {
                   if (!active || !payload?.length) return null;
-                  const p: CEPoint & { fill: string } = payload[0].payload;
-                  const icerSeg = icerByTo.get(p.name);
+                  const datum = payload[0]?.payload as (CEPoint & { fill: string }) | undefined;
+                  if (!datum || datum.c === undefined || datum.b === undefined) return null;
                   return (
-                    <div className="rounded-md border bg-background/95 px-3 py-2 text-xs shadow-md max-w-[260px]">
-                      <div className="font-semibold mb-1" style={{ color: p.fill }}>
-                        {p.name}
-                      </div>
-                      <div className="text-muted-foreground">
-                        Cost: <span className="text-foreground">{fmtCurrency(p.c)}</span>
-                      </div>
-                      <div className="text-muted-foreground">
-                        DALYs averted: <span className="text-foreground">{fmtInt(p.b)}</span>
-                      </div>
-                      <div className="mt-1 font-medium">
-                        Status:{" "}
-                        <span
-                          style={{
-                            color:
-                              p.status === "Dominant"
-                                ? "hsl(160 70% 35%)"
-                                : p.status === "Efficient"
-                                  ? "hsl(217 91% 50%)"
-                                  : p.status === "Baseline"
-                                    ? "hsl(var(--muted-foreground))"
-                                    : "hsl(0 70% 45%)",
-                          }}
-                        >
-                          {p.status}
-                        </span>
-                      </div>
-                      {icerSeg && Number.isFinite(icerSeg.icer) && (
-                        <div className="mt-2 pt-2 border-t text-[11px] text-muted-foreground leading-snug">
-                          <div className="font-medium text-foreground mb-0.5">
-                            ICER vs {icerSeg.from}
-                          </div>
-                          {fmtCurrency(icerSeg.icer)} per additional DALY averted.
-                          <div className="mt-1 italic">
-                            The gradient between these points represents the ICER
-                            (cost per additional DALY averted).
-                          </div>
-                        </div>
-                      )}
+                    <div
+                      className="rounded-md border bg-background/95 px-3 py-2 text-xs shadow-md"
+                      style={{ color: datum.fill }}
+                    >
+                      <div className="font-semibold mb-1">{datum.name}</div>
+                      <div>Cost: {fmtCurrency(datum.c)}</div>
+                      <div>DALYs Averted: {fmtInt(datum.b)}</div>
                     </div>
                   );
                 }}
