@@ -66,16 +66,17 @@ export function SankeyChart({ result, deltas }: Props) {
     (acc, b) => ({ ...acc, [b.arm]: b.ms1 }),
     {} as Record<string, number>,
   );
-  const deltaH = Math.max(0, (ms1.hIud ?? 0) - (ms0.hIud ?? 0));
+  // Link values derive directly from market shares so the diagram stays in sync
+  // with the engine. For each baseline arm i:
+  //   - flow to H-IUD       = max(0, MS_i,0 - MS_i,1)   (share moved to H-IUD)
+  //   - flow to Remaining i = MS_i,1                    (share staying in arm)
+  const pullS = Math.max(0, (ms0.surgical ?? 0) - (ms1.surgical ?? 0));
+  const pullNS = Math.max(0, (ms0.ns ?? 0) - (ms1.ns ?? 0));
+  const pullU = Math.max(0, (ms0.untreated ?? 0) - (ms1.untreated ?? 0));
 
-  // Pulled from each baseline arm into H-IUD, capped by available baseline share.
-  const pullS = Math.min(ms0.surgical ?? 0, deltaH * deltas.surgical);
-  const pullNS = Math.min(ms0.ns ?? 0, deltaH * deltas.ns);
-  const pullU = Math.min(ms0.untreated ?? 0, deltaH * deltas.untreated);
-
-  const remainS = Math.max(0, (ms0.surgical ?? 0) - pullS);
-  const remainNS = Math.max(0, (ms0.ns ?? 0) - pullNS);
-  const remainU = Math.max(0, (ms0.untreated ?? 0) - pullU);
+  const remainS = Math.max(0, ms1.surgical ?? 0);
+  const remainNS = Math.max(0, ms1.ns ?? 0);
+  const remainU = Math.max(0, ms1.untreated ?? 0);
 
   // Recharts Sankey requires strictly positive link values.
   const eps = 1e-6;
