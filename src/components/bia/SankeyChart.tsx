@@ -9,6 +9,7 @@ interface Props {
 }
 
 const NODE_COLORS: Record<string, string> = {
+  "Baseline H-IUD": "hsl(173 58% 55%)",
   "Baseline Surgical": "hsl(215 20% 55%)",
   "Baseline Non-Surgical": "hsl(215 20% 65%)",
   "Baseline Untreated": "hsl(215 20% 75%)",
@@ -20,7 +21,7 @@ const NODE_COLORS: Record<string, string> = {
 
 function CustomNode({ x, y, width, height, index, payload }: any) {
   const fill = NODE_COLORS[payload.name] ?? "hsl(215 20% 65%)";
-  const isLeft = index < 3;
+  const isLeft = index < 4;
   return (
     <Layer key={`node-${index}`}>
       <Rectangle x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.95} />
@@ -80,23 +81,27 @@ export function SankeyChart({ result, deltas }: Props) {
   const eps = 1e-6;
   const safe = (v: number) => (v > eps ? v : eps);
 
+  const baselineH = ms0.hIud ?? 0;
+
   const data = {
     nodes: [
-      { name: "Baseline Surgical" },        // 0
-      { name: "Baseline Non-Surgical" },    // 1
-      { name: "Baseline Untreated" },       // 2
-      { name: "H-IUD" },                    // 3
-      { name: "Remaining Surgical" },       // 4
-      { name: "Remaining Non-Surgical" },   // 5
-      { name: "Remaining Untreated" },      // 6
+      { name: "Baseline H-IUD" },           // 0
+      { name: "Baseline Surgical" },        // 1
+      { name: "Baseline Non-Surgical" },    // 2
+      { name: "Baseline Untreated" },       // 3
+      { name: "H-IUD" },                    // 4
+      { name: "Remaining Surgical" },       // 5
+      { name: "Remaining Non-Surgical" },   // 6
+      { name: "Remaining Untreated" },      // 7
     ],
     links: [
-      { source: 0, target: 3, value: safe(pullS) },
-      { source: 0, target: 4, value: safe(remainS) },
-      { source: 1, target: 3, value: safe(pullNS) },
-      { source: 1, target: 5, value: safe(remainNS) },
-      { source: 2, target: 3, value: safe(pullU) },
-      { source: 2, target: 6, value: safe(remainU) },
+      { source: 0, target: 4, value: safe(baselineH) },
+      { source: 1, target: 4, value: safe(pullS) },
+      { source: 1, target: 5, value: safe(remainS) },
+      { source: 2, target: 4, value: safe(pullNS) },
+      { source: 2, target: 6, value: safe(remainNS) },
+      { source: 3, target: 4, value: safe(pullU) },
+      { source: 3, target: 7, value: safe(remainU) },
     ],
   };
 
@@ -114,6 +119,7 @@ export function SankeyChart({ result, deltas }: Props) {
             data={data}
             nodePadding={28}
             nodeWidth={14}
+            iterations={0}
             margin={{ top: 10, right: 160, bottom: 10, left: 140 }}
             node={<CustomNode />}
             link={<CustomLink />}
