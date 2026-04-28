@@ -118,7 +118,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} style={{ pointerEvents: "none" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} style={{ pointerEvents: "none" }} />
               <XAxis dataKey="metric" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
               <YAxis
                 tickFormatter={(v) => `${v.toFixed(0)}%`}
@@ -141,16 +141,18 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
               <Bar
                 dataKey="Status Quo"
                 fill={PALETTE.statusQuo}
+                stroke="none"
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
-                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+                activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
               <Bar
                 dataKey="Intervention"
-                fill={PALETTE.hIud}
+                fill={PALETTE.intervention}
+                stroke="none"
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
-                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+                activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
             </BarChart>
           </ResponsiveContainer>
