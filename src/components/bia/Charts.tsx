@@ -366,34 +366,41 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     },
   ];
 
-  // Frontier: non-dominated arm anchors only (exclude pool), upper-left in (c, b).
+  // Frontier: non-dominated arm anchors (lower cost AND lower DALYs is better).
   const armOnly = points.filter((p) => !p.isPool);
   const nonDominated = armOnly.filter((p, i) =>
     armOnly.every((q, j) => {
       if (i === j) return true;
-      const le = q.c <= p.c && q.b >= p.b;
-      const lt = q.c < p.c || q.b > p.b;
+      const le = q.c <= p.c && q.b <= p.b;
+      const lt = q.c < p.c || q.b < p.b;
       return !(le && lt);
     }),
   );
   const frontier = [...nonDominated].sort((a, b) => a.c - b.c);
 
-  // Plot domain (start at 0).
-  const cs = points.map((p) => Math.max(0, p.c));
-  const bs = points.map((p) => Math.max(0, p.b));
-  const cMax = Math.max(1, ...cs);
-  const bMax = Math.max(1, ...bs);
-  const xMax = cMax * 1.18;
-  const yMax = bMax * 1.18;
+  // Plot domain — pad min/max so dots don't sit on the axes.
+  const cs = points.map((p) => p.c);
+  const bs = points.map((p) => p.b);
+  const cMin = Math.min(...cs);
+  const cMax = Math.max(...cs);
+  const bMin = Math.min(...bs);
+  const bMax = Math.max(...bs);
+  const cPad = (cMax - cMin) * 0.12 || cMax * 0.1 || 1;
+  const bPad = (bMax - bMin) * 0.12 || bMax * 0.1 || 1;
+  const xMin = Math.max(0, cMin - cPad);
+  const xMax = cMax + cPad;
+  const yMin = Math.max(0, bMin - bPad);
+  const yMax = bMax + bPad;
 
   // SVG geometry.
   const W = 720;
   const H = 380;
-  const M = { top: 24, right: 110, bottom: 56, left: 90 };
+  const M = { top: 24, right: 110, bottom: 56, left: 110 };
   const innerW = W - M.left - M.right;
   const innerH = H - M.top - M.bottom;
-  const xScale = (c: number) => M.left + (Math.max(0, c) / xMax) * innerW;
-  const yScale = (b: number) => M.top + innerH - (Math.max(0, b) / yMax) * innerH;
+  const xScale = (c: number) => M.left + ((c - xMin) / (xMax - xMin)) * innerW;
+  // Lower DALYs are better → render at bottom of plot for an intuitive "target = bottom-left".
+  const yScale = (b: number) => M.top + ((b - yMin) / (yMax - yMin)) * innerH;
 
   // Tick generation (5 ticks).
   const niceTicks = (max: number, n = 5) => {
