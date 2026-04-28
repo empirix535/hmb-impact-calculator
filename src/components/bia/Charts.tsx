@@ -19,6 +19,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
+// Shared palette — keep all charts visually consistent.
+// Per-arm colors match the Benefit-Cost Efficiency Frontier.
+export const PALETTE = {
+  hIud: "hsl(265 70% 50%)", // purple — intervention / H-IUD
+  ns: "hsl(173 58% 45%)", // teal — non-surgical
+  surgical: "hsl(217 91% 60%)", // blue — surgical
+  untreated: "hsl(0 70% 55%)", // red — untreated
+  pool: "hsl(35 90% 50%)", // orange — pooled / total
+  statusQuo: "hsl(220 13% 65%)", // neutral gray — baseline
+  positive: "hsl(160 70% 35%)", // green — savings / good
+  negative: "hsl(0 75% 45%)", // deep red — added cost / bad
+} as const;
+
+const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
+  hIud: PALETTE.hIud,
+  ns: PALETTE.ns,
+  surgical: PALETTE.surgical,
+  untreated: PALETTE.untreated,
+};
+
 interface Props {
   result: BiaResult;
   currency: CurrencyFormatters;
@@ -49,8 +69,8 @@ export function CostChart({ result, currency }: Props) {
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
-            <Bar dataKey="Intervention" fill="hsl(217 91% 60%)" />
+            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} />
+            <Bar dataKey="Intervention" fill={PALETTE.hIud} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -106,14 +126,14 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar
                 dataKey="Status Quo"
-                fill="hsl(220 13% 65%)"
+                fill={PALETTE.statusQuo}
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
               />
               <Bar
                 dataKey="Intervention"
-                fill="hsl(173 58% 45%)"
+                fill={PALETTE.hIud}
                 radius={3}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
@@ -144,11 +164,11 @@ export function WaterfallChart({ result, currency }: Props) {
           <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Net Impact)</CardTitle>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0 75% 45%)" }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.negative }} />
               Net cost
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(160 70% 35%)" }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.positive }} />
               Net savings
             </span>
           </div>
@@ -168,8 +188,8 @@ export function WaterfallChart({ result, currency }: Props) {
                   fill={
                     d.isTotal
                       ? d.delta >= 0
-                        ? "hsl(0 75% 45%)"
-                        : "hsl(160 70% 35%)"
+                        ? PALETTE.negative
+                        : PALETTE.positive
                       : d.delta >= 0
                         ? "hsl(0 70% 55%)"
                         : "hsl(160 60% 45%)"
@@ -186,10 +206,10 @@ export function WaterfallChart({ result, currency }: Props) {
 
 export function DalyAttributionChart({ result }: { result: BiaResult }) {
   const data = [
-    { src: "From Non-Surgical", value: result.dalysAvertedByArm.ns, isTotal: false },
-    { src: "From Surgical", value: result.dalysAvertedByArm.surgical, isTotal: false },
-    { src: "From Untreated", value: result.dalysAvertedByArm.untreated, isTotal: false },
-    { src: "Total Averted (Pooled)", value: result.dalysAverted, isTotal: true },
+    { src: "From Non-Surgical", value: result.dalysAvertedByArm.ns, color: PALETTE.ns, isTotal: false },
+    { src: "From Surgical", value: result.dalysAvertedByArm.surgical, color: PALETTE.surgical, isTotal: false },
+    { src: "From Untreated", value: result.dalysAvertedByArm.untreated, color: PALETTE.untreated, isTotal: false },
+    { src: "Total Averted (Pooled)", value: result.dalysAverted, color: PALETTE.pool, isTotal: true },
   ];
   const hasNegative = data.some((d) => d.value < 0);
   return (
@@ -275,15 +295,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={
-                    d.isTotal
-                      ? d.value >= 0
-                        ? "hsl(265 70% 50%)"
-                        : "hsl(0 75% 45%)"
-                      : d.value >= 0
-                        ? "hsl(173 58% 45%)"
-                        : "hsl(0 70% 55%)"
-                  }
+                  fill={d.value >= 0 ? d.color : PALETTE.negative}
                 />
               ))}
             </Bar>
@@ -340,11 +352,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const poolB = (dU - poolDaly) * pop;
 
   const colorFor = (key: string): string => {
-    if (key === "hIud") return "hsl(265 70% 50%)";
-    if (key === "pool") return "hsl(35 90% 50%)";
-    if (key === "ns") return "hsl(173 58% 45%)";
-    if (key === "surgical") return "hsl(217 91% 60%)";
-    return "hsl(0 70% 55%)"; // untreated
+    if (key === "hIud") return PALETTE.hIud;
+    if (key === "pool") return PALETTE.pool;
+    if (key === "ns") return PALETTE.ns;
+    if (key === "surgical") return PALETTE.surgical;
+    return PALETTE.untreated;
   };
 
   const points: CEPoint[] = [
@@ -671,7 +683,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               bottom: `calc(${(M.bottom / H) * 100}% + 12px)`,
               width: 84,
               height: 84,
-              color: "hsl(160 60% 32%)",
+              color: PALETTE.positive,
             }}
             aria-label="Value Direction key"
           >
