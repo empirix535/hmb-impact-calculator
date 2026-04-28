@@ -208,13 +208,13 @@ export function SankeyChart({ result }: Props) {
       { name: "Remaining Untreated" },      // 7
     ],
     links: [
-      { key: "h-iud-to-h-iud", source: 0, target: 4, value: safe(baselineH), actualValue: baselineH },
-      { key: "surgical-to-h-iud", source: 1, target: 4, value: safe(pullS), actualValue: pullS },
-      { key: "surgical-to-remaining", source: 1, target: 5, value: safe(remainS), actualValue: remainS },
-      { key: "ns-to-h-iud", source: 2, target: 4, value: safe(pullNS), actualValue: pullNS },
-      { key: "ns-to-remaining", source: 2, target: 6, value: safe(remainNS), actualValue: remainNS },
-      { key: "untreated-to-h-iud", source: 3, target: 4, value: safe(pullU), actualValue: pullU },
-      { key: "untreated-to-remaining", source: 3, target: 7, value: safe(remainU), actualValue: remainU },
+      { key: "h-iud-to-h-iud", source: 0, target: 4, value: safe(baselineH), actualValue: baselineH, baselineShare: ms0.hIud ?? 0, interventionShare: ms0.hIud ?? 0 },
+      { key: "surgical-to-h-iud", source: 1, target: 4, value: safe(pullS), actualValue: pullS, baselineShare: ms0.surgical ?? 0, interventionShare: ms1.surgical ?? 0 },
+      { key: "surgical-to-remaining", source: 1, target: 5, value: safe(remainS), actualValue: remainS, baselineShare: ms0.surgical ?? 0, interventionShare: ms1.surgical ?? 0 },
+      { key: "ns-to-h-iud", source: 2, target: 4, value: safe(pullNS), actualValue: pullNS, baselineShare: ms0.ns ?? 0, interventionShare: ms1.ns ?? 0 },
+      { key: "ns-to-remaining", source: 2, target: 6, value: safe(remainNS), actualValue: remainNS, baselineShare: ms0.ns ?? 0, interventionShare: ms1.ns ?? 0 },
+      { key: "untreated-to-h-iud", source: 3, target: 4, value: safe(pullU), actualValue: pullU, baselineShare: ms0.untreated ?? 0, interventionShare: ms1.untreated ?? 0 },
+      { key: "untreated-to-remaining", source: 3, target: 7, value: safe(remainU), actualValue: remainU, baselineShare: ms0.untreated ?? 0, interventionShare: ms1.untreated ?? 0 },
     ],
   };
 
