@@ -601,7 +601,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               x2={poolCx}
               y1={M.top + innerH}
               y2={poolCy}
-              stroke={colorFor("pool")}
+              stroke={PALETTE.reference}
               strokeOpacity={0.2}
               strokeDasharray="3 3"
               pointerEvents="none"
