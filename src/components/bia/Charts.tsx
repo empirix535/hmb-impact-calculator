@@ -388,14 +388,16 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         </p>
       </CardHeader>
       <CardContent>
-        <div style={{ width: "100%", height: 380 }}>
+        <div style={{ width: "100%", height: 380, position: "relative" }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
               <XAxis
                 type="number"
                 dataKey="c"
-                domain={xDomain}
+                domain={[0, xDomain[1]]}
+                allowDataOverflow={false}
+                minTickGap={0}
                 tickFormatter={(v) => fmtCurrency(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
@@ -408,7 +410,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <YAxis
                 type="number"
                 dataKey="b"
-                domain={yDomain}
+                domain={[0, yDomain[1]]}
+                allowDataOverflow={false}
+                minTickGap={0}
                 tickFormatter={(v) => fmtInt(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
@@ -419,60 +423,27 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 }}
               />
               <ZAxis type="number" dataKey="size" range={[120, 320]} />
-              {/* Pooled Counterfactual crosshair drop-lines */}
-              {poolPoint && (
-                <>
-                  <ReferenceLine
-                    x={poolPoint.c}
-                    stroke="hsl(var(--muted-foreground))"
-                    strokeDasharray="3 3"
-                    strokeOpacity={0.3}
-                    ifOverflow="extendDomain"
-                  />
-                  <ReferenceLine
-                    y={poolPoint.b}
-                    stroke="hsl(var(--muted-foreground))"
-                    strokeDasharray="3 3"
-                    strokeOpacity={0.3}
-                    ifOverflow="extendDomain"
-                  />
-                </>
-              )}
-              {/* Directional value vector — bottom-right, points to top-left */}
-              <g>
-                <defs>
-                  <marker
-                    id="ce-arrowhead"
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="6"
-                    markerHeight="6"
-                    orient="auto-start-reverse"
-                  >
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(160 60% 35%)" />
-                  </marker>
-                </defs>
-                <line
-                  x1="92%"
-                  y1="82%"
-                  x2="80%"
-                  y2="68%"
-                  stroke="hsl(160 60% 35%)"
-                  strokeWidth={1.75}
-                  markerEnd="url(#ce-arrowhead)"
+              {/* Pooled Counterfactual crosshair drop-lines (behind dots) */}
+              {poolPoint ? (
+                <ReferenceLine
+                  x={poolPoint.c}
+                  stroke="hsl(35 90% 50%)"
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.45}
+                  ifOverflow="extendDomain"
+                  isFront={false}
                 />
-                <text
-                  x="92%"
-                  y="90%"
-                  textAnchor="end"
-                  fontSize={11}
-                  fontWeight={600}
-                  fill="hsl(160 60% 35%)"
-                >
-                  Higher Benefit, Lower Cost
-                </text>
-              </g>
+              ) : null}
+              {poolPoint ? (
+                <ReferenceLine
+                  y={poolPoint.b}
+                  stroke="hsl(35 90% 50%)"
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.45}
+                  ifOverflow="extendDomain"
+                  isFront={false}
+                />
+              ) : null}
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
                 content={({ active, payload }: any) => {
@@ -539,14 +510,30 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               />
               <Scatter
                 data={scatterData}
+                {...({ tooltipType: "item" } as any)}
+                isAnimationActive={false}
+                activeShape={(props: any) => {
+                  const { cx, cy, payload } = props;
+                  const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
+                  return (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={r + 1.5}
+                      fill={payload.fill}
+                      stroke="hsl(0 0% 100%)"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
                 shape={(props: any) => {
                   const { cx, cy, payload } = props;
                   const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
-                  // Reposition labels to ~1-2 o'clock (positive dx, negative dy)
-                  const lx = cx + r + 6;
-                  const ly = cy - r - 2;
+                  // Larger offset so labels don't block the moving Pooled dot
+                  const lx = cx + r + 10;
+                  const ly = cy - r - 4;
                   return (
-                    <g>
+                    <g style={{ pointerEvents: "none" }}>
                       {payload.isHIud && (
                         <circle
                           cx={cx}
@@ -564,6 +551,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         fill={payload.fill}
                         stroke="hsl(0 0% 100%)"
                         strokeWidth={payload.isHIud ? 2.5 : 1.5}
+                        style={{ pointerEvents: "auto" }}
                       />
                       <text
                         x={lx}
@@ -580,6 +568,46 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               />
             </ComposedChart>
           </ResponsiveContainer>
+          {/* Value Direction key — overlay, bottom-right */}
+          <div
+            className="absolute pointer-events-none select-none"
+            style={{
+              right: 16,
+              bottom: 44,
+              width: 96,
+              height: 96,
+              color: "hsl(160 60% 32%)",
+            }}
+            aria-label="Value Direction key"
+          >
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+              <defs>
+                <marker
+                  id="vd-arrow"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                </marker>
+              </defs>
+              {/* North arrow (Higher Benefit) */}
+              <line x1="60" y1="60" x2="60" y2="20" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              {/* West arrow (Lower Cost) */}
+              <line x1="60" y1="60" x2="20" y2="60" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              {/* Diagonal NW arrow (Target Direction) — slightly smaller */}
+              <line x1="60" y1="60" x2="34" y2="34" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
+              {/* Labels */}
+              <text x="64" y="16" fontSize="7" fill="currentColor" fontWeight="600">Higher</text>
+              <text x="64" y="24" fontSize="7" fill="currentColor" fontWeight="600">Benefit</text>
+              <text x="18" y="74" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
+              <text x="18" y="82" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
+              <text x="2" y="96" fontSize="6.5" fill="currentColor" opacity="0.7" fontStyle="italic">Target Direction</text>
+            </svg>
+          </div>
         </div>
       </CardContent>
     </Card>
