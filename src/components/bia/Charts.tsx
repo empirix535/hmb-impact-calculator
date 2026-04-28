@@ -445,9 +445,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Benefit-Cost Efficiency Frontier</CardTitle>
         <p className="text-[11px] text-muted-foreground pt-1">
-          Each strategy plotted by total 5-year cost (relative to Untreated) vs.
-          total DALYs averted vs. the Untreated baseline. The dashed line traces the
-          non-dominated frontier (U → H → S). The orange dot is the pooled
+          Each strategy plotted by total 5-year population cost vs. total 5-year
+          DALYs (absolute levels — lower is better on both axes). The dashed line
+          traces the non-dominated frontier. The orange dot is the pooled
           counterfactual under the current coverage mix.
         </p>
       </CardHeader>
