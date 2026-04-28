@@ -439,10 +439,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         </p>
       </CardHeader>
       <CardContent>
-        <div style={{ width: "100%", height: 380, position: "relative" }}>
+        <div
+          style={{ width: "100%", height: 380, position: "relative" }}
+          className="[&_.recharts-cartesian-grid]:pointer-events-none [&_.recharts-cartesian-axis]:pointer-events-none [&_.recharts-reference-line]:pointer-events-none [&_.recharts-line]:pointer-events-none [&_.recharts-surface]:[pointer-events:none] [&_.recharts-scatter-symbol]:[pointer-events:visiblePainted]"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.25} style={{ pointerEvents: "none" }} />
               <XAxis
                 type="number"
                 dataKey="c"
