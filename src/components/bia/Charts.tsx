@@ -567,6 +567,55 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         fill="hsl(var(--foreground))"
                         fontWeight={payload.isHIud ? 600 : 500}
                       >
+              {/* Efficiency Frontier line — dashed & translucent */}
+              <Line
+                data={frontier}
+                dataKey="b"
+                type="linear"
+                stroke="hsl(217 91% 50%)"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                strokeOpacity={0.4}
+                dot={false}
+                activeDot={false}
+                isAnimationActive={false}
+                legendType="none"
+              />
+              <Scatter
+                data={scatterData}
+                shape={(props: any) => {
+                  const { cx, cy, payload } = props;
+                  const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
+                  // Reposition labels to ~1-2 o'clock (positive dx, negative dy)
+                  const lx = cx + r + 6;
+                  const ly = cy - r - 2;
+                  return (
+                    <g>
+                      {payload.isHIud && (
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={r + 6}
+                          fill={payload.fill}
+                          opacity={0.18}
+                          style={{ animation: "pulse 2s ease-in-out infinite" }}
+                        />
+                      )}
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={r}
+                        fill={payload.fill}
+                        stroke="hsl(0 0% 100%)"
+                        strokeWidth={payload.isHIud ? 2.5 : 1.5}
+                      />
+                      <text
+                        x={lx}
+                        y={ly}
+                        fontSize={10}
+                        fill="hsl(var(--foreground))"
+                        fontWeight={payload.isHIud ? 600 : 500}
+                      >
                         {payload.name}
                       </text>
                     </g>
