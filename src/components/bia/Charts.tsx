@@ -509,6 +509,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 activeDot={false}
                 isAnimationActive={false}
                 legendType="none"
+                {...({ tooltipType: "none" } as any)}
               />
               <Scatter
                 data={scatterData}
