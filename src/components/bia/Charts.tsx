@@ -14,6 +14,7 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
@@ -302,27 +303,13 @@ interface CEPlaneProps {
 type CEPoint = {
   key: "hIud" | "ns" | "surgical" | "untreated" | "pool";
   name: string;
-  c: number; // total cost (X)
-  b: number; // total DALYs averted vs Untreated baseline (Y)
-  status: "Dominant" | "Efficient" | "Dominated" | "Baseline";
+  c: number; // total cost (X) — relative to Untreated baseline
+  b: number; // total DALYs averted (Y) vs Untreated baseline
   isHIud?: boolean;
   isPool?: boolean;
+  fill: string;
+  r: number;
 };
-
-// Upper-left frontier in (cost, benefit) space:
-// Non-dominated = no other point has c <= and b >= with at least one strict.
-function classifyBenefitFrontier(points: { c: number; b: number }[]): boolean[] {
-  return points.map((p, i) => {
-    for (let j = 0; j < points.length; j++) {
-      if (i === j) continue;
-      const q = points[j];
-      const le = q.c <= p.c && q.b >= p.b;
-      const lt = q.c < p.c || q.b > p.b;
-      if (le && lt) return false;
-    }
-    return true;
-  });
-}
 
 export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProps) {
   const { fmtCurrency } = currency;
@@ -330,300 +317,345 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const arms = ["hIud", "ns", "surgical", "untreated"] as const;
 
   const dU = inputs.dalys.untreated;
+  const cU = inputs.costs.untreated * pop;
 
+  // Untreated is the origin (0, 0): cost relative to baseline, DALYs averted vs baseline.
   const armPts = arms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
-    c: inputs.costs[a] * pop,
-    b: (dU - inputs.dalys[a]) * pop, // DALYs averted vs Untreated
+    c: inputs.costs[a] * pop - cU,
+    b: (dU - inputs.dalys[a]) * pop,
   }));
 
-  // Pooled counterfactual (moves with slider via MS1)
   const ms = inputs.marketShares1;
   const poolC =
     (ms.hIud * inputs.costs.hIud +
       ms.ns * inputs.costs.ns +
       ms.surgical * inputs.costs.surgical +
       ms.untreated * inputs.costs.untreated) *
-    pop;
+      pop -
+    cU;
   const poolDaly =
     ms.hIud * inputs.dalys.hIud +
-      ms.ns * inputs.dalys.ns +
-      ms.surgical * inputs.dalys.surgical +
-      ms.untreated * inputs.dalys.untreated;
+    ms.ns * inputs.dalys.ns +
+    ms.surgical * inputs.dalys.surgical +
+    ms.untreated * inputs.dalys.untreated;
   const poolB = (dU - poolDaly) * pop;
 
-  const all = [
-    ...armPts,
-    { key: "pool" as const, name: "Pooled Counterfactual", c: poolC, b: poolB },
-  ];
-  const eff = classifyBenefitFrontier(all);
-
-  const points: CEPoint[] = all.map((p, i) => {
-    const status: CEPoint["status"] =
-      p.key === "untreated" ? "Baseline" : eff[i] ? "Efficient" : "Dominated";
-    return {
-      ...p,
-      status,
-      isHIud: p.key === "hIud",
-      isPool: p.key === "pool",
-    };
-  });
-
-  // Identify a dominant strategy (strictly dominates all others in cost & benefit)
-  const dominantIdx = points.findIndex((p, i) =>
-    points.every(
-      (q, j) =>
-        i === j || (p.c <= q.c && p.b >= q.b && (p.c < q.c || p.b > q.b)),
-    ),
-  );
-  if (dominantIdx >= 0 && points[dominantIdx].key !== "untreated")
-    points[dominantIdx].status = "Dominant";
-
-  // Frontier line: non-dominated points (excluding the moving pool) sorted by cost asc
-  const frontier = points
-    .filter((p) => p.status !== "Dominated" && !p.isPool)
-    .sort((a, b) => a.c - b.c)
-    .map((p) => ({ c: p.c, b: p.b, name: p.name }));
-
-  // ICER segments (slope between consecutive frontier points)
-  const icers: { from: string; to: string; icer: number }[] = [];
-  for (let i = 1; i < frontier.length; i++) {
-    const prev = frontier[i - 1];
-    const cur = frontier[i];
-    const dB = cur.b - prev.b;
-    const dC = cur.c - prev.c;
-    icers.push({ from: prev.name, to: cur.name, icer: dB > 0 ? dC / dB : NaN });
-  }
-
-  const cs = points.map((p) => p.c);
-  const bs = points.map((p) => p.b);
-  const cMin = Math.min(0, ...cs);
-  const cMax = Math.max(...cs);
-  const bMin = Math.min(0, ...bs);
-  const bMax = Math.max(...bs);
-  const padC = (cMax - cMin) * 0.12 || cMax * 0.1 || 1;
-  const padB = (bMax - bMin) * 0.15 || bMax * 0.15 || 1;
-  const xDomain: [number, number] = [0, cMax + padC];
-  const yDomain: [number, number] = [0, bMax + padB];
-
-  const colorFor = (p: CEPoint) => {
-    if (p.isHIud) return "hsl(265 70% 50%)";
-    if (p.isPool) return "hsl(35 90% 50%)";
-    if (p.key === "ns") return "hsl(173 58% 45%)";
-    if (p.key === "surgical") return "hsl(217 91% 60%)";
+  const colorFor = (key: string): string => {
+    if (key === "hIud") return "hsl(265 70% 50%)";
+    if (key === "pool") return "hsl(35 90% 50%)";
+    if (key === "ns") return "hsl(173 58% 45%)";
+    if (key === "surgical") return "hsl(217 91% 60%)";
     return "hsl(0 70% 55%)"; // untreated
   };
 
-  const scatterData = points.map((p) => ({
-    ...p,
-    fill: colorFor(p),
-    size: p.isHIud ? 280 : p.isPool ? 220 : 160,
-  }));
+  const points: CEPoint[] = [
+    ...armPts.map((p) => ({
+      ...p,
+      isHIud: p.key === "hIud",
+      isPool: false,
+      fill: colorFor(p.key),
+      r: p.key === "hIud" ? 10 : 7,
+    })),
+    {
+      key: "pool" as const,
+      name: "Pooled Counterfactual",
+      c: poolC,
+      b: poolB,
+      isHIud: false,
+      isPool: true,
+      fill: colorFor("pool"),
+      r: 8,
+    },
+  ];
 
-  const poolPoint = points.find((p) => p.isPool);
+  // Frontier: non-dominated arm anchors only (exclude pool), upper-left in (c, b).
+  const armOnly = points.filter((p) => !p.isPool);
+  const nonDominated = armOnly.filter((p, i) =>
+    armOnly.every((q, j) => {
+      if (i === j) return true;
+      const le = q.c <= p.c && q.b >= p.b;
+      const lt = q.c < p.c || q.b > p.b;
+      return !(le && lt);
+    }),
+  );
+  const frontier = [...nonDominated].sort((a, b) => a.c - b.c);
 
-  // ICER lookup by destination point name (for frontier-segment tooltips)
-  const icerByTo = new Map(icers.map((s) => [s.to, s]));
+  // Plot domain (start at 0).
+  const cs = points.map((p) => Math.max(0, p.c));
+  const bs = points.map((p) => Math.max(0, p.b));
+  const cMax = Math.max(1, ...cs);
+  const bMax = Math.max(1, ...bs);
+  const xMax = cMax * 1.18;
+  const yMax = bMax * 1.18;
+
+  // SVG geometry.
+  const W = 720;
+  const H = 380;
+  const M = { top: 24, right: 110, bottom: 56, left: 90 };
+  const innerW = W - M.left - M.right;
+  const innerH = H - M.top - M.bottom;
+  const xScale = (c: number) => M.left + (Math.max(0, c) / xMax) * innerW;
+  const yScale = (b: number) => M.top + innerH - (Math.max(0, b) / yMax) * innerH;
+
+  // Tick generation (5 ticks).
+  const niceTicks = (max: number, n = 5) => {
+    const step = max / n;
+    return Array.from({ length: n + 1 }, (_, i) => i * step);
+  };
+  const xTicks = niceTicks(xMax);
+  const yTicks = niceTicks(yMax);
+
+  // Local-state tooltip (the "nuclear fix").
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [tip, setTip] = useState<{
+    x: number;
+    y: number;
+    point: CEPoint;
+  } | null>(null);
+
+  const showTip = (e: React.MouseEvent, p: CEPoint) => {
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setTip({ x: e.clientX - rect.left, y: e.clientY - rect.top, point: p });
+  };
+  const moveTip = (e: React.MouseEvent) => {
+    if (!tip) return;
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setTip({ ...tip, x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+  const hideTip = () => setTip(null);
+
+  // Hide tooltip when underlying data changes (e.g. coverage slider moves).
+  useEffect(() => {
+    setTip(null);
+  }, [poolC, poolB]);
+
+  const poolPt = points.find((p) => p.isPool)!;
+  const poolCx = xScale(poolPt.c);
+  const poolCy = yScale(poolPt.b);
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Benefit-Cost Efficiency Frontier</CardTitle>
         <p className="text-[11px] text-muted-foreground pt-1">
-          Each strategy plotted by total 5-year cost vs. total DALYs averted
-          relative to the Untreated baseline. The solid line traces the efficiency
-          frontier (non-dominated strategies); its slope between adjacent points is
-          the ICER (cost per additional DALY averted). Points below the frontier
-          exhibit extended dominance.
+          Each strategy plotted by total 5-year cost (relative to Untreated) vs.
+          total DALYs averted vs. the Untreated baseline. The dashed line traces the
+          non-dominated frontier (U → H → S). The orange dot is the pooled
+          counterfactual under the current coverage mix.
         </p>
       </CardHeader>
       <CardContent>
-        <div
-          style={{ width: "100%", height: 380, position: "relative" }}
-          className="[&_.recharts-cartesian-grid]:pointer-events-none [&_.recharts-cartesian-axis]:pointer-events-none [&_.recharts-reference-line]:pointer-events-none [&_.recharts-line]:pointer-events-none [&_.recharts-tooltip-cursor]:hidden"
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.25} style={{ pointerEvents: "none" }} />
-              <XAxis
-                type="number"
-                dataKey="c"
-                domain={[0, xDomain[1]]}
-                allowDataOverflow={false}
-                minTickGap={0}
-                tickFormatter={(v) => fmtCurrency(Number(v))}
-                tick={{ fontSize: 11 }}
-                label={{
-                  value: "Total 5-Year Population Cost",
-                  position: "insideBottom",
-                  offset: -10,
-                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" },
-                }}
+        <div ref={wrapRef} className="relative w-full" style={{ height: H }}>
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            width="100%"
+            height="100%"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ display: "block" }}
+          >
+            {/* Grid */}
+            {xTicks.map((t, i) => (
+              <line
+                key={`xg-${i}`}
+                x1={xScale(t)}
+                x2={xScale(t)}
+                y1={M.top}
+                y2={M.top + innerH}
+                stroke="hsl(var(--muted-foreground))"
+                strokeOpacity={0.12}
+                strokeDasharray="3 3"
               />
-              <YAxis
-                type="number"
-                dataKey="b"
-                domain={[0, yDomain[1]]}
-                allowDataOverflow={false}
-                minTickGap={0}
-                tickFormatter={(v) => fmtInt(Number(v))}
-                tick={{ fontSize: 11 }}
-                label={{
-                  value: "Total DALYs Averted (Population Health Benefit)",
-                  angle: -90,
-                  position: "insideLeft",
-                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
-                }}
+            ))}
+            {yTicks.map((t, i) => (
+              <line
+                key={`yg-${i}`}
+                x1={M.left}
+                x2={M.left + innerW}
+                y1={yScale(t)}
+                y2={yScale(t)}
+                stroke="hsl(var(--muted-foreground))"
+                strokeOpacity={0.12}
+                strokeDasharray="3 3"
               />
-              <ZAxis type="number" dataKey="size" range={[120, 320]} />
-              {/* Pooled Counterfactual crosshair drop-lines (behind dots) */}
-              {poolPoint ? (
-                <ReferenceLine
-                  x={poolPoint.c}
-                  stroke="hsl(35 90% 50%)"
-                  strokeDasharray="3 3"
-                  strokeOpacity={0.45}
-                  ifOverflow="extendDomain"
-                  isFront={false}
-                />
-              ) : null}
-              {poolPoint ? (
-                <ReferenceLine
-                  y={poolPoint.b}
-                  stroke="hsl(35 90% 50%)"
-                  strokeDasharray="3 3"
-                  strokeOpacity={0.45}
-                  ifOverflow="extendDomain"
-                  isFront={false}
-                />
-              ) : null}
-              <Tooltip
-                cursor={false}
-                trigger="hover"
-                shared={false}
-                isAnimationActive={false}
-                {...({ tooltipType: "item" } as any)}
-                content={({ active, payload }: any) => {
-                  if (!active || !payload?.length) return null;
-                  const datum = payload[0]?.payload as (CEPoint & { fill: string }) | undefined;
-                  if (!datum || datum.c === undefined || datum.b === undefined) return null;
-                  return (
-                    <div
-                      className="rounded-md border bg-background/95 px-3 py-2 text-xs shadow-md"
-                      style={{ color: datum.fill }}
-                    >
-                      <div className="font-semibold mb-1">{datum.name}</div>
-                      <div>Cost: {fmtCurrency(datum.c)}</div>
-                      <div>DALYs Averted: {fmtInt(datum.b)}</div>
-                    </div>
-                  );
-                }}
-              />
-              {/* Efficiency Frontier line — dashed & translucent */}
-              <Line
-                data={frontier}
-                dataKey="b"
-                type="linear"
+            ))}
+
+            {/* Axes */}
+            <line
+              x1={M.left}
+              x2={M.left + innerW}
+              y1={M.top + innerH}
+              y2={M.top + innerH}
+              stroke="hsl(var(--muted-foreground))"
+              strokeOpacity={0.5}
+            />
+            <line
+              x1={M.left}
+              x2={M.left}
+              y1={M.top}
+              y2={M.top + innerH}
+              stroke="hsl(var(--muted-foreground))"
+              strokeOpacity={0.5}
+            />
+
+            {/* X tick labels */}
+            {xTicks.map((t, i) => (
+              <text
+                key={`xt-${i}`}
+                x={xScale(t)}
+                y={M.top + innerH + 14}
+                textAnchor="middle"
+                fontSize={10}
+                fill="hsl(var(--muted-foreground))"
+              >
+                {fmtCurrency(t)}
+              </text>
+            ))}
+            {/* Y tick labels */}
+            {yTicks.map((t, i) => (
+              <text
+                key={`yt-${i}`}
+                x={M.left - 8}
+                y={yScale(t) + 3}
+                textAnchor="end"
+                fontSize={10}
+                fill="hsl(var(--muted-foreground))"
+              >
+                {fmtInt(t)}
+              </text>
+            ))}
+
+            {/* Axis titles */}
+            <text
+              x={M.left + innerW / 2}
+              y={H - 14}
+              textAnchor="middle"
+              fontSize={11}
+              fill="hsl(var(--muted-foreground))"
+            >
+              Total 5-Year Population Cost (vs. Untreated)
+            </text>
+            <text
+              x={18}
+              y={M.top + innerH / 2}
+              textAnchor="middle"
+              fontSize={11}
+              fill="hsl(var(--muted-foreground))"
+              transform={`rotate(-90 18 ${M.top + innerH / 2})`}
+            >
+              Total DALYs Averted (vs. Untreated)
+            </text>
+
+            {/* Pooled crosshair drop-lines (very subtle) */}
+            <line
+              x1={poolCx}
+              x2={poolCx}
+              y1={M.top + innerH}
+              y2={poolCy}
+              stroke={colorFor("pool")}
+              strokeOpacity={0.2}
+              strokeDasharray="3 3"
+              pointerEvents="none"
+            />
+            <line
+              x1={M.left}
+              x2={poolCx}
+              y1={poolCy}
+              y2={poolCy}
+              stroke={colorFor("pool")}
+              strokeOpacity={0.2}
+              strokeDasharray="3 3"
+              pointerEvents="none"
+            />
+
+            {/* Frontier line (translucent dashed) */}
+            {frontier.length >= 2 && (
+              <polyline
+                points={frontier.map((p) => `${xScale(p.c)},${yScale(p.b)}`).join(" ")}
+                fill="none"
                 stroke="hsl(217 91% 50%)"
-                strokeWidth={2}
+                strokeWidth={1.6}
                 strokeDasharray="5 5"
                 strokeOpacity={0.4}
-                dot={false}
-                activeDot={false}
-                isAnimationActive={false}
-                legendType="none"
-                {...({ tooltipType: "none" } as any)}
+                pointerEvents="none"
               />
-              <Scatter
-                data={scatterData}
-                {...({ tooltipType: "item" } as any)}
-                isAnimationActive={false}
-                activeShape={(props: any) => {
-                  const { cx, cy, payload } = props;
-                  const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
-                  const lx = cx + r + 10;
-                  const ly = cy - r - 4;
-                  return (
-                    <g style={{ pointerEvents: "none" }}>
-                      {payload.isHIud && (
-                        <circle
-                          cx={cx}
-                          cy={cy}
-                          r={r + 6}
-                          fill={payload.fill}
-                          opacity={0.18}
-                          style={{ animation: "pulse 2s ease-in-out infinite" }}
-                        />
-                      )}
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={r + 1.5}
-                        fill={payload.fill}
-                        stroke="hsl(0 0% 100%)"
-                        strokeWidth={2}
-                      />
-                      <text
-                        x={lx}
-                        y={ly}
-                        fontSize={10}
-                        fill="hsl(var(--foreground))"
-                        fontWeight={payload.isHIud ? 600 : 500}
-                      >
-                        {payload.name}
-                      </text>
-                    </g>
-                  );
-                }}
-                shape={(props: any) => {
-                  const { cx, cy, payload } = props;
-                  const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
-                  const lx = cx + r + 10;
-                  const ly = cy - r - 4;
-                  return (
-                    <g>
-                      {payload.isHIud && (
-                        <circle
-                          cx={cx}
-                          cy={cy}
-                          r={r + 6}
-                          fill={payload.fill}
-                          opacity={0.18}
-                          style={{ pointerEvents: "none", animation: "pulse 2s ease-in-out infinite" }}
-                        />
-                      )}
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={r}
-                        fill={payload.fill}
-                        stroke="hsl(0 0% 100%)"
-                        strokeWidth={payload.isHIud ? 2.5 : 1.5}
-                        style={{ pointerEvents: "visiblePainted" }}
-                      />
-                      <text
-                        x={lx}
-                        y={ly}
-                        fontSize={10}
-                        fill="hsl(var(--foreground))"
-                        fontWeight={payload.isHIud ? 600 : 500}
-                        style={{ pointerEvents: "none" }}
-                      >
-                        {payload.name}
-                      </text>
-                    </g>
-                  );
-                }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+            )}
+
+            {/* Dots — only these have hover handlers */}
+            {points.map((p) => {
+              const cx = xScale(p.c);
+              const cy = yScale(p.b);
+              // Label at 1-2 o'clock (offset NE)
+              const lx = cx + p.r + 6;
+              const ly = cy - p.r - 4;
+              return (
+                <g key={p.key}>
+                  {p.isHIud && (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={p.r + 6}
+                      fill={p.fill}
+                      opacity={0.18}
+                      pointerEvents="none"
+                      style={{ animation: "pulse 2s ease-in-out infinite" }}
+                    />
+                  )}
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={p.r}
+                    fill={p.fill}
+                    stroke="hsl(0 0% 100%)"
+                    strokeWidth={p.isHIud ? 2.5 : 1.5}
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={(e) => showTip(e, p)}
+                    onMouseMove={moveTip}
+                    onMouseLeave={hideTip}
+                  />
+                  <text
+                    x={lx}
+                    y={ly}
+                    fontSize={10}
+                    fill="hsl(var(--foreground))"
+                    fontWeight={p.isHIud ? 600 : 500}
+                    pointerEvents="none"
+                  >
+                    {p.name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Custom HTML tooltip — only renders when a dot is hovered */}
+          {tip && (
+            <div
+              className="absolute pointer-events-none text-xs font-medium"
+              style={{
+                left: tip.x + 12,
+                top: tip.y + 12,
+                color: tip.point.fill,
+                textShadow:
+                  "0 0 3px hsl(var(--background)), 0 0 3px hsl(var(--background)), 0 0 3px hsl(var(--background))",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <div className="font-semibold mb-0.5">{tip.point.name}</div>
+              <div>Cost: {fmtCurrency(tip.point.c)}</div>
+              <div>DALYs Averted: {fmtInt(tip.point.b)}</div>
+            </div>
+          )}
+
           {/* Value Direction key — overlay, bottom-right */}
           <div
             className="absolute pointer-events-none select-none"
             style={{
               right: 16,
-              bottom: 44,
+              bottom: 56,
               width: 96,
               height: 96,
               color: "hsl(160 60% 32%)",
@@ -644,13 +676,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
                 </marker>
               </defs>
-              {/* North arrow (Higher Benefit) */}
               <line x1="60" y1="60" x2="60" y2="20" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              {/* West arrow (Lower Cost) */}
               <line x1="60" y1="60" x2="20" y2="60" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              {/* Diagonal NW arrow (Target Direction) — slightly smaller */}
               <line x1="60" y1="60" x2="34" y2="34" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
-              {/* Labels */}
               <text x="64" y="16" fontSize="7" fill="currentColor" fontWeight="600">Higher</text>
               <text x="64" y="24" fontSize="7" fill="currentColor" fontWeight="600">Benefit</text>
               <text x="18" y="74" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
