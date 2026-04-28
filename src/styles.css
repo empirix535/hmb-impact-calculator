@@ -184,5 +184,11 @@
   .key-input [role="slider"] {
     border-color: var(--key-accent) !important;
   }
+  .patient-migration-sankey,
+  .patient-migration-sankey .recharts-wrapper,
+  .patient-migration-sankey svg,
+  .patient-migration-sankey .recharts-surface {
+    overflow: visible !important;
+  }
 }
 
