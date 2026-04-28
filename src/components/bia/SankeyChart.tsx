@@ -19,12 +19,22 @@ const NODE_COLORS: Record<string, string> = {
   "Remaining Untreated": "hsl(231 48% 75%)",
 };
 
-function CustomNode({ x, y, width, height, index, payload }: any) {
+function CustomNode(props: any) {
+  const { x, y, width, height, index, payload, ...rest } = props;
   const fill = NODE_COLORS[payload.name] ?? "hsl(215 20% 65%)";
   const isLeft = index < 4;
   return (
     <Layer key={`node-${index}`}>
-      <Rectangle x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.95} />
+      <Rectangle
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        fillOpacity={0.95}
+        style={{ pointerEvents: "all", cursor: "pointer" }}
+        {...rest}
+      />
       <text
         x={isLeft ? x - 8 : x + width + 8}
         y={y + height / 2}
@@ -32,6 +42,7 @@ function CustomNode({ x, y, width, height, index, payload }: any) {
         dominantBaseline="middle"
         fontSize={12}
         fill="hsl(var(--foreground))"
+        style={{ pointerEvents: "none" }}
       >
         {payload.name}
       </text>
@@ -40,7 +51,18 @@ function CustomNode({ x, y, width, height, index, payload }: any) {
 }
 
 function CustomLink(props: any) {
-  const { sourceX, targetX, sourceY, targetY, sourceControlX, targetControlX, linkWidth, index } = props;
+  const {
+    sourceX,
+    targetX,
+    sourceY,
+    targetY,
+    sourceControlX,
+    targetControlX,
+    linkWidth,
+    index,
+    payload,
+    ...rest
+  } = props;
   return (
     <path
       key={`link-${index}`}
@@ -52,6 +74,8 @@ function CustomLink(props: any) {
       stroke="hsl(215 25% 50%)"
       strokeOpacity={0.25}
       strokeWidth={linkWidth}
+      style={{ pointerEvents: "stroke", cursor: "pointer" }}
+      {...rest}
     />
   );
 }
@@ -170,7 +194,7 @@ export function SankeyChart({ result, deltas }: Props) {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
-      <CardContent className="h-96">
+      <CardContent className="h-96 overflow-visible">
         <div className="flex h-full flex-col">
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
@@ -183,7 +207,11 @@ export function SankeyChart({ result, deltas }: Props) {
                 node={<CustomNode />}
                 link={<CustomLink />}
               >
-                <Tooltip content={<TooltipContent />} />
+                <Tooltip
+                  content={<TooltipContent />}
+                  wrapperStyle={{ zIndex: 50, pointerEvents: "none" }}
+                  isAnimationActive={false}
+                />
               </Sankey>
             </ResponsiveContainer>
           </div>
