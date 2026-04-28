@@ -193,6 +193,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
     hmbPrevalenceInt,
     hmbCasesAverted,
     anemiaCasesAverted,
+    dalysAverted,
+    dalysAvertedByArm,
     breakdown,
   };
 }
