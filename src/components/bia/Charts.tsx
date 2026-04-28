@@ -295,15 +295,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
               {data.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={
-                    d.isTotal
-                      ? d.value >= 0
-                        ? "hsl(265 70% 50%)"
-                        : "hsl(0 75% 45%)"
-                      : d.value >= 0
-                        ? "hsl(173 58% 45%)"
-                        : "hsl(0 70% 55%)"
-                  }
+                  fill={d.value >= 0 ? d.color : PALETTE.negative}
                 />
               ))}
             </Bar>
