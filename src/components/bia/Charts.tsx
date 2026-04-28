@@ -370,78 +370,79 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     size: p.isHIud ? 280 : p.isPool ? 220 : 160,
   }));
 
+  // ICER lookup by destination point name (for frontier-segment tooltips)
+  const icerByTo = new Map(icers.map((s) => [s.to, s]));
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Cost-Effectiveness Plane (Efficiency Frontier)</CardTitle>
+        <CardTitle className="text-sm">Benefit-Cost Efficiency Frontier</CardTitle>
         <p className="text-[11px] text-muted-foreground pt-1">
-          Each strategy plotted by total population health burden vs. total 5-year cost. The dashed
-          line traces the efficiency frontier (non-dominated strategies). The bottom-left quadrant
-          is the Value Zone — lower cost and lower disease burden.
+          Each strategy plotted by total 5-year cost vs. total DALYs averted
+          relative to the Untreated baseline. The solid line traces the efficiency
+          frontier (non-dominated strategies); its slope between adjacent points is
+          the ICER (cost per additional DALY averted). Points below the frontier
+          exhibit extended dominance.
         </p>
       </CardHeader>
       <CardContent>
-        <div style={{ width: "100%", height: 360 }}>
+        <div style={{ width: "100%", height: 380 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart margin={{ top: 10, right: 20, left: 20, bottom: 20 }}>
+            <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-              <ReferenceArea
-                x1={xDomain[0]}
-                x2={dMid}
-                y1={yDomain[0]}
-                y2={cMid}
-                fill="hsl(160 70% 45%)"
-                fillOpacity={0.06}
-                label={{
-                  value: "Value Zone",
-                  position: "insideBottomLeft",
-                  fill: "hsl(160 60% 35%)",
-                  fontSize: 10,
-                  fontWeight: 600,
-                }}
-              />
               <XAxis
                 type="number"
-                dataKey="d"
+                dataKey="c"
                 domain={xDomain}
-                tickFormatter={(v) => fmtInt(Number(v))}
+                tickFormatter={(v) => fmtCurrency(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
-                  value: "Health Burden (Total DALYs)",
+                  value: "Total 5-Year Population Cost",
                   position: "insideBottom",
-                  offset: -8,
+                  offset: -10,
                   style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" },
                 }}
               />
               <YAxis
                 type="number"
-                dataKey="c"
+                dataKey="b"
                 domain={yDomain}
-                tickFormatter={(v) => fmtCurrency(Number(v))}
+                tickFormatter={(v) => fmtInt(Number(v))}
                 tick={{ fontSize: 11 }}
                 label={{
-                  value: "Economic Burden (Total Costs)",
+                  value: "Total DALYs Averted (Population Health Benefit)",
                   angle: -90,
                   position: "insideLeft",
                   style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
                 }}
               />
               <ZAxis type="number" dataKey="size" range={[120, 320]} />
+              {/* Top-left value zone label */}
+              <text
+                x="6%"
+                y="8%"
+                fontSize={11}
+                fontWeight={600}
+                fill="hsl(160 60% 35%)"
+              >
+                ↖ Optimal Value Zone (Max Benefit, Min Cost)
+              </text>
               <Tooltip
                 cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
                 content={({ active, payload }: any) => {
                   if (!active || !payload?.length) return null;
                   const p: CEPoint & { fill: string } = payload[0].payload;
+                  const icerSeg = icerByTo.get(p.name);
                   return (
-                    <div className="rounded-md border bg-background/95 px-3 py-2 text-xs shadow-md">
+                    <div className="rounded-md border bg-background/95 px-3 py-2 text-xs shadow-md max-w-[260px]">
                       <div className="font-semibold mb-1" style={{ color: p.fill }}>
                         {p.name}
                       </div>
                       <div className="text-muted-foreground">
-                        DALYs: <span className="text-foreground">{fmtInt(p.d)}</span>
+                        Cost: <span className="text-foreground">{fmtCurrency(p.c)}</span>
                       </div>
                       <div className="text-muted-foreground">
-                        Cost: <span className="text-foreground">{fmtCurrency(p.c)}</span>
+                        DALYs averted: <span className="text-foreground">{fmtInt(p.b)}</span>
                       </div>
                       <div className="mt-1 font-medium">
                         Status:{" "}
@@ -452,24 +453,37 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                                 ? "hsl(160 70% 35%)"
                                 : p.status === "Efficient"
                                   ? "hsl(217 91% 50%)"
-                                  : "hsl(0 70% 45%)",
+                                  : p.status === "Baseline"
+                                    ? "hsl(var(--muted-foreground))"
+                                    : "hsl(0 70% 45%)",
                           }}
                         >
                           {p.status}
                         </span>
                       </div>
+                      {icerSeg && Number.isFinite(icerSeg.icer) && (
+                        <div className="mt-2 pt-2 border-t text-[11px] text-muted-foreground leading-snug">
+                          <div className="font-medium text-foreground mb-0.5">
+                            ICER vs {icerSeg.from}
+                          </div>
+                          {fmtCurrency(icerSeg.icer)} per additional DALY averted.
+                          <div className="mt-1 italic">
+                            The gradient between these points represents the ICER
+                            (cost per additional DALY averted).
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 }}
               />
-              {/* Efficiency Frontier line */}
+              {/* Efficiency Frontier line (solid, concave upper-left envelope) */}
               <Line
                 data={frontier}
-                dataKey="c"
+                dataKey="b"
                 type="linear"
                 stroke="hsl(217 91% 50%)"
-                strokeWidth={1.5}
-                strokeDasharray="6 4"
+                strokeWidth={2}
                 dot={false}
                 activeDot={false}
                 isAnimationActive={false}
