@@ -651,10 +651,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={p.r}
+                    r={p.isPool ? p.r + 2 : p.r}
                     fill={p.fill}
-                    stroke="hsl(0 0% 100%)"
-                    strokeWidth={p.isHIud ? 2.5 : 1.5}
+                    stroke="#FFFFFF"
+                    strokeWidth={p.isPool ? 3 : p.isHIud ? 2.5 : 1.5}
+                    filter={p.isPool ? "url(#frontier-pool-shadow)" : undefined}
                     style={{ cursor: "pointer" }}
                     onMouseEnter={(e) => showTip(e, p)}
                     onMouseMove={moveTip}
