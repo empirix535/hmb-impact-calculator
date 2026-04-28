@@ -370,6 +370,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     size: p.isHIud ? 280 : p.isPool ? 220 : 160,
   }));
 
+  const poolPoint = points.find((p) => p.isPool);
+
   // ICER lookup by destination point name (for frontier-segment tooltips)
   const icerByTo = new Map(icers.map((s) => [s.to, s]));
 
