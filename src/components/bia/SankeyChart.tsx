@@ -19,12 +19,22 @@ const NODE_COLORS: Record<string, string> = {
   "Remaining Untreated": "hsl(231 48% 75%)",
 };
 
-function CustomNode({ x, y, width, height, index, payload }: any) {
+function CustomNode(props: any) {
+  const { x, y, width, height, index, payload, ...rest } = props;
   const fill = NODE_COLORS[payload.name] ?? "hsl(215 20% 65%)";
   const isLeft = index < 4;
   return (
     <Layer key={`node-${index}`}>
-      <Rectangle x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.95} />
+      <Rectangle
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        fillOpacity={0.95}
+        style={{ pointerEvents: "all", cursor: "pointer" }}
+        {...rest}
+      />
       <text
         x={isLeft ? x - 8 : x + width + 8}
         y={y + height / 2}
@@ -32,6 +42,7 @@ function CustomNode({ x, y, width, height, index, payload }: any) {
         dominantBaseline="middle"
         fontSize={12}
         fill="hsl(var(--foreground))"
+        style={{ pointerEvents: "none" }}
       >
         {payload.name}
       </text>
@@ -40,7 +51,18 @@ function CustomNode({ x, y, width, height, index, payload }: any) {
 }
 
 function CustomLink(props: any) {
-  const { sourceX, targetX, sourceY, targetY, sourceControlX, targetControlX, linkWidth, index } = props;
+  const {
+    sourceX,
+    targetX,
+    sourceY,
+    targetY,
+    sourceControlX,
+    targetControlX,
+    linkWidth,
+    index,
+    payload,
+    ...rest
+  } = props;
   return (
     <path
       key={`link-${index}`}
@@ -52,6 +74,8 @@ function CustomLink(props: any) {
       stroke="hsl(215 25% 50%)"
       strokeOpacity={0.25}
       strokeWidth={linkWidth}
+      style={{ pointerEvents: "stroke", cursor: "pointer" }}
+      {...rest}
     />
   );
 }
