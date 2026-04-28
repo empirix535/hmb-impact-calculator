@@ -683,7 +683,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               bottom: `calc(${(M.bottom / H) * 100}% + 12px)`,
               width: 84,
               height: 84,
-              color: "hsl(160 60% 32%)",
+              color: PALETTE.positive,
             }}
             aria-label="Value Direction key"
           >
