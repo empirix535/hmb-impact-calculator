@@ -208,7 +208,7 @@ export function SankeyChart({ result }: Props) {
     ],
   };
 
-  const handleLinkHover = (payload: SankeyLinkPayload, event: ReactMouseEvent<SVGPathElement>) => {
+  const handleLinkEnter = (payload: SankeyLinkPayload, event: ReactMouseEvent<SVGPathElement>) => {
     console.debug("Sankey link hover payload", {
       label: `${payload.source.name} → ${payload.target.name}`,
       deltaPopulation: new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
@@ -217,6 +217,10 @@ export function SankeyChart({ result }: Props) {
       percentage: `${(payload.actualValue * 100).toFixed(2)}%`,
       payload,
     });
+    setActiveLink({ key: payload.key, x: event.clientX, y: event.clientY, payload });
+  };
+
+  const handleLinkMove = (payload: SankeyLinkPayload, event: ReactMouseEvent<SVGPathElement>) => {
     setActiveLink({ key: payload.key, x: event.clientX, y: event.clientY, payload });
   };
 
@@ -242,8 +246,8 @@ export function SankeyChart({ result }: Props) {
                   <CustomLink
                     activeLinkKey={activeLink?.key}
                     hasActiveLink={Boolean(activeLink)}
-                    onLinkEnter={handleLinkHover}
-                    onLinkMove={handleLinkHover}
+                    onLinkEnter={handleLinkEnter}
+                    onLinkMove={handleLinkMove}
                     onLinkLeave={() => setActiveLink(null)}
                   />
                 }
