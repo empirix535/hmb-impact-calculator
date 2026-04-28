@@ -64,20 +64,20 @@ function BiaDashboard() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 p-8">
         <aside className="lg:sticky lg:top-[81px] lg:self-start lg:max-h-[calc(100vh-97px)] lg:overflow-y-auto pr-1">
           <ControlCenter model={model} />
         </aside>
 
-        <main className="space-y-6 min-w-0">
+        <main className="space-y-8 min-w-0">
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
           <SankeyChart result={model.result} deltas={model.deltas} />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <DalyAttributionChart result={model.result} />
             <ClinicalChart result={model.result} />
           </div>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <CostChart result={model.result} currency={currencyFmt} />
             <WaterfallChart result={model.result} currency={currencyFmt} />
           </div>
