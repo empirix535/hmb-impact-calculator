@@ -153,7 +153,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Intervention"
                 fill={PALETTE.intervention}
                 stroke="none"
-                radius={3}
+                radius={[6, 6, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
