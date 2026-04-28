@@ -579,11 +579,10 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 shape={(props: any) => {
                   const { cx, cy, payload } = props;
                   const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
-                  // Larger offset so labels don't block the moving Pooled dot
                   const lx = cx + r + 10;
                   const ly = cy - r - 4;
                   return (
-                    <g style={{ pointerEvents: "none" }}>
+                    <g>
                       {payload.isHIud && (
                         <circle
                           cx={cx}
@@ -591,7 +590,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                           r={r + 6}
                           fill={payload.fill}
                           opacity={0.18}
-                          style={{ animation: "pulse 2s ease-in-out infinite" }}
+                          style={{ pointerEvents: "none", animation: "pulse 2s ease-in-out infinite" }}
                         />
                       )}
                       <circle
@@ -609,6 +608,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         fontSize={10}
                         fill="hsl(var(--foreground))"
                         fontWeight={payload.isHIud ? 600 : 500}
+                        style={{ pointerEvents: "none" }}
                       >
                         {payload.name}
                       </text>
