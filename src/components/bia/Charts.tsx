@@ -97,10 +97,21 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                   style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
                 }}
               />
-              <Tooltip formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]} />
+              <Tooltip
+                cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]}
+              />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
-              <Bar dataKey="Intervention" fill="hsl(173 58% 45%)" />
+              <Bar
+                dataKey="Status Quo"
+                fill="hsl(220 13% 65%)"
+                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+              />
+              <Bar
+                dataKey="Intervention"
+                fill="hsl(173 58% 45%)"
+                activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -202,12 +213,15 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
               }}
             />
             <Tooltip
-              cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+              cursor={{ fill: "rgba(0,0,0,0.04)" }}
               formatter={(v: number) => [`Total DALYs Averted: ${fmtInt(Number(v))}`, ""]}
               labelFormatter={(l: string) => l}
               separator=""
             />
-            <Bar dataKey="value">
+            <Bar
+              dataKey="value"
+              activeBar={{ stroke: "hsl(0 0% 100%)", strokeWidth: 2, style: { filter: "brightness(1.1)" } }}
+            >
               {data.map((d, i) => (
                 <Cell
                   key={i}
