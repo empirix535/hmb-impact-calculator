@@ -234,7 +234,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} style={{ pointerEvents: "none" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} horizontal vertical={false} style={{ pointerEvents: "none" }} />
             <XAxis
               dataKey="src"
               interval={0}
