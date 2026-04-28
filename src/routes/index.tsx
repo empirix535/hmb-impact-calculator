@@ -8,6 +8,7 @@ import {
   CostChart,
   WaterfallChart,
 } from "@/components/bia/Charts";
+import { SankeyChart } from "@/components/bia/SankeyChart";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
 import { COUNTRIES } from "@/lib/bia/countries";
 import { makeCurrencyFormatters } from "@/lib/bia/format";
@@ -69,6 +70,7 @@ function BiaDashboard() {
         <main className="space-y-6 min-w-0">
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
+          <SankeyChart result={model.result} deltas={model.deltas} />
           <ClinicalChart result={model.result} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <CostChart result={model.result} currency={currencyFmt} />
