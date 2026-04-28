@@ -251,6 +251,14 @@ export function SankeyChart({ result }: Props) {
         <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
       <CardContent className="h-96 overflow-visible">
+        <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+          <defs>
+            <linearGradient id="sankey-grey-to-orange" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#94A3B8" />
+              <stop offset="100%" stopColor="#FF4719" />
+            </linearGradient>
+          </defs>
+        </svg>
         <div className="flex h-full flex-col overflow-visible">
           <div className="min-h-0 flex-1 overflow-visible">
             <ResponsiveContainer width="100%" height="100%" className="overflow-visible">
