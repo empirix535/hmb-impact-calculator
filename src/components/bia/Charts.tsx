@@ -174,7 +174,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
   ];
   const hasNegative = data.some((d) => d.value < 0);
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">DALY Attribution Analysis</CardTitle>
         <p className="text-[11px] text-muted-foreground pt-1">
@@ -182,23 +182,27 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
           Reflects a marginal change of (Dᵢ − D_H) DALYs per woman transitioned.
         </p>
       </CardHeader>
-      <CardContent className="h-80">
+      <CardContent className="flex-1 h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+          <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal vertical={false} />
             <XAxis dataKey="src" tick={{ fontSize: 11 }} />
             <YAxis
               tickFormatter={(v) => fmtInt(Number(v))}
-              tick={{ fontSize: 12 }}
-              domain={hasNegative ? ["auto", "auto"] : [0, "auto"]}
+              tick={{ fontSize: 11 }}
+              domain={["auto", "auto"]}
+              label={{
+                value: "Total Discounted DALYs Averted",
+                angle: -90,
+                position: "insideLeft",
+                style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+              }}
             />
-            <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.6} />
             <Tooltip
-              formatter={(v: number) => [
-                `Total DALYs Averted: ${fmtInt(Number(v))}`,
-                "A negative value indicates a marginal health loss relative to the baseline modality for the migrated population.",
-              ]}
+              cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+              formatter={(v: number) => [`Total DALYs Averted: ${fmtInt(Number(v))}`, ""]}
               labelFormatter={(l: string) => l}
+              separator=""
             />
             <Bar dataKey="value">
               {data.map((d, i) => (
