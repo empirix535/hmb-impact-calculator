@@ -439,10 +439,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         </p>
       </CardHeader>
       <CardContent>
-        <div style={{ width: "100%", height: 380, position: "relative" }}>
+        <div
+          style={{ width: "100%", height: 380, position: "relative" }}
+          className="[&_.recharts-cartesian-grid]:pointer-events-none [&_.recharts-cartesian-axis]:pointer-events-none [&_.recharts-reference-line]:pointer-events-none [&_.recharts-line]:pointer-events-none [&_.recharts-tooltip-cursor]:hidden"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.25} style={{ pointerEvents: "none" }} />
               <XAxis
                 type="number"
                 dataKey="c"
@@ -576,11 +579,10 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 shape={(props: any) => {
                   const { cx, cy, payload } = props;
                   const r = payload.isHIud ? 11 : payload.isPool ? 9 : 7;
-                  // Larger offset so labels don't block the moving Pooled dot
                   const lx = cx + r + 10;
                   const ly = cy - r - 4;
                   return (
-                    <g style={{ pointerEvents: "none" }}>
+                    <g>
                       {payload.isHIud && (
                         <circle
                           cx={cx}
@@ -588,7 +590,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                           r={r + 6}
                           fill={payload.fill}
                           opacity={0.18}
-                          style={{ animation: "pulse 2s ease-in-out infinite" }}
+                          style={{ pointerEvents: "none", animation: "pulse 2s ease-in-out infinite" }}
                         />
                       )}
                       <circle
@@ -606,6 +608,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                         fontSize={10}
                         fill="hsl(var(--foreground))"
                         fontWeight={payload.isHIud ? 600 : 500}
+                        style={{ pointerEvents: "none" }}
                       >
                         {payload.name}
                       </text>
