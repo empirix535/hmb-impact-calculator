@@ -94,7 +94,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                   value: "Prevalence (%)",
                   angle: -90,
                   position: "insideLeft",
-                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+                  style: { fontSize: 11, fill: "var(--muted-foreground)", textAnchor: "middle" },
                 }}
               />
               <Tooltip
@@ -236,7 +236,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
                         dy={10}
                         textAnchor="middle"
                         fontSize={11}
-                        fill="hsl(var(--muted-foreground))"
+                        fill="var(--muted-foreground)"
                       >
                         {ln}
                       </text>
@@ -255,7 +255,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
                 value: "Total Discounted DALYs Averted",
                 angle: -90,
                 position: "insideLeft",
-                style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+                style: { fontSize: 11, fill: "var(--muted-foreground)", textAnchor: "middle" },
               }}
             />
             <Tooltip
@@ -465,7 +465,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 x2={xScale(t)}
                 y1={M.top}
                 y2={M.top + innerH}
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 strokeOpacity={0.12}
                 strokeDasharray="3 3"
               />
@@ -477,7 +477,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 x2={M.left + innerW}
                 y1={yScale(t)}
                 y2={yScale(t)}
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 strokeOpacity={0.12}
                 strokeDasharray="3 3"
               />
@@ -489,7 +489,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               x2={M.left + innerW}
               y1={M.top + innerH}
               y2={M.top + innerH}
-              stroke="hsl(var(--muted-foreground))"
+              stroke="var(--muted-foreground)"
               strokeOpacity={0.5}
             />
             <line
@@ -497,7 +497,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               x2={M.left}
               y1={M.top}
               y2={M.top + innerH}
-              stroke="hsl(var(--muted-foreground))"
+              stroke="var(--muted-foreground)"
               strokeOpacity={0.5}
             />
 
@@ -509,7 +509,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 y={M.top + innerH + 14}
                 textAnchor="middle"
                 fontSize={10}
-                fill="hsl(var(--muted-foreground))"
+                fill="var(--muted-foreground)"
               >
                 {fmtCurrency(t)}
               </text>
@@ -522,7 +522,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 y={yScale(t) + 3}
                 textAnchor="end"
                 fontSize={10}
-                fill="hsl(var(--muted-foreground))"
+                fill="var(--muted-foreground)"
               >
                 {fmtInt(t)}
               </text>
@@ -534,7 +534,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               y={H - 14}
               textAnchor="middle"
               fontSize={11}
-              fill="hsl(var(--muted-foreground))"
+              fill="var(--muted-foreground)"
             >
               Total 5-Year Population Cost (vs. Untreated)
             </text>
@@ -543,7 +543,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               y={M.top + innerH / 2}
               textAnchor="middle"
               fontSize={11}
-              fill="hsl(var(--muted-foreground))"
+              fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
             >
               Total DALYs Averted (vs. Untreated)
@@ -620,7 +620,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                     x={lx}
                     y={ly}
                     fontSize={10}
-                    fill="hsl(var(--foreground))"
+                    fill="var(--foreground)"
                     fontWeight={p.isHIud ? 600 : 500}
                     pointerEvents="none"
                   >
@@ -640,7 +640,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 top: tip.y + 12,
                 color: tip.point.fill,
                 textShadow:
-                  "0 0 3px hsl(var(--background)), 0 0 3px hsl(var(--background)), 0 0 3px hsl(var(--background))",
+                  "0 0 3px var(--background), 0 0 3px var(--background), 0 0 3px var(--background)",
                 whiteSpace: "nowrap",
               }}
             >
