@@ -27,20 +27,18 @@ type ActiveLink = {
   payload: SankeyLinkPayload;
 };
 
-// Aligned with the shared chart palette in Charts.tsx (PALETTE).
-// Baseline (left) nodes use a lighter tint of each arm's color so flows are
-// readable, while destination (right) nodes use the canonical arm color.
+// "Horizon Minimalist" — all nodes in greys, H-IUD nodes in horizon orange.
 const NODE_COLORS: Record<string, string> = {
-  // Baseline (left) — boundless-blue family at varying tints
-  "Baseline H-IUD": "#FF8A6B", // soft horizon
-  "Baseline Surgical": "#7D8794", // muted slate
-  "Baseline Non-Surgical": "#A8B0BA", // light slate
-  "Baseline Untreated": "#293745", // boundless blue
-  // Destination (right) — full saturation
+  // Baseline (left) — sequential greys
+  "Baseline H-IUD": "#FF4719", // horizon orange (H-IUD baseline)
+  "Baseline Surgical": "#64748B", // dark grey
+  "Baseline Non-Surgical": "#94A3B8", // mid grey
+  "Baseline Untreated": "#CBD5E1", // light grey
+  // Destination (right)
   "H-IUD": "#FF4719", // horizon orange
-  "Remaining Surgical": "#0D9488", // deep teal
-  "Remaining Non-Surgical": "#7D8794", // muted slate
-  "Remaining Untreated": "#293745", // boundless blue
+  "Remaining Surgical": "#64748B",
+  "Remaining Non-Surgical": "#94A3B8",
+  "Remaining Untreated": "#CBD5E1",
 };
 
 function CustomNode(props: any) {
@@ -95,7 +93,15 @@ function CustomLink(props: any) {
   const linkPayload = payload as SankeyLinkPayload;
   const isActive = activeLinkKey === linkPayload.key;
   const isVisible = linkPayload.actualValue > 0;
-  const opacity = !isVisible ? 0 : isActive ? 0.8 : hasActiveLink ? 0.2 : 0.35;
+  const opacity = !isVisible ? 0 : isActive ? 0.85 : hasActiveLink ? 0.2 : 0.55;
+  const toHIud = linkPayload.target?.name === "H-IUD";
+  const fromHIud = linkPayload.source?.name === "Baseline H-IUD";
+  // Grey-to-orange gradient for any link flowing into H-IUD; H-IUD→H-IUD stays solid orange.
+  const baseStroke = toHIud
+    ? fromHIud
+      ? "#FF4719"
+      : "url(#sankey-grey-to-orange)"
+    : "#94A3B8";
   const path = `
     M${sourceX},${sourceY}
     C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
@@ -115,7 +121,7 @@ function CustomLink(props: any) {
       <path
         d={path}
         fill="none"
-        stroke={isActive ? "var(--primary)" : "var(--muted-foreground)"}
+        stroke={isActive ? "#FF4719" : baseStroke}
         strokeOpacity={opacity}
         strokeWidth={linkWidth}
         style={{ pointerEvents: "none", transition: "stroke-opacity 120ms ease" }}
@@ -245,6 +251,14 @@ export function SankeyChart({ result }: Props) {
         <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
       <CardContent className="h-96 overflow-visible">
+        <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+          <defs>
+            <linearGradient id="sankey-grey-to-orange" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#94A3B8" />
+              <stop offset="100%" stopColor="#FF4719" />
+            </linearGradient>
+          </defs>
+        </svg>
         <div className="flex h-full flex-col overflow-visible">
           <div className="min-h-0 flex-1 overflow-visible">
             <ResponsiveContainer width="100%" height="100%" className="overflow-visible">
