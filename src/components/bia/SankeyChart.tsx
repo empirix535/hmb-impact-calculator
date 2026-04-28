@@ -194,7 +194,7 @@ export function SankeyChart({ result, deltas }: Props) {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
-      <CardContent className="h-96">
+      <CardContent className="h-96 overflow-visible">
         <div className="flex h-full flex-col">
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
