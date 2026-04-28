@@ -6,6 +6,8 @@ import { KpiCards } from "@/components/bia/KpiCards";
 import {
   ClinicalChart,
   CostChart,
+  DalyAttributionChart,
+  ValueFrontierChart,
   WaterfallChart,
 } from "@/components/bia/Charts";
 import { SankeyChart } from "@/components/bia/SankeyChart";
@@ -72,6 +74,8 @@ function BiaDashboard() {
           <BreakdownTable result={model.result} currency={currencyFmt} />
           <SankeyChart result={model.result} deltas={model.deltas} />
           <ClinicalChart result={model.result} />
+          <DalyAttributionChart result={model.result} />
+          <ValueFrontierChart inputs={model.inputs} deltas={model.deltas} currency={currencyFmt} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <CostChart result={model.result} currency={currencyFmt} />
             <WaterfallChart result={model.result} currency={currencyFmt} />

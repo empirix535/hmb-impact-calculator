@@ -30,6 +30,7 @@ export interface CountryPreset {
   wcba: number;
   hmbPrevalence: number; // 0..1
   anemia: ArmValues; // 0..1
+  dalys: ArmValues; // discounted DALYs per woman over 5 years
   marketShares?: MarketShares; // 0..1, sum = 1
 }
 
@@ -41,6 +42,7 @@ export interface BiaInputs {
   costs: ArmValues;
   effectiveness: ArmValues; // 0..1 (HMB resolved share)
   anemia: ArmValues; // 0..1
+  dalys: ArmValues; // discounted DALYs per woman over 5 years
 }
 
 export interface ShiftResult {
@@ -80,5 +82,7 @@ export interface BiaResult {
   hmbPrevalenceInt: number;
   hmbCasesAverted: number;
   anemiaCasesAverted: number;
+  dalysAverted: number;
+  dalysAvertedByArm: { ns: number; surgical: number; untreated: number };
   breakdown: ArmBreakdown[];
 }

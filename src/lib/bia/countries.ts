@@ -13,6 +13,7 @@ interface ParsedCountry {
   preset: CountryPreset;
   costs: { hIud: number; ns: number; surgical: number; untreated: number };
   effectiveness: { hIud: number; ns: number; surgical: number; untreated: number };
+  dalys: { hIud: number; ns: number; surgical: number; untreated: number };
 }
 
 function num(v: string): number {
@@ -79,6 +80,12 @@ function parseCsv(text: string): ParsedCountry[] {
       surgical: num(cells[idx("A_S")]),
       untreated: num(cells[idx("A_U")]),
     };
+    const dalys = {
+      hIud: num(cells[idx("D_H")]),
+      ns: num(cells[idx("D_NS")]),
+      surgical: num(cells[idx("D_S")]),
+      untreated: num(cells[idx("D_U")]),
+    };
 
     const key = countryCodeFor(name);
     out.push({
@@ -90,10 +97,12 @@ function parseCsv(text: string): ParsedCountry[] {
         wcba,
         hmbPrevalence,
         anemia,
+        dalys,
         marketShares,
       },
       costs,
       effectiveness,
+      dalys,
     });
   }
   return out;
@@ -111,5 +120,9 @@ export const COUNTRY_COSTS: Record<string, ParsedCountry["costs"]> = Object.from
 
 export const COUNTRY_EFFECTIVENESS: Record<string, ParsedCountry["effectiveness"]> =
   Object.fromEntries(PARSED.map((p) => [p.key, p.effectiveness]));
+
+export const COUNTRY_DALYS: Record<string, ParsedCountry["dalys"]> = Object.fromEntries(
+  PARSED.map((p) => [p.key, p.dalys]),
+);
 
 export const DEFAULT_COUNTRY = PARSED[0]?.key ?? "KE";

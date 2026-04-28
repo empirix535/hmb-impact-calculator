@@ -145,6 +145,17 @@ export function runBia(inputs: BiaInputs): BiaResult {
   const hmbCasesAverted = population * (weightedEffInt - weightedEffSq);
   const anemiaCasesAverted = population * (weightedAnemiaSq - weightedAnemiaInt);
 
+  // DALYs averted via shift to H-IUD from each alt arm
+  const dH = inputs.dalys.hIud;
+  const dalysAvertedByArm = {
+    ns: Math.max(0, ms0.ns - ms1.ns) * (inputs.dalys.ns - dH) * population,
+    surgical: Math.max(0, ms0.surgical - ms1.surgical) * (inputs.dalys.surgical - dH) * population,
+    untreated:
+      Math.max(0, ms0.untreated - ms1.untreated) * (inputs.dalys.untreated - dH) * population,
+  };
+  const dalysAverted =
+    dalysAvertedByArm.ns + dalysAvertedByArm.surgical + dalysAvertedByArm.untreated;
+
   const armKeys = ["hIud", "ns", "surgical", "untreated"] as const;
   const breakdown: ArmBreakdown[] = armKeys.map((arm) => {
     const m0 = ms0[arm];
@@ -182,6 +193,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
     hmbPrevalenceInt,
     hmbCasesAverted,
     anemiaCasesAverted,
+    dalysAverted,
+    dalysAvertedByArm,
     breakdown,
   };
 }
