@@ -164,11 +164,11 @@ export function WaterfallChart({ result, currency }: Props) {
           <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Net Impact)</CardTitle>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0 75% 45%)" }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.negative }} />
               Net cost
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(160 70% 35%)" }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.positive }} />
               Net savings
             </span>
           </div>
