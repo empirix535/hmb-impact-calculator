@@ -81,27 +81,29 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
           impact of shifting treatment distributions across the cohort.
         </p>
       </CardHeader>
-      <CardContent className="flex-1 h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-            <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
-            <YAxis
-              tickFormatter={(v) => `${v.toFixed(0)}%`}
-              tick={{ fontSize: 11 }}
-              label={{
-                value: "Prevalence (%)",
-                angle: -90,
-                position: "insideLeft",
-                style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
-              }}
-            />
-            <Tooltip formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
-            <Bar dataKey="Intervention" fill="hsl(173 58% 45%)" />
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent>
+        <div style={{ width: "100%", height: 320 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
+              <YAxis
+                tickFormatter={(v) => `${v.toFixed(0)}%`}
+                tick={{ fontSize: 11 }}
+                label={{
+                  value: "Prevalence (%)",
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+                }}
+              />
+              <Tooltip formatter={(v: number, _n, p: any) => [`${Number(v).toFixed(2)}%`, `${p?.payload?.metric === "HMB prevalence" ? "HMB Prevalence" : p?.name}`]} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Bar dataKey="Status Quo" fill="hsl(220 13% 65%)" />
+              <Bar dataKey="Intervention" fill="hsl(173 58% 45%)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
