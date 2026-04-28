@@ -539,7 +539,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               fontSize={11}
               fill="var(--muted-foreground)"
             >
-              Total 5-Year Population Cost (vs. Untreated)
+              Total 5-Year Population Cost
             </text>
             <text
               x={18}
@@ -549,7 +549,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
             >
-              Total DALYs Averted (vs. Untreated)
+              Total 5-Year DALYs
             </text>
 
             {/* Pooled crosshair drop-lines (very subtle) */}
