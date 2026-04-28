@@ -9,6 +9,7 @@ interface Props {
 }
 
 const NODE_COLORS: Record<string, string> = {
+  "Baseline H-IUD": "hsl(173 58% 55%)",
   "Baseline Surgical": "hsl(215 20% 55%)",
   "Baseline Non-Surgical": "hsl(215 20% 65%)",
   "Baseline Untreated": "hsl(215 20% 75%)",
@@ -20,7 +21,7 @@ const NODE_COLORS: Record<string, string> = {
 
 function CustomNode({ x, y, width, height, index, payload }: any) {
   const fill = NODE_COLORS[payload.name] ?? "hsl(215 20% 65%)";
-  const isLeft = index < 3;
+  const isLeft = index < 4;
   return (
     <Layer key={`node-${index}`}>
       <Rectangle x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.95} />
