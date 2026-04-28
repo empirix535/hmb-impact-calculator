@@ -19,36 +19,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared "Horizon & Boundless" high-contrast palette — keep all charts visually consistent.
+// Shared "Horizon Minimalist" palette (Grey → Orange) — used across all charts.
 export const PALETTE = {
   // Global comparison
-  statusQuo: "#293745", // boundless blue — baseline
+  statusQuo: "#94A3B8", // grey — baseline / status quo
   intervention: "#FF4719", // horizon orange — H-IUD intervention
-  // Per-arm (frontier scatter — tuned within the horizon/boundless family)
+  // Per-arm (frontier scatter)
   hIud: "#FF4719", // horizon orange — H-IUD
-  ns: "#7D8794", // muted slate — non-surgical
-  surgical: "#0D9488", // deep teal — surgical
-  untreated: "#293745", // boundless blue — untreated
+  ns: "#94A3B8", // mid grey — non-surgical
+  surgical: "#64748B", // darker grey — surgical
+  untreated: "#CBD5E1", // light grey — untreated
   pool: "#FF4719", // horizon orange — pooled / population average ("Simulated Market Mix")
-  // Semantic — Budget Impact
-  positive: "#7D8794", // muted slate — net savings (recedes; keeps focus on primary)
-  negative: "#FF4719", // horizon orange — net cost (primary alert color)
+  // Semantic — Budget Impact (waterfall fallback)
+  positive: "#94A3B8", // grey — net savings
+  negative: "#FF4719", // horizon orange — net cost
+  netTotal: "#1E293B", // deep charcoal — Net Budget Impact bar
   // Chrome
-  grid: "#E2E8F0",
-  gridOpacity: 0.4,
+  grid: "#F1F5F9", // very faint grey
+  gridOpacity: 1,
   // Reference / annotation lines on the frontier
-  reference: "#293745",
-  referenceOpacity: 0.2,
+  reference: "#94A3B8",
+  referenceOpacity: 0.25,
 } as const;
 
-// Sequential horizon-orange gradient for DALY attribution.
+// Sequential grey scale for DALY attribution source bars (light → dark);
+// Total Averted bar uses solid Horizon Orange.
 // Bar order: [From Non-Surgical, From Surgical, From Untreated, Total Averted].
-// Requirement: full opacity for Untreated, 60% for Non-Surgical, 30% for Surgical.
-const DALY_ORANGES = [
-  "rgba(255, 71, 25, 0.60)", // From Non-Surgical — 60%
-  "rgba(255, 71, 25, 0.30)", // From Surgical — 30%
-  "rgba(255, 71, 25, 1.00)", // From Untreated — 100%
-  "rgba(255, 71, 25, 1.00)", // Total Averted — 100% (emphasis)
+const DALY_GREYS = [
+  "#CBD5E1", // From Non-Surgical — light grey
+  "#94A3B8", // From Surgical — mid grey
+  "#475569", // From Untreated — dark grey
+  "#FF4719", // Total Averted — horizon orange
 ];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
