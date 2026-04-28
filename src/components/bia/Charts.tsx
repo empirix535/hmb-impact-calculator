@@ -393,12 +393,24 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const yMin = Math.max(0, bMin - bPad);
   const yMax = bMax + bPad;
 
-  // SVG geometry.
-  const W = 720;
-  const H = 380;
+  // SVG geometry — measured from the container so the plot fills its panel.
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ w: 720, h: 420 });
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0].contentRect;
+      setSize({ w: Math.max(320, cr.width), h: Math.max(280, cr.height) });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const W = size.w;
+  const H = size.h;
   const M = { top: 24, right: 110, bottom: 56, left: 110 };
-  const innerW = W - M.left - M.right;
-  const innerH = H - M.top - M.bottom;
+  const innerW = Math.max(50, W - M.left - M.right);
+  const innerH = Math.max(50, H - M.top - M.bottom);
   const xScale = (c: number) => M.left + ((c - xMin) / (xMax - xMin)) * innerW;
   // Higher DALYs averted = better → render at the top.
   const yScale = (b: number) => M.top + innerH - ((b - yMin) / (yMax - yMin)) * innerH;
