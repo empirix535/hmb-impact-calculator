@@ -108,34 +108,89 @@ export function SankeyChart({ result, deltas }: Props) {
   const fmtPeople = (n: number) =>
     new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
 
+  // Net change per node (intervention vs status quo) in share units.
+  const nodeDelta: Record<string, number> = {
+    "Baseline H-IUD": 0,
+    "Baseline Surgical": 0,
+    "Baseline Non-Surgical": 0,
+    "Baseline Untreated": 0,
+    "H-IUD": (ms1.hIud ?? 0) - (ms0.hIud ?? 0),
+    "Remaining Surgical": remainS - (ms0.surgical ?? 0),
+    "Remaining Non-Surgical": remainNS - (ms0.ns ?? 0),
+    "Remaining Untreated": remainU - (ms0.untreated ?? 0),
+  };
+
+  const fmtSigned = (n: number) =>
+    `${n >= 0 ? "+" : "−"}${fmtPeople(Math.abs(n))}`;
+
+  const TooltipContent = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+    const p = payload[0]?.payload;
+    if (!p) return null;
+
+    // Link payload has source/target objects; node payload has a name.
+    if (p.source && p.target) {
+      const share = p.value as number;
+      const people = population * share;
+      return (
+        <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
+          <div className="font-medium">
+            {p.source.name} → {p.target.name}
+          </div>
+          <div className="text-muted-foreground">
+            {fmtPeople(people)} women ({(share * 100).toFixed(2)}%)
+          </div>
+        </div>
+      );
+    }
+
+    const name = p.name as string;
+    const share = (p.value as number) ?? 0;
+    const people = population * share;
+    const delta = nodeDelta[name] ?? 0;
+    const deltaPeople = population * delta;
+    return (
+      <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
+        <div className="font-medium">{name}</div>
+        <div className="text-muted-foreground">
+          {fmtPeople(people)} women ({(share * 100).toFixed(2)}%)
+        </div>
+        {name.startsWith("Baseline") ? null : (
+          <div className={delta >= 0 ? "text-emerald-600" : "text-rose-600"}>
+            Δ vs Status Quo: {fmtSigned(deltaPeople)} ({fmtSigned(delta * 100)}%)
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Patient Migration: Status Quo → Intervention</CardTitle>
+        <CardTitle className="text-sm">Patient Migration</CardTitle>
       </CardHeader>
       <CardContent className="h-96">
-        <ResponsiveContainer width="100%" height="100%">
-          <Sankey
-            data={data}
-            nodePadding={28}
-            nodeWidth={14}
-            iterations={0}
-            margin={{ top: 10, right: 160, bottom: 10, left: 140 }}
-            node={<CustomNode />}
-            link={<CustomLink />}
-          >
-            <Tooltip
-              formatter={(value: number) => {
-                const share = value;
-                const people = population * share;
-                return [
-                  `${fmtPeople(people)} women (${(share * 100).toFixed(2)}%)`,
-                  "Flow",
-                ];
-              }}
-            />
-          </Sankey>
-        </ResponsiveContainer>
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between px-2 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span>Status Quo</span>
+            <span>Intervention</span>
+          </div>
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <Sankey
+                data={data}
+                nodePadding={28}
+                nodeWidth={14}
+                iterations={0}
+                margin={{ top: 10, right: 160, bottom: 10, left: 140 }}
+                node={<CustomNode />}
+                link={<CustomLink />}
+              >
+                <Tooltip content={<TooltipContent />} />
+              </Sankey>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
