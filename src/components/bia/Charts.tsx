@@ -316,12 +316,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const pop = result.population;
   const arms = ["hIud", "ns", "surgical", "untreated"] as const;
 
-  // Absolute level values — total 5-year cost vs total 5-year DALYs (lower is better on both).
+  // X = absolute total 5-year cost. Y = total DALYs averted vs Untreated baseline.
+  const dU = inputs.dalys.untreated;
   const armPts = arms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
     c: inputs.costs[a] * pop,
-    b: inputs.dalys[a] * pop,
+    b: (dU - inputs.dalys[a]) * pop,
   }));
 
   const ms = inputs.marketShares1;
@@ -331,12 +332,12 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
       ms.surgical * inputs.costs.surgical +
       ms.untreated * inputs.costs.untreated) *
     pop;
-  const poolB =
-    (ms.hIud * inputs.dalys.hIud +
-      ms.ns * inputs.dalys.ns +
-      ms.surgical * inputs.dalys.surgical +
-      ms.untreated * inputs.dalys.untreated) *
-    pop;
+  const poolDaly =
+    ms.hIud * inputs.dalys.hIud +
+    ms.ns * inputs.dalys.ns +
+    ms.surgical * inputs.dalys.surgical +
+    ms.untreated * inputs.dalys.untreated;
+  const poolB = (dU - poolDaly) * pop;
 
   const colorFor = (key: string): string => {
     if (key === "hIud") return "hsl(265 70% 50%)";
@@ -366,13 +367,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     },
   ];
 
-  // Frontier: non-dominated arm anchors (lower cost AND lower DALYs is better).
+  // Frontier: non-dominated anchors (lower cost AND higher DALYs averted is better).
   const armOnly = points.filter((p) => !p.isPool);
   const nonDominated = armOnly.filter((p, i) =>
     armOnly.every((q, j) => {
       if (i === j) return true;
-      const le = q.c <= p.c && q.b <= p.b;
-      const lt = q.c < p.c || q.b < p.b;
+      const le = q.c <= p.c && q.b >= p.b;
+      const lt = q.c < p.c || q.b > p.b;
       return !(le && lt);
     }),
   );
@@ -399,8 +400,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const innerW = W - M.left - M.right;
   const innerH = H - M.top - M.bottom;
   const xScale = (c: number) => M.left + ((c - xMin) / (xMax - xMin)) * innerW;
-  // Lower DALYs are better → render at bottom of plot for an intuitive "target = bottom-left".
-  const yScale = (b: number) => M.top + ((b - yMin) / (yMax - yMin)) * innerH;
+  // Higher DALYs averted = better → render at the top.
+  const yScale = (b: number) => M.top + innerH - ((b - yMin) / (yMax - yMin)) * innerH;
 
   // Tick generation (5 ticks across the [min, max] domain).
   const niceTicks = (lo: number, hi: number, n = 5) => {
@@ -549,7 +550,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
             >
-              Total 5-Year DALYs
+              Total 5-Year DALYs Averted
             </text>
 
             {/* Pooled crosshair drop-lines (very subtle) */}
@@ -649,7 +650,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             >
               <div className="font-semibold mb-0.5">{tip.point.name}</div>
               <div>Cost: {fmtCurrency(tip.point.c)}</div>
-              <div>DALYs: {fmtInt(tip.point.b)}</div>
+              <div>DALYs Averted: {fmtInt(tip.point.b)}</div>
             </div>
           )}
 
@@ -679,13 +680,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
                 </marker>
               </defs>
-              <line x1="40" y1="40" x2="40" y2="80" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              <line x1="40" y1="40" x2="8" y2="40" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
-              <line x1="40" y1="40" x2="16" y2="64" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
-              <text x="46" y="78" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
-              <text x="46" y="86" fontSize="7" fill="currentColor" fontWeight="600">DALYs</text>
-              <text x="2" y="32" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
-              <text x="2" y="40" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
+              <line x1="60" y1="60" x2="60" y2="20" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              <line x1="60" y1="60" x2="20" y2="60" stroke="currentColor" strokeWidth="1.4" markerEnd="url(#vd-arrow)" opacity="0.85" />
+              <line x1="60" y1="60" x2="34" y2="34" stroke="currentColor" strokeWidth="1.1" markerEnd="url(#vd-arrow)" opacity="0.6" strokeDasharray="2 2" />
+              <text x="64" y="16" fontSize="7" fill="currentColor" fontWeight="600">Higher</text>
+              <text x="64" y="24" fontSize="7" fill="currentColor" fontWeight="600">Benefit</text>
+              <text x="18" y="74" fontSize="7" fill="currentColor" fontWeight="600">Lower</text>
+              <text x="18" y="82" fontSize="7" fill="currentColor" fontWeight="600">Cost</text>
               <text x="2" y="96" fontSize="6.5" fill="currentColor" opacity="0.7" fontStyle="italic">Target Direction</text>
             </svg>
           </div>
