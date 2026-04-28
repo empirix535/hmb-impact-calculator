@@ -388,7 +388,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         </p>
       </CardHeader>
       <CardContent>
-        <div style={{ width: "100%", height: 380 }}>
+        <div style={{ width: "100%", height: 380, position: "relative" }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart margin={{ top: 16, right: 30, left: 30, bottom: 28 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
