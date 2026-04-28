@@ -367,13 +367,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
     },
   ];
 
-  // Frontier: non-dominated arm anchors (lower cost AND lower DALYs is better).
+  // Frontier: non-dominated anchors (lower cost AND higher DALYs averted is better).
   const armOnly = points.filter((p) => !p.isPool);
   const nonDominated = armOnly.filter((p, i) =>
     armOnly.every((q, j) => {
       if (i === j) return true;
-      const le = q.c <= p.c && q.b <= p.b;
-      const lt = q.c < p.c || q.b < p.b;
+      const le = q.c <= p.c && q.b >= p.b;
+      const lt = q.c < p.c || q.b > p.b;
       return !(le && lt);
     }),
   );
@@ -400,8 +400,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const innerW = W - M.left - M.right;
   const innerH = H - M.top - M.bottom;
   const xScale = (c: number) => M.left + ((c - xMin) / (xMax - xMin)) * innerW;
-  // Lower DALYs are better → render at bottom of plot for an intuitive "target = bottom-left".
-  const yScale = (b: number) => M.top + ((b - yMin) / (yMax - yMin)) * innerH;
+  // Higher DALYs averted = better → render at the top.
+  const yScale = (b: number) => M.top + innerH - ((b - yMin) / (yMax - yMin)) * innerH;
 
   // Tick generation (5 ticks across the [min, max] domain).
   const niceTicks = (lo: number, hi: number, n = 5) => {
