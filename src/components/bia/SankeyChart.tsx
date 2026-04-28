@@ -81,23 +81,27 @@ export function SankeyChart({ result, deltas }: Props) {
   const eps = 1e-6;
   const safe = (v: number) => (v > eps ? v : eps);
 
+  const baselineH = ms0.hIud ?? 0;
+
   const data = {
     nodes: [
-      { name: "Baseline Surgical" },        // 0
-      { name: "Baseline Non-Surgical" },    // 1
-      { name: "Baseline Untreated" },       // 2
-      { name: "H-IUD" },                    // 3
-      { name: "Remaining Surgical" },       // 4
-      { name: "Remaining Non-Surgical" },   // 5
-      { name: "Remaining Untreated" },      // 6
+      { name: "Baseline H-IUD" },           // 0
+      { name: "Baseline Surgical" },        // 1
+      { name: "Baseline Non-Surgical" },    // 2
+      { name: "Baseline Untreated" },       // 3
+      { name: "H-IUD" },                    // 4
+      { name: "Remaining Surgical" },       // 5
+      { name: "Remaining Non-Surgical" },   // 6
+      { name: "Remaining Untreated" },      // 7
     ],
     links: [
-      { source: 0, target: 3, value: safe(pullS) },
-      { source: 0, target: 4, value: safe(remainS) },
-      { source: 1, target: 3, value: safe(pullNS) },
-      { source: 1, target: 5, value: safe(remainNS) },
-      { source: 2, target: 3, value: safe(pullU) },
-      { source: 2, target: 6, value: safe(remainU) },
+      { source: 0, target: 4, value: safe(baselineH) },
+      { source: 1, target: 4, value: safe(pullS) },
+      { source: 1, target: 5, value: safe(remainS) },
+      { source: 2, target: 4, value: safe(pullNS) },
+      { source: 2, target: 6, value: safe(remainNS) },
+      { source: 3, target: 4, value: safe(pullU) },
+      { source: 3, target: 7, value: safe(remainU) },
     ],
   };
 
