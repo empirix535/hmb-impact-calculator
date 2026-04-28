@@ -312,7 +312,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
                 <Cell
                   key={i}
                   stroke="none"
-                  fill={d.value >= 0 ? DALY_ORANGES[i % DALY_ORANGES.length] : PALETTE.negative}
+                  fill={d.value >= 0 ? DALY_GREYS[i % DALY_GREYS.length] : PALETTE.negative}
                 />
               ))}
             </Bar>
