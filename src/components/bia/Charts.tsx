@@ -452,14 +452,14 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
           counterfactual under the current coverage mix.
         </p>
       </CardHeader>
-      <CardContent>
-        <div ref={wrapRef} className="relative w-full" style={{ height: H }}>
+      <CardContent className="flex-1 flex flex-col min-h-0">
+        <div ref={wrapRef} className="relative w-full flex-1 min-h-[420px]">
           <svg
             viewBox={`0 0 ${W} ${H}`}
             width="100%"
             height="100%"
-            preserveAspectRatio="xMidYMid meet"
-            style={{ display: "block" }}
+            preserveAspectRatio="none"
+            style={{ display: "block", width: "100%", height: "100%" }}
           >
             {/* Grid */}
             {xTicks.map((t, i) => (
