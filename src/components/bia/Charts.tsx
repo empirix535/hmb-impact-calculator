@@ -402,13 +402,13 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   // Lower DALYs are better → render at bottom of plot for an intuitive "target = bottom-left".
   const yScale = (b: number) => M.top + ((b - yMin) / (yMax - yMin)) * innerH;
 
-  // Tick generation (5 ticks).
-  const niceTicks = (max: number, n = 5) => {
-    const step = max / n;
-    return Array.from({ length: n + 1 }, (_, i) => i * step);
+  // Tick generation (5 ticks across the [min, max] domain).
+  const niceTicks = (lo: number, hi: number, n = 5) => {
+    const step = (hi - lo) / n;
+    return Array.from({ length: n + 1 }, (_, i) => lo + i * step);
   };
-  const xTicks = niceTicks(xMax);
-  const yTicks = niceTicks(yMax);
+  const xTicks = niceTicks(xMin, xMax);
+  const yTicks = niceTicks(yMin, yMax);
 
   // Local-state tooltip (the "nuclear fix").
   const wrapRef = useRef<HTMLDivElement | null>(null);
