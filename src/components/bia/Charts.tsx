@@ -19,31 +19,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared "Professional Academic" palette — keep all charts visually consistent.
+// Shared "Deep Pine & Stone" monochromatic palette — keep all charts visually consistent.
 export const PALETTE = {
   // Global comparison
-  statusQuo: "#94A3B8", // slate — baseline / status quo
-  intervention: "#4338CA", // indigo — H-IUD intervention
-  // Per-arm (frontier scatter retains distinct hues for identification)
-  hIud: "#4338CA", // indigo — H-IUD
-  ns: "#0D9488", // teal — non-surgical
-  surgical: "#2563EB", // blue — surgical
-  untreated: "#991B1B", // brick — untreated
-  pool: "#F59E0B", // amber — pooled / population average
-  // Semantic
-  positive: "#0D9488", // teal — savings / good
-  negative: "#991B1B", // brick — added cost / bad
+  statusQuo: "#CBD5E1", // light slate — baseline
+  intervention: "#064E3B", // deep pine green — H-IUD intervention
+  // Per-arm (frontier scatter retains distinct hues for identification,
+  // but tuned within the pine/stone family)
+  hIud: "#064E3B", // deep pine — H-IUD
+  ns: "#10B981", // emerald — non-surgical
+  surgical: "#475569", // slate — surgical
+  untreated: "#0F172A", // deep stone — untreated
+  pool: "#34D399", // mint — pooled / population average ("Simulated Market Mix")
+  // Semantic — Budget Impact
+  positive: "#34D399", // mint — savings
+  negative: "#64748B", // muted slate — added cost
   // Chrome
-  grid: "#E2E8F0",
+  grid: "#F1F5F9",
   gridOpacity: 0.5,
 } as const;
 
-// Indigo gradient (varying alpha) for DALY attribution — all facets of one benefit.
-const INDIGO_GRADIENT = [
-  "rgba(67, 56, 202, 0.55)",
-  "rgba(67, 56, 202, 0.75)",
-  "rgba(67, 56, 202, 0.90)",
-  "rgba(67, 56, 202, 1.00)",
+// Sequential green gradient for DALY attribution.
+// Bar order: [From Non-Surgical, From Surgical, From Untreated, Total Averted].
+// Requirement: deepest for Untreated, lightest for Surgical.
+const DALY_GREENS = [
+  "#10B981", // From Non-Surgical — mid emerald
+  "#A7F3D0", // From Surgical — lightest mint
+  "#064E3B", // From Untreated — deepest pine
+  "#065F46", // Total Averted — deep accent
 ];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
@@ -78,13 +81,13 @@ export function CostChart({ result, currency }: Props) {
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" />
-            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" />
+            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -118,7 +121,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} style={{ pointerEvents: "none" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} style={{ pointerEvents: "none" }} />
               <XAxis dataKey="metric" tick={{ fontSize: 11 }} style={{ pointerEvents: "none" }} />
               <YAxis
                 tickFormatter={(v) => `${v.toFixed(0)}%`}
@@ -142,7 +145,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Status Quo"
                 fill={PALETTE.statusQuo}
                 stroke="none"
-                radius={3}
+                radius={[6, 6, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
@@ -150,7 +153,7 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
                 dataKey="Intervention"
                 fill={PALETTE.intervention}
                 stroke="none"
-                radius={3}
+                radius={[6, 6, 0, 0]}
                 {...({ tooltipType: "item" } as any)}
                 activeBar={{ stroke: "none", style: { filter: "brightness(1.1)" } }}
               />
@@ -193,11 +196,11 @@ export function WaterfallChart({ result, currency }: Props) {
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta" stroke="none">
+            <Bar dataKey="delta" stroke="none" radius={6}>
               {data.map((d, i) => (
                 <Cell
                   key={i}
@@ -234,7 +237,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
         <div style={{ width: "100%", height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} opacity={PALETTE.gridOpacity} horizontal vertical={false} style={{ pointerEvents: "none" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} style={{ pointerEvents: "none" }} />
             <XAxis
               dataKey="src"
               interval={0}
@@ -298,7 +301,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
             <Bar
               dataKey="value"
               stroke="none"
-              radius={3}
+              radius={[6, 6, 0, 0]}
               {...({ tooltipType: "item" } as any)}
               activeBar={{ stroke: "none", style: { filter: "brightness(1.08)" } }}
             >
@@ -306,7 +309,7 @@ export function DalyAttributionChart({ result }: { result: BiaResult }) {
                 <Cell
                   key={i}
                   stroke="none"
-                  fill={d.value >= 0 ? INDIGO_GRADIENT[i % INDIGO_GRADIENT.length] : PALETTE.negative}
+                  fill={d.value >= 0 ? DALY_GREENS[i % DALY_GREENS.length] : PALETTE.negative}
                 />
               ))}
             </Bar>
@@ -496,6 +499,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
             preserveAspectRatio="none"
             style={{ display: "block", width: "100%", height: "100%" }}
           >
+            <defs>
+              <filter id="frontier-pool-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#0F172A" floodOpacity="0.35" />
+              </filter>
+            </defs>
             {/* Per-dot grid lines (excluding pooled counterfactual) */}
             {points.filter((p) => !p.isPool).map((p) => (
               <g key={`grid-${p.key}`}>
@@ -643,10 +651,11 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={p.r}
+                    r={p.isPool ? p.r + 2 : p.r}
                     fill={p.fill}
-                    stroke="hsl(0 0% 100%)"
-                    strokeWidth={p.isHIud ? 2.5 : 1.5}
+                    stroke="#FFFFFF"
+                    strokeWidth={p.isPool ? 3 : p.isHIud ? 2.5 : 1.5}
+                    filter={p.isPool ? "url(#frontier-pool-shadow)" : undefined}
                     style={{ cursor: "pointer" }}
                     onMouseEnter={(e) => showTip(e, p)}
                     onMouseMove={moveTip}
