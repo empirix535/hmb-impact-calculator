@@ -19,34 +19,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ARM_LABELS, fmtInt, type CurrencyFormatters } from "@/lib/bia/format";
 import type { BiaInputs, BiaResult } from "@/lib/bia/types";
 
-// Shared "Deep Pine & Stone" monochromatic palette — keep all charts visually consistent.
+// Shared "Horizon & Boundless" high-contrast palette — keep all charts visually consistent.
 export const PALETTE = {
   // Global comparison
-  statusQuo: "#CBD5E1", // light slate — baseline
-  intervention: "#064E3B", // deep pine green — H-IUD intervention
-  // Per-arm (frontier scatter retains distinct hues for identification,
-  // but tuned within the pine/stone family)
-  hIud: "#064E3B", // deep pine — H-IUD
-  ns: "#10B981", // emerald — non-surgical
-  surgical: "#475569", // slate — surgical
-  untreated: "#0F172A", // deep stone — untreated
-  pool: "#34D399", // mint — pooled / population average ("Simulated Market Mix")
+  statusQuo: "#293745", // boundless blue — baseline
+  intervention: "#FF4719", // horizon orange — H-IUD intervention
+  // Per-arm (frontier scatter — tuned within the horizon/boundless family)
+  hIud: "#FF4719", // horizon orange — H-IUD
+  ns: "#7D8794", // muted slate — non-surgical
+  surgical: "#0D9488", // deep teal — surgical
+  untreated: "#293745", // boundless blue — untreated
+  pool: "#FF4719", // horizon orange — pooled / population average ("Simulated Market Mix")
   // Semantic — Budget Impact
-  positive: "#34D399", // mint — savings
-  negative: "#64748B", // muted slate — added cost
+  positive: "#7D8794", // muted slate — net savings (recedes; keeps focus on primary)
+  negative: "#FF4719", // horizon orange — net cost (primary alert color)
   // Chrome
-  grid: "#F1F5F9",
-  gridOpacity: 0.5,
+  grid: "#E2E8F0",
+  gridOpacity: 0.4,
+  // Reference / annotation lines on the frontier
+  reference: "#293745",
+  referenceOpacity: 0.2,
 } as const;
 
-// Sequential green gradient for DALY attribution.
+// Sequential horizon-orange gradient for DALY attribution.
 // Bar order: [From Non-Surgical, From Surgical, From Untreated, Total Averted].
-// Requirement: deepest for Untreated, lightest for Surgical.
-const DALY_GREENS = [
-  "#10B981", // From Non-Surgical — mid emerald
-  "#A7F3D0", // From Surgical — lightest mint
-  "#064E3B", // From Untreated — deepest pine
-  "#065F46", // Total Averted — deep accent
+// Requirement: full opacity for Untreated, 60% for Non-Surgical, 30% for Surgical.
+const DALY_ORANGES = [
+  "rgba(255, 71, 25, 0.60)", // From Non-Surgical — 60%
+  "rgba(255, 71, 25, 0.30)", // From Surgical — 30%
+  "rgba(255, 71, 25, 1.00)", // From Untreated — 100%
+  "rgba(255, 71, 25, 1.00)", // Total Averted — 100% (emphasis)
 ];
 
 const ARM_COLOR: Record<"hIud" | "ns" | "surgical" | "untreated", string> = {
