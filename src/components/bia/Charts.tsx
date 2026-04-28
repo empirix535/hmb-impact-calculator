@@ -445,7 +445,9 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                 />
               ) : null}
               <Tooltip
-                cursor={{ strokeDasharray: "3 3", stroke: "hsl(var(--muted-foreground))" }}
+                cursor={false}
+                trigger="hover"
+                isAnimationActive={false}
                 content={({ active, payload }: any) => {
                   if (!active || !payload?.length) return null;
                   const p: CEPoint & { fill: string } = payload[0].payload;
