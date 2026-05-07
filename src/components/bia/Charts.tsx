@@ -29,7 +29,7 @@ export const PALETTE = {
   ns: "#94A3B8", // mid grey — non-surgical
   surgical: "#64748B", // darker grey — surgical
   untreated: "#CBD5E1", // light grey — untreated
-  pool: "#FF4719", // horizon orange — pooled / population average ("Simulated Market Mix")
+  pool: "#1E293B", // deep charcoal — pooled / population average ("Simulated Market Mix"), distinct from H-IUD orange
   // Semantic — Budget Impact (waterfall fallback)
   positive: "#94A3B8", // grey — net savings
   negative: "#FF4719", // horizon orange — net cost
@@ -524,18 +524,10 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
           Each colored dot represents a scenario where that single treatment
           covers 100% of the HMB population — its total 5-year cost vs. total
           5-year DALYs averted (higher DALYs averted and lower cost are
-          better; the shaded top-left region marks the Efficiency Zone). The
+          better; the shaded top-left region marks Efficient Allocation). The
           dashed line traces the non-dominated frontier (Untreated → H-IUD →
-          Surgical); strategies off this line are dominated. The orange dot
+          Surgical); strategies off this line are dominated. The dark dot
           is the population average under the current coverage mix.
-        </p>
-        <p className="text-[11px] text-muted-foreground pt-2 border-l-2 pl-2 italic" style={{ borderColor: PALETTE.untreated }}>
-          <span className="font-semibold not-italic" style={{ color: "var(--foreground)" }}>Note on the Untreated arm:</span>{" "}
-          The Untreated arm represents the clinical burden of managing chronic
-          anemia—including iron supplements and monitoring—rather than
-          assuming zero care. These baseline costs are structurally embedded
-          in every strategy but are weighted down by each treatment's
-          specific effectiveness rate.
         </p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
@@ -585,7 +577,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               opacity={0.85}
               pointerEvents="none"
             >
-              ◤ Efficiency Zone
+              Efficient Allocation
             </text>
             {/* Per-dot grid lines (excluding pooled counterfactual) */}
             {points.filter((p) => !p.isPool).map((p) => (
