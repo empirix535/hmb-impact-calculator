@@ -523,9 +523,19 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         <p className="text-[11px] text-muted-foreground pt-1">
           Each colored dot represents a scenario where that single treatment
           covers 100% of the HMB population — its total 5-year cost vs. total
-          5-year DALYs (absolute levels — higher DALYs averted and lower cost are
-          better). The dashed line traces the non-dominated frontier. The orange
-          dot is the population average under the current coverage mix.
+          5-year DALYs averted (higher DALYs averted and lower cost are
+          better; the shaded top-left region marks the Efficiency Zone). The
+          dashed line traces the non-dominated frontier (Untreated → H-IUD →
+          Surgical); strategies off this line are dominated. The orange dot
+          is the population average under the current coverage mix.
+        </p>
+        <p className="text-[11px] text-muted-foreground pt-2 border-l-2 pl-2 italic" style={{ borderColor: PALETTE.untreated }}>
+          <span className="font-semibold not-italic" style={{ color: "var(--foreground)" }}>Note on the Untreated arm:</span>{" "}
+          The Untreated arm represents the clinical burden of managing chronic
+          anemia—including iron supplements and monitoring—rather than
+          assuming zero care. These baseline costs are structurally embedded
+          in every strategy but are weighted down by each treatment's
+          specific effectiveness rate.
         </p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
