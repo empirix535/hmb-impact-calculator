@@ -553,22 +553,26 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               </filter>
               <radialGradient
                 id="efficiency-zone-grad"
-                cx="0"
-                cy="0"
-                r="1"
-                fx="0"
-                fy="0"
-                gradientUnits="objectBoundingBox"
+                cx={M.left}
+                cy={M.top}
+                r={Math.sqrt(innerW * innerW + innerH * innerH)}
+                fx={M.left}
+                fy={M.top}
+                gradientUnits="userSpaceOnUse"
               >
-                <stop offset="0%" stopColor="#BBF7D0" stopOpacity="0.45" />
-                <stop offset="45%" stopColor="#BBF7D0" stopOpacity="0.18" />
-                <stop offset="85%" stopColor="#BBF7D0" stopOpacity="0.03" />
-                <stop offset="100%" stopColor="#BBF7D0" stopOpacity="0" />
+                <stop offset="0%" stopColor="#A7F3D0" stopOpacity="0.42" />
+                <stop offset="25%" stopColor="#BBF7D0" stopOpacity="0.22" />
+                <stop offset="55%" stopColor="#DCFCE7" stopOpacity="0.08" />
+                <stop offset="85%" stopColor="#FFFFFF" stopOpacity="0.01" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
               </radialGradient>
             </defs>
-            {/* Efficiency Zone — diagonal upper-left triangle (low cost, high DALYs averted) */}
-            <polygon
-              points={`${M.left},${M.top} ${M.left + innerW},${M.top} ${M.left},${M.top + innerH}`}
+            {/* Efficiency Zone — soft radial glow from top-left (low cost, high DALYs averted) */}
+            <rect
+              x={M.left}
+              y={M.top}
+              width={innerW}
+              height={innerH}
               fill="url(#efficiency-zone-grad)"
               pointerEvents="none"
             />
