@@ -629,7 +629,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   fill={p.fill}
                   fontWeight={600}
                 >
-                  {fmtCurrency(p.c)}
+                  {fmtCostUnified(p.c)}
                 </text>
                 <text
                   x={M.left - 8}
