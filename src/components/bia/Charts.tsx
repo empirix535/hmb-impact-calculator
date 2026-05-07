@@ -498,6 +498,24 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const poolCx = xScale(poolPt.c);
   const poolCy = yScale(poolPt.b);
 
+  // Consistent currency unit across all x-axis cost labels (pick one unit by max).
+  const unitLabel = currency.unit;
+  const rate = currency.rate;
+  const maxConv = Math.abs(xMax * rate);
+  const sharedUnit: { div: number; suffix: string; digits: number } =
+    maxConv >= 1e9
+      ? { div: 1e9, suffix: `B ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e6
+      ? { div: 1e6, suffix: `M ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e3
+      ? { div: 1e3, suffix: `K ${unitLabel}`, digits: 1 }
+      : { div: 1, suffix: ` ${unitLabel}`, digits: 0 };
+  const fmtCostUnified = (v: number) => {
+    const conv = (v * rate) / sharedUnit.div;
+    const sign = conv < 0 ? "-" : "";
+    return `${sign}${Math.abs(conv).toFixed(sharedUnit.digits)}${sharedUnit.suffix}`;
+  };
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
@@ -505,9 +523,19 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
         <p className="text-[11px] text-muted-foreground pt-1">
           Each colored dot represents a scenario where that single treatment
           covers 100% of the HMB population — its total 5-year cost vs. total
-          5-year DALYs (absolute levels — higher DALYs averted and lower cost are
-          better). The dashed line traces the non-dominated frontier. The orange
-          dot is the population average under the current coverage mix.
+          5-year DALYs averted (higher DALYs averted and lower cost are
+          better; the shaded top-left region marks the Efficiency Zone). The
+          dashed line traces the non-dominated frontier (Untreated → H-IUD →
+          Surgical); strategies off this line are dominated. The orange dot
+          is the population average under the current coverage mix.
+        </p>
+        <p className="text-[11px] text-muted-foreground pt-2 border-l-2 pl-2 italic" style={{ borderColor: PALETTE.untreated }}>
+          <span className="font-semibold not-italic" style={{ color: "var(--foreground)" }}>Note on the Untreated arm:</span>{" "}
+          The Untreated arm represents the clinical burden of managing chronic
+          anemia—including iron supplements and monitoring—rather than
+          assuming zero care. These baseline costs are structurally embedded
+          in every strategy but are weighted down by each treatment's
+          specific effectiveness rate.
         </p>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
@@ -523,7 +551,31 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <filter id="frontier-pool-shadow" x="-50%" y="-50%" width="200%" height="200%">
                 <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#0F172A" floodOpacity="0.35" />
               </filter>
+              <linearGradient id="efficiency-zone-grad" x1="1" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="#10B981" stopOpacity="0" />
+                <stop offset="100%" stopColor="#10B981" stopOpacity="0.18" />
+              </linearGradient>
             </defs>
+            {/* Efficiency Zone — shaded top-left quadrant (low cost, high DALYs averted) */}
+            <rect
+              x={M.left}
+              y={M.top}
+              width={innerW}
+              height={innerH}
+              fill="url(#efficiency-zone-grad)"
+              pointerEvents="none"
+            />
+            <text
+              x={M.left + 8}
+              y={M.top + 14}
+              fontSize={10}
+              fontWeight={600}
+              fill="#047857"
+              opacity={0.85}
+              pointerEvents="none"
+            >
+              ◤ Efficiency Zone
+            </text>
             {/* Per-dot grid lines (excluding pooled counterfactual) */}
             {points.filter((p) => !p.isPool).map((p) => (
               <g key={`grid-${p.key}`}>
@@ -577,7 +629,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
                   fill={p.fill}
                   fontWeight={600}
                 >
-                  {fmtCurrency(p.c)}
+                  {fmtCostUnified(p.c)}
                 </text>
                 <text
                   x={M.left - 8}
@@ -635,15 +687,17 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               pointerEvents="none"
             />
 
-            {/* Frontier line (translucent dashed) */}
+            {/* Frontier line — high-contrast dashed (non-dominated path) */}
             {frontier.length >= 2 && (
               <polyline
                 points={frontier.map((p) => `${xScale(p.c)},${yScale(p.b)}`).join(" ")}
                 fill="none"
-                stroke="hsl(217 91% 50%)"
-                strokeWidth={1.6}
-                strokeDasharray="5 5"
-                strokeOpacity={0.4}
+                stroke={PALETTE.netTotal}
+                strokeWidth={2.4}
+                strokeDasharray="7 4"
+                strokeOpacity={0.9}
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 pointerEvents="none"
               />
             )}
