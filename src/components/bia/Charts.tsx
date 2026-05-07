@@ -553,7 +553,8 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               </filter>
               <linearGradient id="efficiency-zone-grad" x1="1" y1="1" x2="0" y2="0">
                 <stop offset="0%" stopColor="#10B981" stopOpacity="0" />
-                <stop offset="100%" stopColor="#10B981" stopOpacity="0.18" />
+                <stop offset="55%" stopColor="#10B981" stopOpacity="0" />
+                <stop offset="100%" stopColor="#86EFAC" stopOpacity="0.55" />
               </linearGradient>
             </defs>
             {/* Efficiency Zone — shaded top-left quadrant (low cost, high DALYs averted) */}
