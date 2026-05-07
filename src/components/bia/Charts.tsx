@@ -551,18 +551,24 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               <filter id="frontier-pool-shadow" x="-50%" y="-50%" width="200%" height="200%">
                 <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#0F172A" floodOpacity="0.35" />
               </filter>
-              <linearGradient id="efficiency-zone-grad" x1="1" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#10B981" stopOpacity="0" />
-                <stop offset="55%" stopColor="#10B981" stopOpacity="0" />
-                <stop offset="100%" stopColor="#86EFAC" stopOpacity="0.55" />
-              </linearGradient>
+              <radialGradient
+                id="efficiency-zone-grad"
+                cx="0"
+                cy="0"
+                r="1"
+                fx="0"
+                fy="0"
+                gradientUnits="objectBoundingBox"
+              >
+                <stop offset="0%" stopColor="#BBF7D0" stopOpacity="0.45" />
+                <stop offset="45%" stopColor="#BBF7D0" stopOpacity="0.18" />
+                <stop offset="85%" stopColor="#BBF7D0" stopOpacity="0.03" />
+                <stop offset="100%" stopColor="#BBF7D0" stopOpacity="0" />
+              </radialGradient>
             </defs>
-            {/* Efficiency Zone — shaded top-left quadrant (low cost, high DALYs averted) */}
-            <rect
-              x={M.left}
-              y={M.top}
-              width={innerW}
-              height={innerH}
+            {/* Efficiency Zone — diagonal upper-left triangle (low cost, high DALYs averted) */}
+            <polygon
+              points={`${M.left},${M.top} ${M.left + innerW},${M.top} ${M.left},${M.top + innerH}`}
               fill="url(#efficiency-zone-grad)"
               pointerEvents="none"
             />
