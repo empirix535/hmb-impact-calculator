@@ -498,6 +498,24 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   const poolCx = xScale(poolPt.c);
   const poolCy = yScale(poolPt.b);
 
+  // Consistent currency unit across all x-axis cost labels (pick one unit by max).
+  const unitLabel = currency.unit;
+  const rate = currency.rate;
+  const maxConv = Math.abs(xMax * rate);
+  const sharedUnit: { div: number; suffix: string; digits: number } =
+    maxConv >= 1e9
+      ? { div: 1e9, suffix: `B ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e6
+      ? { div: 1e6, suffix: `M ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e3
+      ? { div: 1e3, suffix: `K ${unitLabel}`, digits: 1 }
+      : { div: 1, suffix: ` ${unitLabel}`, digits: 0 };
+  const fmtCostUnified = (v: number) => {
+    const conv = (v * rate) / sharedUnit.div;
+    const sign = conv < 0 ? "-" : "";
+    return `${sign}${Math.abs(conv).toFixed(sharedUnit.digits)}${sharedUnit.suffix}`;
+  };
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
