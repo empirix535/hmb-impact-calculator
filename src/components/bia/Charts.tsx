@@ -687,15 +687,17 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
               pointerEvents="none"
             />
 
-            {/* Frontier line (translucent dashed) */}
+            {/* Frontier line — high-contrast dashed (non-dominated path) */}
             {frontier.length >= 2 && (
               <polyline
                 points={frontier.map((p) => `${xScale(p.c)},${yScale(p.b)}`).join(" ")}
                 fill="none"
-                stroke="hsl(217 91% 50%)"
-                strokeWidth={1.6}
-                strokeDasharray="5 5"
-                strokeOpacity={0.4}
+                stroke={PALETTE.netTotal}
+                strokeWidth={2.4}
+                strokeDasharray="7 4"
+                strokeOpacity={0.9}
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 pointerEvents="none"
               />
             )}
