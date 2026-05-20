@@ -894,19 +894,18 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
     },
   ];
 
-  // Domain — always include origin (Untreated anchor) and pad symmetrically.
-  const xs = [0, ...points.map((p) => p.dx)];
-  const ys = [0, ...points.map((p) => p.dy)];
-  const xLo = Math.min(...xs);
-  const xHi = Math.max(...xs);
-  const yLo = Math.min(...ys);
-  const yHi = Math.max(...ys);
-  const xPad = (xHi - xLo) * 0.15 || Math.abs(xHi) * 0.1 || 1;
-  const yPad = (yHi - yLo) * 0.15 || Math.abs(yHi) * 0.1 || 1;
-  const xMin = xLo - xPad;
-  const xMax = xHi + xPad;
-  const yMin = yLo - yPad;
-  const yMax = yHi + yPad;
+  // Symmetric domain so (0,0) sits at the geometric center of the plot area.
+  const xs = points.map((p) => p.dx);
+  const ys = points.map((p) => p.dy);
+  const xAbs = Math.max(...xs.map(Math.abs), 1e-9);
+  const yAbs = Math.max(...ys.map(Math.abs), 1e-9);
+  const xExt = xAbs * 1.15;
+  const yExt = yAbs * 1.15;
+  const xMin = -xExt;
+  const xMax = xExt;
+  const yMin = -yExt;
+  const yMax = yExt;
+
 
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ w: 720, h: 420 });
@@ -1064,11 +1063,9 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               Cost-saving, less effective
             </text>
 
-            {/* Origin marker (0,0) */}
+            {/* Origin marker (0,0) — Untreated sits here */}
             <circle cx={x0} cy={y0} r={3} fill="var(--muted-foreground)" stroke="#FFFFFF" strokeWidth={1.5} />
-            <text x={x0 + 6} y={y0 - 6} fontSize={10} fill="var(--muted-foreground)" fontWeight={500}>
-              (0, 0)
-            </text>
+
 
             {/* Axis tick labels at min/max */}
             <text x={M.left} y={M.top + innerH + 14} textAnchor="start" fontSize={10} fill="var(--muted-foreground)">
