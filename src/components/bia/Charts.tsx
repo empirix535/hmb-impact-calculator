@@ -1101,9 +1101,7 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               ΔCost per Woman (5-Year, vs. Untreated)
             </text>
 
-            >
-              ΔCost vs. Untreated (5-Year Population)
-            </text>
+
 
             {/* Dots */}
             {points.map((p) => {
