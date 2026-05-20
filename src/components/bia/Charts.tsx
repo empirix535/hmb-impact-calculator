@@ -836,16 +836,16 @@ type IncCEPoint = {
 
 export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
   const { fmtCurrency } = currency;
-  const pop = result.population;
   const cU = inputs.costs.untreated;
   const dU = inputs.dalys.untreated;
 
+  // Per-person incremental values (not scaled by population).
   const altArms = ["hIud", "ns", "surgical"] as const;
   const armPts = altArms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
-    dx: (dU - inputs.dalys[a]) * pop,
-    dy: (inputs.costs[a] - cU) * pop,
+    dx: dU - inputs.dalys[a], // ΔBenefit per woman (DALYs averted vs Untreated)
+    dy: inputs.costs[a] - cU, // ΔCost per woman vs Untreated
   }));
 
   const ms = inputs.marketShares1;
@@ -859,8 +859,9 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
     ms.ns * inputs.dalys.ns +
     ms.surgical * inputs.dalys.surgical +
     ms.untreated * inputs.dalys.untreated;
-  const poolDx = (dU - poolDalyPerWoman) * pop;
-  const poolDy = (poolCostPerWoman - cU) * pop;
+  const poolDx = dU - poolDalyPerWoman; // per woman
+  const poolDy = poolCostPerWoman - cU; // per woman
+
 
   const colorFor = (key: string): string => {
     if (key === "hIud") return PALETTE.hIud;
