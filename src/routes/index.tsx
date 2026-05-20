@@ -88,6 +88,12 @@ function BiaDashboard() {
             inputs={model.inputs}
             currency={currencyFmt}
           />
+          <IncrementalCEPlane
+            result={model.result}
+            inputs={model.inputs}
+            currency={currencyFmt}
+          />
+
         </main>
       </div>
       </div>
