@@ -101,7 +101,9 @@ function BiaDashboard() {
             </p>
           </section>
 
+          <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
+
           <SankeyChart result={model.result} deltas={model.deltas} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <DalyAttributionChart result={model.result} />
