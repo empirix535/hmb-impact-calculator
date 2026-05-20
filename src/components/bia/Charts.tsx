@@ -1060,18 +1060,18 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               Cost-saving, less effective
             </text>
 
-            {/* Origin marker */}
-            <circle cx={x0} cy={y0} r={3.5} fill={PALETTE.untreated} stroke="#FFFFFF" strokeWidth={1.5} />
+            {/* Origin marker (0,0) */}
+            <circle cx={x0} cy={y0} r={3} fill="var(--muted-foreground)" stroke="#FFFFFF" strokeWidth={1.5} />
             <text x={x0 + 6} y={y0 - 6} fontSize={10} fill="var(--muted-foreground)" fontWeight={500}>
-              Untreated (anchor)
+              (0, 0)
             </text>
 
             {/* Axis tick labels at min/max */}
             <text x={M.left} y={M.top + innerH + 14} textAnchor="start" fontSize={10} fill="var(--muted-foreground)">
-              {fmtInt(xMin)}
+              {xMin.toFixed(3)}
             </text>
             <text x={M.left + innerW} y={M.top + innerH + 14} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
-              {fmtInt(xMax)}
+              {xMax.toFixed(3)}
             </text>
             <text x={M.left - 8} y={M.top + 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
               {fmtCostDelta(yMax)}
@@ -1088,7 +1088,7 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               fontSize={11}
               fill="var(--muted-foreground)"
             >
-              ΔBenefit — DALYs Averted vs. Untreated
+              ΔBenefit — DALYs Averted per Woman (vs. Untreated)
             </text>
             <text
               x={18}
@@ -1097,6 +1097,10 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               fontSize={11}
               fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
+            >
+              ΔCost per Woman (5-Year, vs. Untreated)
+            </text>
+
             >
               ΔCost vs. Untreated (5-Year Population)
             </text>
