@@ -1063,11 +1063,9 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               Cost-saving, less effective
             </text>
 
-            {/* Origin marker (0,0) */}
+            {/* Origin marker (0,0) — Untreated sits here */}
             <circle cx={x0} cy={y0} r={3} fill="var(--muted-foreground)" stroke="#FFFFFF" strokeWidth={1.5} />
-            <text x={x0 + 6} y={y0 - 6} fontSize={10} fill="var(--muted-foreground)" fontWeight={500}>
-              (0, 0)
-            </text>
+
 
             {/* Axis tick labels at min/max */}
             <text x={M.left} y={M.top + innerH + 14} textAnchor="start" fontSize={10} fill="var(--muted-foreground)">
