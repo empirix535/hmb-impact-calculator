@@ -824,7 +824,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
 // ============================================================================
 
 type IncCEPoint = {
-  key: "hIud" | "ns" | "surgical" | "pool";
+  key: "hIud" | "ns" | "surgical" | "untreated" | "pool";
   name: string;
   dx: number; // ΔBenefit (DALYs averted vs Untreated)
   dy: number; // ΔCost vs Untreated
