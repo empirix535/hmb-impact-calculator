@@ -8,8 +8,10 @@ import {
   CostChart,
   CostEffectivenessPlane,
   DalyAttributionChart,
+  IncrementalCEPlane,
   WaterfallChart,
 } from "@/components/bia/Charts";
+
 import { SankeyChart } from "@/components/bia/SankeyChart";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
 import { COUNTRIES } from "@/lib/bia/countries";
