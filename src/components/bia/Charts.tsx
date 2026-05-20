@@ -813,3 +813,361 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
   );
 }
 
+// ============================================================================
+// Incremental Cost-Effectiveness Plane (ΔCost vs ΔBenefit, anchored at Untreated)
+// ----------------------------------------------------------------------------
+// X = ΔBenefit (DALYs averted) vs Untreated baseline (per total population)
+// Y = ΔCost vs Untreated baseline (per total population)
+// Each alt-treatment dot = 100% coverage of that treatment vs Untreated.
+// Pool dot = current marketShares1 mix vs Untreated (slides with H-IUD coverage).
+// Quadrants: BR = dominant, TR = trade-off, TL = dominated, BL = cost-saving/less-effect.
+// ============================================================================
+
+type IncCEPoint = {
+  key: "hIud" | "ns" | "surgical" | "pool";
+  name: string;
+  dx: number; // ΔBenefit (DALYs averted vs Untreated)
+  dy: number; // ΔCost vs Untreated
+  isHIud?: boolean;
+  isPool?: boolean;
+  fill: string;
+  r: number;
+};
+
+export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
+  const { fmtCurrency } = currency;
+  const pop = result.population;
+  const cU = inputs.costs.untreated;
+  const dU = inputs.dalys.untreated;
+
+  const altArms = ["hIud", "ns", "surgical"] as const;
+  const armPts = altArms.map((a) => ({
+    key: a,
+    name: ARM_LABELS[a],
+    dx: (dU - inputs.dalys[a]) * pop,
+    dy: (inputs.costs[a] - cU) * pop,
+  }));
+
+  const ms = inputs.marketShares1;
+  const poolCostPerWoman =
+    ms.hIud * inputs.costs.hIud +
+    ms.ns * inputs.costs.ns +
+    ms.surgical * inputs.costs.surgical +
+    ms.untreated * inputs.costs.untreated;
+  const poolDalyPerWoman =
+    ms.hIud * inputs.dalys.hIud +
+    ms.ns * inputs.dalys.ns +
+    ms.surgical * inputs.dalys.surgical +
+    ms.untreated * inputs.dalys.untreated;
+  const poolDx = (dU - poolDalyPerWoman) * pop;
+  const poolDy = (poolCostPerWoman - cU) * pop;
+
+  const colorFor = (key: string): string => {
+    if (key === "hIud") return PALETTE.hIud;
+    if (key === "pool") return PALETTE.pool;
+    if (key === "ns") return PALETTE.ns;
+    return PALETTE.surgical;
+  };
+
+  const points: IncCEPoint[] = [
+    ...armPts.map((p) => ({
+      ...p,
+      isHIud: p.key === "hIud",
+      isPool: false,
+      fill: colorFor(p.key),
+      r: p.key === "hIud" ? 10 : 7,
+    })),
+    {
+      key: "pool" as const,
+      name: "Population Average",
+      dx: poolDx,
+      dy: poolDy,
+      isHIud: false,
+      isPool: true,
+      fill: colorFor("pool"),
+      r: 8,
+    },
+  ];
+
+  // Domain — always include origin (Untreated anchor) and pad symmetrically.
+  const xs = [0, ...points.map((p) => p.dx)];
+  const ys = [0, ...points.map((p) => p.dy)];
+  const xLo = Math.min(...xs);
+  const xHi = Math.max(...xs);
+  const yLo = Math.min(...ys);
+  const yHi = Math.max(...ys);
+  const xPad = (xHi - xLo) * 0.15 || Math.abs(xHi) * 0.1 || 1;
+  const yPad = (yHi - yLo) * 0.15 || Math.abs(yHi) * 0.1 || 1;
+  const xMin = xLo - xPad;
+  const xMax = xHi + xPad;
+  const yMin = yLo - yPad;
+  const yMax = yHi + yPad;
+
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ w: 720, h: 420 });
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0].contentRect;
+      setSize({ w: Math.max(320, cr.width), h: Math.max(280, cr.height) });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const W = size.w;
+  const H = size.h;
+  const M = { top: 28, right: 110, bottom: 56, left: 110 };
+  const innerW = Math.max(50, W - M.left - M.right);
+  const innerH = Math.max(50, H - M.top - M.bottom);
+  const xScale = (v: number) => M.left + ((v - xMin) / (xMax - xMin)) * innerW;
+  // Higher ΔCost at the top.
+  const yScale = (v: number) => M.top + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+  const x0 = xScale(0);
+  const y0 = yScale(0);
+
+  const [tip, setTip] = useState<{ x: number; y: number; point: IncCEPoint } | null>(null);
+  const showTip = (e: React.MouseEvent, p: IncCEPoint) => {
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setTip({ x: e.clientX - rect.left, y: e.clientY - rect.top, point: p });
+  };
+  const moveTip = (e: React.MouseEvent) => {
+    if (!tip) return;
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setTip({ ...tip, x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+  const hideTip = () => setTip(null);
+  useEffect(() => {
+    setTip(null);
+  }, [poolDx, poolDy]);
+
+  // Unified cost unit for Y-axis tick formatting.
+  const unitLabel = currency.unit;
+  const rate = currency.rate;
+  const maxConv = Math.max(Math.abs(yMin * rate), Math.abs(yMax * rate));
+  const sharedUnit: { div: number; suffix: string; digits: number } =
+    maxConv >= 1e9
+      ? { div: 1e9, suffix: `B ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e6
+      ? { div: 1e6, suffix: `M ${unitLabel}`, digits: 2 }
+      : maxConv >= 1e3
+      ? { div: 1e3, suffix: `K ${unitLabel}`, digits: 1 }
+      : { div: 1, suffix: ` ${unitLabel}`, digits: 0 };
+  const fmtCostDelta = (v: number) => {
+    const conv = (v * rate) / sharedUnit.div;
+    const sign = conv < 0 ? "−" : conv > 0 ? "+" : "";
+    return `${sign}${Math.abs(conv).toFixed(sharedUnit.digits)}${sharedUnit.suffix}`;
+  };
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">
+          Incremental Cost-Effectiveness Plane (vs. Untreated)
+        </CardTitle>
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Each colored dot is a 100%-coverage scenario for one alternative
+          treatment, plotted as its incremental cost (ΔCost, Y) and incremental
+          DALYs averted (ΔBenefit, X) against the Untreated baseline at the
+          origin. The dark dot is the population average under the current
+          coverage mix and slides as H-IUD coverage changes. Bottom-right =
+          dominant (cheaper & more effective); top-right = trade-off (more
+          effective at added cost); top-left = dominated; bottom-left =
+          cost-saving but less effective.
+        </p>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col min-h-0">
+        <div ref={wrapRef} className="relative w-full flex-1 min-h-[320px] max-h-[440px] aspect-[16/7]">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            width="100%"
+            height="100%"
+            preserveAspectRatio="none"
+            style={{ display: "block", width: "100%", height: "100%" }}
+          >
+            <defs>
+              <filter id="incce-pool-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#0F172A" floodOpacity="0.35" />
+              </filter>
+            </defs>
+
+            {/* Quadrant tinting — BR (dominant) green, TL (dominated) red, others neutral */}
+            <rect
+              x={x0}
+              y={y0}
+              width={Math.max(0, M.left + innerW - x0)}
+              height={Math.max(0, M.top + innerH - y0)}
+              fill="#10B981"
+              fillOpacity={0.07}
+              pointerEvents="none"
+            />
+            <rect
+              x={M.left}
+              y={M.top}
+              width={Math.max(0, x0 - M.left)}
+              height={Math.max(0, y0 - M.top)}
+              fill="#EF4444"
+              fillOpacity={0.06}
+              pointerEvents="none"
+            />
+
+            {/* Plot frame */}
+            <rect
+              x={M.left}
+              y={M.top}
+              width={innerW}
+              height={innerH}
+              fill="none"
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.25}
+            />
+
+            {/* Quadrant axes through origin */}
+            <line
+              x1={M.left}
+              x2={M.left + innerW}
+              y1={y0}
+              y2={y0}
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.55}
+              strokeWidth={1.2}
+            />
+            <line
+              x1={x0}
+              x2={x0}
+              y1={M.top}
+              y2={M.top + innerH}
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.55}
+              strokeWidth={1.2}
+            />
+
+            {/* Quadrant labels */}
+            <text x={x0 + 6} y={M.top + 14} fontSize={10} fontWeight={600} fill="#047857" opacity={0.85}>
+              Trade-off (more effective, more costly)
+            </text>
+            <text x={x0 + 6} y={M.top + innerH - 6} fontSize={10} fontWeight={700} fill="#047857" opacity={0.9}>
+              Dominant ▸ cheaper &amp; more effective
+            </text>
+            <text x={M.left + 6} y={M.top + 14} fontSize={10} fontWeight={600} fill="#B91C1C" opacity={0.8}>
+              Dominated (more costly, less effective)
+            </text>
+            <text x={M.left + 6} y={M.top + innerH - 6} fontSize={10} fontWeight={500} fill="var(--muted-foreground)">
+              Cost-saving, less effective
+            </text>
+
+            {/* Origin marker */}
+            <circle cx={x0} cy={y0} r={3.5} fill={PALETTE.untreated} stroke="#FFFFFF" strokeWidth={1.5} />
+            <text x={x0 + 6} y={y0 - 6} fontSize={10} fill="var(--muted-foreground)" fontWeight={500}>
+              Untreated (anchor)
+            </text>
+
+            {/* Axis tick labels at min/max */}
+            <text x={M.left} y={M.top + innerH + 14} textAnchor="start" fontSize={10} fill="var(--muted-foreground)">
+              {fmtInt(xMin)}
+            </text>
+            <text x={M.left + innerW} y={M.top + innerH + 14} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
+              {fmtInt(xMax)}
+            </text>
+            <text x={M.left - 8} y={M.top + 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
+              {fmtCostDelta(yMax)}
+            </text>
+            <text x={M.left - 8} y={M.top + innerH + 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
+              {fmtCostDelta(yMin)}
+            </text>
+
+            {/* Axis titles */}
+            <text
+              x={M.left + innerW / 2}
+              y={H - 14}
+              textAnchor="middle"
+              fontSize={11}
+              fill="var(--muted-foreground)"
+            >
+              ΔBenefit — DALYs Averted vs. Untreated
+            </text>
+            <text
+              x={18}
+              y={M.top + innerH / 2}
+              textAnchor="middle"
+              fontSize={11}
+              fill="var(--muted-foreground)"
+              transform={`rotate(-90 18 ${M.top + innerH / 2})`}
+            >
+              ΔCost vs. Untreated (5-Year Population)
+            </text>
+
+            {/* Dots */}
+            {points.map((p) => {
+              const cx = xScale(p.dx);
+              const cy = yScale(p.dy);
+              const lx = cx + p.r + 6;
+              const ly = cy - p.r - 4;
+              return (
+                <g key={p.key}>
+                  {p.isHIud && (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={p.r + 6}
+                      fill={p.fill}
+                      opacity={0.18}
+                      pointerEvents="none"
+                      style={{ animation: "pulse 2s ease-in-out infinite" }}
+                    />
+                  )}
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={p.isPool ? p.r + 2 : p.r}
+                    fill={p.fill}
+                    stroke="#FFFFFF"
+                    strokeWidth={p.isPool ? 3 : p.isHIud ? 2.5 : 1.5}
+                    filter={p.isPool ? "url(#incce-pool-shadow)" : undefined}
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={(e) => showTip(e, p)}
+                    onMouseMove={moveTip}
+                    onMouseLeave={hideTip}
+                  />
+                  <text
+                    x={lx}
+                    y={ly}
+                    fontSize={10}
+                    fill="var(--foreground)"
+                    fontWeight={p.isHIud ? 600 : 500}
+                    pointerEvents="none"
+                  >
+                    {p.name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {tip && (
+            <div
+              className="absolute pointer-events-none text-xs font-medium"
+              style={{
+                left: tip.x + 12,
+                top: tip.y + 12,
+                color: tip.point.fill,
+                textShadow:
+                  "0 0 3px var(--background), 0 0 3px var(--background), 0 0 3px var(--background)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <div className="font-semibold mb-0.5">{tip.point.name}</div>
+              <div>ΔCost: {fmtCurrency(tip.point.dy)}</div>
+              <div>ΔBenefit (DALYs averted): {fmtInt(tip.point.dx)}</div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+
