@@ -836,16 +836,16 @@ type IncCEPoint = {
 
 export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
   const { fmtCurrency } = currency;
-  const pop = result.population;
   const cU = inputs.costs.untreated;
   const dU = inputs.dalys.untreated;
 
+  // Per-person incremental values (not scaled by population).
   const altArms = ["hIud", "ns", "surgical"] as const;
   const armPts = altArms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
-    dx: (dU - inputs.dalys[a]) * pop,
-    dy: (inputs.costs[a] - cU) * pop,
+    dx: dU - inputs.dalys[a], // ΔBenefit per woman (DALYs averted vs Untreated)
+    dy: inputs.costs[a] - cU, // ΔCost per woman vs Untreated
   }));
 
   const ms = inputs.marketShares1;
@@ -859,8 +859,9 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
     ms.ns * inputs.dalys.ns +
     ms.surgical * inputs.dalys.surgical +
     ms.untreated * inputs.dalys.untreated;
-  const poolDx = (dU - poolDalyPerWoman) * pop;
-  const poolDy = (poolCostPerWoman - cU) * pop;
+  const poolDx = dU - poolDalyPerWoman; // per woman
+  const poolDy = poolCostPerWoman - cU; // per woman
+
 
   const colorFor = (key: string): string => {
     if (key === "hIud") return PALETTE.hIud;
@@ -1059,18 +1060,18 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               Cost-saving, less effective
             </text>
 
-            {/* Origin marker */}
-            <circle cx={x0} cy={y0} r={3.5} fill={PALETTE.untreated} stroke="#FFFFFF" strokeWidth={1.5} />
+            {/* Origin marker (0,0) */}
+            <circle cx={x0} cy={y0} r={3} fill="var(--muted-foreground)" stroke="#FFFFFF" strokeWidth={1.5} />
             <text x={x0 + 6} y={y0 - 6} fontSize={10} fill="var(--muted-foreground)" fontWeight={500}>
-              Untreated (anchor)
+              (0, 0)
             </text>
 
             {/* Axis tick labels at min/max */}
             <text x={M.left} y={M.top + innerH + 14} textAnchor="start" fontSize={10} fill="var(--muted-foreground)">
-              {fmtInt(xMin)}
+              {xMin.toFixed(3)}
             </text>
             <text x={M.left + innerW} y={M.top + innerH + 14} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
-              {fmtInt(xMax)}
+              {xMax.toFixed(3)}
             </text>
             <text x={M.left - 8} y={M.top + 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">
               {fmtCostDelta(yMax)}
@@ -1087,7 +1088,7 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               fontSize={11}
               fill="var(--muted-foreground)"
             >
-              ΔBenefit — DALYs Averted vs. Untreated
+              ΔBenefit — DALYs Averted per Woman (vs. Untreated)
             </text>
             <text
               x={18}
@@ -1097,8 +1098,10 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
               fill="var(--muted-foreground)"
               transform={`rotate(-90 18 ${M.top + innerH / 2})`}
             >
-              ΔCost vs. Untreated (5-Year Population)
+              ΔCost per Woman (5-Year, vs. Untreated)
             </text>
+
+
 
             {/* Dots */}
             {points.map((p) => {
