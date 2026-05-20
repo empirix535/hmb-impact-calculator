@@ -211,9 +211,11 @@ export function ControlCenter({ model }: Props) {
                 Σ = {fmtPct(ms1Sum, 1)}
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground pt-1">
-              Adjust H-IUD coverage — NS, Surgical, and Untreated react automatically based on
-              the cannibalization weights below.
+            <p className="text-[11px] text-muted-foreground pt-1 leading-relaxed">
+              <strong className="text-foreground">This is the main lever.</strong> The H-IUD slider
+              defines the "after" scenario; every result on the dashboard is a before/after
+              contrast between Status Quo (above) and this intervention mix. NS, Surgical, and
+              Untreated adjust automatically using the cannibalization weights below.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -284,9 +286,13 @@ export function ControlCenter({ model }: Props) {
                 {fmtPct(model.deltas.ns + model.deltas.surgical + model.deltas.untreated, 1)}
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground pt-1">
-              When you adjust the H-IUD share, the gain (or loss) is redistributed across NS,
-              Surgical, and Untreated in proportion to these weights. Σ across NS + S + U = 100%.
+            <p className="text-[11px] text-muted-foreground pt-1 leading-relaxed">
+              These weights answer: <em>"where do new H-IUD users come from?"</em> If you raise
+              H-IUD by 10 pp and set Untreated = 70%, NS = 20%, Surgical = 10%, then 7 pp of the
+              gain comes from previously untreated women, 2 pp from NS, and 1 pp from surgery.
+              Tilt toward <strong className="text-foreground">Untreated</strong> to model reaching
+              unmet need; tilt toward <strong className="text-foreground">Surgical</strong> to
+              model averted hysterectomies. Must sum to 100%.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -72,8 +72,38 @@ function BiaDashboard() {
         </aside>
 
         <main className="space-y-8 min-w-0">
+          <section className="rounded-xl border bg-card p-5 shadow-sm">
+            <h2 className="text-base font-semibold mb-2">How to read this dashboard</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              This tool runs a <strong className="text-foreground">before / after</strong> budget
+              impact analysis over a 5-year horizon. The "before" is the Status Quo treatment
+              mix for HMB in the selected country; the "after" is the same population redistributed
+              once you raise H-IUD uptake. Every KPI, table, and chart below shows the
+              <em> incremental </em> difference between those two scenarios.
+            </p>
+            <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+              <div>
+                <span className="font-semibold text-foreground">1. Eligible population</span> —
+                set country and HMB prevalence to size the market.
+              </div>
+              <div>
+                <span className="font-semibold text-foreground">2. H-IUD share (main lever)</span> —
+                move the slider under "Market Shares After Intervention" to define the "after."
+              </div>
+              <div>
+                <span className="font-semibold text-foreground">3. Cannibalization weights</span> —
+                decide whether new H-IUD users come from untreated, NS, or surgical patients.
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Positive cost deltas = added spend; negative = savings. Positive clinical deltas
+              (DALYs averted, HMB resolved, anemia avoided) = health gains.
+            </p>
+          </section>
+
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
+
           <SankeyChart result={model.result} deltas={model.deltas} />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <DalyAttributionChart result={model.result} />
