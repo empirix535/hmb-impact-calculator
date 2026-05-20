@@ -98,6 +98,7 @@ function BiaDashboard() {
             <p className="text-xs text-muted-foreground mt-3">
               Positive cost deltas = added spend; negative = savings. Positive clinical deltas
               (DALYs averted, HMB resolved, anemia avoided) = health gains.
+              Monetary values are shown in local currency (LCU) or in 2025 constant USD.
             </p>
           </section>
 
