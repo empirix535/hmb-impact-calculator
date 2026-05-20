@@ -869,8 +869,10 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
     if (key === "hIud") return PALETTE.hIud;
     if (key === "pool") return PALETTE.pool;
     if (key === "ns") return PALETTE.ns;
-    return PALETTE.surgical;
+    if (key === "surgical") return PALETTE.surgical;
+    return PALETTE.untreated;
   };
+
 
   const points: IncCEPoint[] = [
     ...armPts.map((p) => ({
