@@ -824,7 +824,7 @@ export function CostEffectivenessPlane({ result, inputs, currency }: CEPlaneProp
 // ============================================================================
 
 type IncCEPoint = {
-  key: "hIud" | "ns" | "surgical" | "pool";
+  key: "hIud" | "ns" | "surgical" | "untreated" | "pool";
   name: string;
   dx: number; // ΔBenefit (DALYs averted vs Untreated)
   dy: number; // ΔCost vs Untreated
@@ -840,13 +840,15 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
   const dU = inputs.dalys.untreated;
 
   // Per-person incremental values (not scaled by population).
-  const altArms = ["hIud", "ns", "surgical"] as const;
+  // Include Untreated at the origin (0,0) by definition of the ΔvsUntreated anchor.
+  const altArms = ["hIud", "ns", "surgical", "untreated"] as const;
   const armPts = altArms.map((a) => ({
     key: a,
     name: ARM_LABELS[a],
     dx: dU - inputs.dalys[a], // ΔBenefit per woman (DALYs averted vs Untreated)
     dy: inputs.costs[a] - cU, // ΔCost per woman vs Untreated
   }));
+
 
   const ms = inputs.marketShares1;
   const poolCostPerWoman =
@@ -867,8 +869,10 @@ export function IncrementalCEPlane({ result, inputs, currency }: CEPlaneProps) {
     if (key === "hIud") return PALETTE.hIud;
     if (key === "pool") return PALETTE.pool;
     if (key === "ns") return PALETTE.ns;
-    return PALETTE.surgical;
+    if (key === "surgical") return PALETTE.surgical;
+    return PALETTE.untreated;
   };
+
 
   const points: IncCEPoint[] = [
     ...armPts.map((p) => ({
