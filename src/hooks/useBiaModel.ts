@@ -40,6 +40,7 @@ function presetToBase(countryKey: string): BaseInputs {
     hmbPrevalence: c.hmbPrevalence,
     marketShares0: { ...ms },
     costs: { ...COUNTRY_COSTS[countryKey] },
+    costSplit: COUNTRY_COST_SPLIT[countryKey],
     effectiveness: { ...COUNTRY_EFFECTIVENESS[countryKey] },
     anemia: { ...c.anemia },
     dalys: { ...COUNTRY_DALYS[countryKey] },
