@@ -3,6 +3,7 @@ import { computeShift, runBia } from "@/lib/bia/engine";
 import {
   COUNTRIES,
   COUNTRY_COSTS,
+  COUNTRY_COST_SPLIT,
   COUNTRY_DALYS,
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
