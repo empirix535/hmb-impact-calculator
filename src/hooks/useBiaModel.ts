@@ -26,6 +26,8 @@ interface BaseInputs {
   hmbPrevalence: number;
   marketShares0: MarketShares;
   costs: ArmValues;
+  costsComm: ArmValues;
+  costsNonComm: ArmValues;
   effectiveness: ArmValues;
   anemia: ArmValues;
   dalys: ArmValues;
@@ -39,6 +41,8 @@ function presetToBase(countryKey: string): BaseInputs {
     hmbPrevalence: c.hmbPrevalence,
     marketShares0: { ...ms },
     costs: { ...COUNTRY_COSTS[countryKey] },
+    costsComm: { ...COUNTRY_COSTS_COMM[countryKey] },
+    costsNonComm: { ...COUNTRY_COSTS_NONCOMM[countryKey] },
     effectiveness: { ...COUNTRY_EFFECTIVENESS[countryKey] },
     anemia: { ...c.anemia },
     dalys: { ...COUNTRY_DALYS[countryKey] },
