@@ -64,6 +64,18 @@ function parseCsv(text: string): ParsedCountry[] {
       surgical: num(cells[idx("C_S")]),
       untreated: num(cells[idx("C_U")]),
     };
+    const costsComm = {
+      hIud: num(cells[idx("C_H_Comm")]),
+      ns: num(cells[idx("C_NS_Comm")]),
+      surgical: num(cells[idx("C_S_Comm")]),
+      untreated: num(cells[idx("C_U_Comm")]),
+    };
+    const costsNonComm = {
+      hIud: num(cells[idx("C_H_NonComm")]),
+      ns: num(cells[idx("C_NS_NonComm")]),
+      surgical: num(cells[idx("C_S_NonComm")]),
+      untreated: num(cells[idx("C_U_NonComm")]),
+    };
     const marketShares = {
       hIud: num(cells[idx("MS0_H")]),
       ns: num(cells[idx("MS0_NS")]),
