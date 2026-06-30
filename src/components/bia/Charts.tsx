@@ -66,20 +66,22 @@ interface Props {
 
 export function CostChart({ result, currency }: Props) {
   const { fmtCurrency } = currency;
-  const totalSq = result.breakdown.reduce((s, b) => s + b.cost0, 0);
-  const totalInt = result.breakdown.reduce((s, b) => s + b.cost1, 0);
-  const data = [
-    ...result.breakdown.map((b) => ({
-      arm: ARM_LABELS[b.arm],
-      "Status Quo": b.cost0,
-      Intervention: b.cost1,
-    })),
-    { arm: "Grand Total", "Status Quo": totalSq, Intervention: totalInt },
+  const split = result.costSplit;
+  const armKeys: Array<"hIud" | "ns" | "surgical" | "untreated"> = [
+    "hIud",
+    "ns",
+    "surgical",
+    "untreated",
   ];
+  const data = armKeys.map((k) => ({
+    arm: ARM_LABELS[k],
+    Commodity: split?.[k].commodity ?? 0,
+    "Non-Commodity": split?.[k].nonCommodity ?? 0,
+  }));
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Total Cost by Arm (incl. Grand Total)</CardTitle>
+        <CardTitle className="text-sm">Cost Per Patient by Arm (Commodity vs Non-Commodity)</CardTitle>
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -89,8 +91,8 @@ export function CostChart({ result, currency }: Props) {
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Commodity" stackId="cost" fill={PALETTE.intervention} stroke="none" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="Non-Commodity" stackId="cost" fill={PALETTE.statusQuo} stroke="none" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
