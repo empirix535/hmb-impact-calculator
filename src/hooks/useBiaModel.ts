@@ -26,6 +26,7 @@ interface BaseInputs {
   hmbPrevalence: number;
   marketShares0: MarketShares;
   costs: ArmValues;
+  costSplit: CostSplitValues;
   effectiveness: ArmValues;
   anemia: ArmValues;
   dalys: ArmValues;
