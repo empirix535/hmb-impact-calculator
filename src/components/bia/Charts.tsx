@@ -192,17 +192,24 @@ export function WaterfallChart({ result, currency }: Props) {
     .filter((b) => Math.abs(b.deltaCost) > 0.01)
     .map((b) => ({
       arm: ARM_LABELS[b.arm],
-      armKey: b.arm,
-      delta: b.deltaCost,
+      armKey: b.arm as string,
+      deltaComm: b.cost1Comm - b.cost0Comm,
+      deltaNonComm: b.cost1NonComm - b.cost0NonComm,
       isTotal: false,
     }));
-  const totalDelta = result.breakdown.reduce((s, b) => s + b.deltaCost, 0);
+  const totalDeltaComm = result.breakdown.reduce((s, b) => s + (b.cost1Comm - b.cost0Comm), 0);
+  const totalDeltaNonComm = result.breakdown.reduce((s, b) => s + (b.cost1NonComm - b.cost0NonComm), 0);
   const data = [
     ...perArm,
-    { arm: "Net Budget Impact", armKey: "total" as const, delta: totalDelta, isTotal: true },
+    {
+      arm: "Net Budget Impact",
+      armKey: "total",
+      deltaComm: totalDeltaComm,
+      deltaNonComm: totalDeltaNonComm,
+      isTotal: true,
+    },
   ];
 
-  // Sequential greys for non-H-IUD arms (light → dark).
   const ARM_GREYS = ["#CBD5E1", "#94A3B8", "#64748B", "#475569"];
   const colorForArm = (armKey: string, isTotal: boolean, idx: number): string => {
     if (isTotal) return PALETTE.netTotal;
@@ -228,6 +235,15 @@ export function WaterfallChart({ result, currency }: Props) {
               <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.netTotal }} />
               Net Budget Impact
             </span>
+            <span className="mx-1 text-muted-foreground/50">·</span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8" }} />
+              Commodity
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8", opacity: 0.5 }} />
+              Non-Commodity
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -238,13 +254,14 @@ export function WaterfallChart({ result, currency }: Props) {
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta" stroke="none" radius={4}>
+            <Bar dataKey="deltaComm" stackId="d" stroke="none" name="Commodity Δ">
               {data.map((d, i) => (
-                <Cell
-                  key={i}
-                  stroke="none"
-                  fill={colorForArm(d.armKey, d.isTotal, i)}
-                />
+                <Cell key={`c-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} />
+              ))}
+            </Bar>
+            <Bar dataKey="deltaNonComm" stackId="d" stroke="none" name="Non-Commodity Δ">
+              {data.map((d, i) => (
+                <Cell key={`nc-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} fillOpacity={0.5} />
               ))}
             </Bar>
           </BarChart>
