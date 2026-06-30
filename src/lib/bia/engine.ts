@@ -165,6 +165,10 @@ export function runBia(inputs: BiaInputs): BiaResult {
     const dM = m1 - m0;
     const c0 = population * m0 * inputs.costs[arm];
     const c1 = population * m1 * inputs.costs[arm];
+    const c0Comm = inputs.costsComm ? population * m0 * inputs.costsComm[arm] : 0;
+    const c0NonComm = inputs.costsNonComm ? population * m0 * inputs.costsNonComm[arm] : 0;
+    const c1Comm = inputs.costsComm ? population * m1 * inputs.costsComm[arm] : 0;
+    const c1NonComm = inputs.costsNonComm ? population * m1 * inputs.costsNonComm[arm] : 0;
     return {
       arm,
       ms0: m0,
@@ -174,6 +178,10 @@ export function runBia(inputs: BiaInputs): BiaResult {
       cost0: c0,
       cost1: c1,
       deltaCost: c1 - c0,
+      cost0Comm: c0Comm,
+      cost0NonComm: c0NonComm,
+      cost1Comm: c1Comm,
+      cost1NonComm: c1NonComm,
       status: "—",
     };
   });
