@@ -125,6 +125,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
 
   const perPatientSq = weightedSum(ms0, inputs.costs);
   const perPatientInt = weightedSum(ms1, inputs.costs);
+  const perPatientIntComm = inputs.costsComm ? weightedSum(ms1, inputs.costsComm) : 0;
+  const perPatientIntNonComm = inputs.costsNonComm ? weightedSum(ms1, inputs.costsNonComm) : 0;
   const totalCostSq = population * perPatientSq;
   const totalCostInt = population * perPatientInt;
   const budgetImpact = totalCostInt - totalCostSq;
