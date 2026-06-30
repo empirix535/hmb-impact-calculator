@@ -217,7 +217,7 @@ export function WaterfallChart({ result, currency }: Props) {
   const data = [
     ...perArm,
     {
-      arm: "Net Budget Impact",
+      arm: "Net Impact",
       armKey: "total",
       deltaComm: totalDeltaComm,
       deltaNonComm: totalDeltaNonComm,
