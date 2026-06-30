@@ -167,6 +167,8 @@ export function useBiaModel() {
       marketShares0: base.marketShares0,
       marketShares1: shift.marketShares1,
       costs: base.costs,
+      costsComm: base.costsComm,
+      costsNonComm: base.costsNonComm,
       effectiveness: base.effectiveness,
       anemia: base.anemia,
       dalys: base.dalys,
