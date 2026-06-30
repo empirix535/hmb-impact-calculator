@@ -106,9 +106,9 @@ export function BreakdownTable({ result, currency }: Props) {
               <TableHead className="text-right">ΔMS</TableHead>
               <TableHead className="text-right">Patients shifted</TableHead>
               <TableHead className="text-right">Cost SQ (Comm)</TableHead>
-              <TableHead className="text-right">Cost SQ (Non-Comm)</TableHead>
+              <TableHead className="text-right">Cost SQ <span className="whitespace-nowrap">(Non-Comm)</span></TableHead>
               <TableHead className="text-right">Cost Int (Comm)</TableHead>
-              <TableHead className="text-right">Cost Int (Non-Comm)</TableHead>
+              <TableHead className="text-right">Cost Int <span className="whitespace-nowrap">(Non-Comm)</span></TableHead>
               <TableHead className="text-right">ΔCost</TableHead>
             </TableRow>
           </TableHeader>
