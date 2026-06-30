@@ -21,6 +21,13 @@ export interface ArmValues {
   untreated: number;
 }
 
+export interface CostSplitValues {
+  hIud: { commodity: number; nonCommodity: number };
+  ns: { commodity: number; nonCommodity: number };
+  surgical: { commodity: number; nonCommodity: number };
+  untreated: { commodity: number; nonCommodity: number };
+}
+
 export type Currency = "LCU" | "USD";
 
 export interface CountryPreset {
