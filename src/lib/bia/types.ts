@@ -74,6 +74,8 @@ export interface BiaResult {
   totalCostInt: number;
   perPatientSq: number;
   perPatientInt: number;
+  perPatientIntComm: number;
+  perPatientIntNonComm: number;
   budgetImpact: number;
   budgetImpactPct: number;
   weightedEffSq: number;
