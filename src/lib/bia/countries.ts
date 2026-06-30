@@ -134,6 +134,13 @@ export const COUNTRY_COSTS: Record<string, ParsedCountry["costs"]> = Object.from
   PARSED.map((p) => [p.key, p.costs]),
 );
 
+export const COUNTRY_COSTS_COMM: Record<string, ParsedCountry["costsComm"]> = Object.fromEntries(
+  PARSED.map((p) => [p.key, p.costsComm]),
+);
+
+export const COUNTRY_COSTS_NONCOMM: Record<string, ParsedCountry["costsNonComm"]> =
+  Object.fromEntries(PARSED.map((p) => [p.key, p.costsNonComm]));
+
 export const COUNTRY_EFFECTIVENESS: Record<string, ParsedCountry["effectiveness"]> =
   Object.fromEntries(PARSED.map((p) => [p.key, p.effectiveness]));
 
