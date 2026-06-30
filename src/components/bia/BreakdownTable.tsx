@@ -129,8 +129,10 @@ export function BreakdownTable({ result, currency }: Props) {
                 <TableCell className="text-right font-mono text-xs">
                   {fmtInt(b.patientsShifted)}
                 </TableCell>
-                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0)}</TableCell>
-                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost1)}</TableCell>
+                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0Comm)}</TableCell>
+                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0NonComm)}</TableCell>
+                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost1Comm)}</TableCell>
+                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost1NonComm)}</TableCell>
                 <TableCell
                   className={`text-right font-mono text-xs ${
                     b.deltaCost > 0 ? "text-rose-600" : b.deltaCost < 0 ? "text-emerald-600" : ""
@@ -149,10 +151,16 @@ export function BreakdownTable({ result, currency }: Props) {
                 {fmtInt(totals.patientsShifted)}
               </TableCell>
               <TableCell className="text-right font-mono text-xs">
-                {fmtCurrency(totals.cost0)}
+                {fmtCurrency(totals.cost0Comm)}
               </TableCell>
               <TableCell className="text-right font-mono text-xs">
-                {fmtCurrency(totals.cost1)}
+                {fmtCurrency(totals.cost0NonComm)}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {fmtCurrency(totals.cost1Comm)}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">
+                {fmtCurrency(totals.cost1NonComm)}
               </TableCell>
               <TableCell
                 className={`text-right font-mono text-xs ${
@@ -168,6 +176,10 @@ export function BreakdownTable({ result, currency }: Props) {
             </TableRow>
           </TableBody>
         </Table>
+        <div className="mt-3 text-[10px] text-muted-foreground/80 leading-relaxed">
+          <span className="font-semibold">Legend:</span>{" "}
+          MS = market share; SQ = Status Quo (baseline); Int = Intervention; Comm = commodity cost; Non-Comm = service/non-commodity cost; Δ = change (Int − SQ). Values are 5-year totals.
+        </div>
       </CardContent>
     </Card>
   );
