@@ -115,6 +115,7 @@ function parseCsv(text: string): ParsedCountry[] {
         marketShares,
       },
       costs,
+      costSplit,
       effectiveness,
       dalys,
     });
