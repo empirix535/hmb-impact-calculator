@@ -66,20 +66,36 @@ interface Props {
 
 export function CostChart({ result, currency }: Props) {
   const { fmtCurrency } = currency;
-  const totalSq = result.breakdown.reduce((s, b) => s + b.cost0, 0);
-  const totalInt = result.breakdown.reduce((s, b) => s + b.cost1, 0);
+  const sum = (k: "cost0Comm" | "cost0NonComm" | "cost1Comm" | "cost1NonComm") =>
+    result.breakdown.reduce((s, b) => s + b[k], 0);
   const data = [
     ...result.breakdown.map((b) => ({
       arm: ARM_LABELS[b.arm],
-      "Status Quo": b.cost0,
-      Intervention: b.cost1,
+      "SQ Commodity": b.cost0Comm,
+      "SQ Non-Commodity": b.cost0NonComm,
+      "Int Commodity": b.cost1Comm,
+      "Int Non-Commodity": b.cost1NonComm,
     })),
-    { arm: "Grand Total", "Status Quo": totalSq, Intervention: totalInt },
+    {
+      arm: "Grand Total",
+      "SQ Commodity": sum("cost0Comm"),
+      "SQ Non-Commodity": sum("cost0NonComm"),
+      "Int Commodity": sum("cost1Comm"),
+      "Int Non-Commodity": sum("cost1NonComm"),
+    },
   ];
+  // Two shades per scenario: Commodity = solid, Non-Commodity = lighter tint.
+  const SQ_COMM = PALETTE.statusQuo;       // #94A3B8
+  const SQ_NONCOMM = "#CBD5E1";            // lighter grey
+  const INT_COMM = PALETTE.intervention;   // #FF4719
+  const INT_NONCOMM = "#FFB199";           // lighter orange
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Total Cost by Arm (incl. Grand Total)</CardTitle>
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Each arm shows two stacked bars: Status Quo (grey) and Intervention (orange), split into Commodity (solid) and Non-Commodity (lighter shade).
+        </p>
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -88,9 +104,11 @@ export function CostChart({ result, currency }: Props) {
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[4, 4, 0, 0]} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
+            <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
+            <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
