@@ -64,6 +64,10 @@ export interface ArmBreakdown {
   cost0: number;
   cost1: number;
   deltaCost: number;
+  cost0Comm: number;
+  cost0NonComm: number;
+  cost1Comm: number;
+  cost1NonComm: number;
   status: "—" | "Re-allocated" | "Clamped to 0%";
 }
 
