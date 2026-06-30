@@ -26,9 +26,13 @@ export function BreakdownTable({ result, currency }: Props) {
       acc.cost1 += b.cost1;
       acc.deltaCost += b.deltaCost;
       acc.patientsShifted += b.patientsShifted;
+      acc.cost0Comm += b.cost0Comm;
+      acc.cost0NonComm += b.cost0NonComm;
+      acc.cost1Comm += b.cost1Comm;
+      acc.cost1NonComm += b.cost1NonComm;
       return acc;
     },
-    { cost0: 0, cost1: 0, deltaCost: 0, patientsShifted: 0 },
+    { cost0: 0, cost1: 0, deltaCost: 0, patientsShifted: 0, cost0Comm: 0, cost0NonComm: 0, cost1Comm: 0, cost1NonComm: 0 },
   );
 
   const exportCsv = () => {
