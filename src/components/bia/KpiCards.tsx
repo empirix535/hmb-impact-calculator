@@ -51,6 +51,7 @@ export function KpiCards({ result, currency }: Props) {
         <Kpi
           icon={<Users className="h-4 w-4" />}
           label="Cost per patient"
+          note="Post-intervention pooled average"
           value={fmtCurrencyExact(result.perPatientInt)}
           sub={`Commodity: ${fmtCurrencyExact(result.perPatientIntComm)} | Service: ${fmtCurrencyExact(result.perPatientIntNonComm)} • Δ ${fmtCurrency(result.perPatientInt - result.perPatientSq)} vs SQ`}
         />
