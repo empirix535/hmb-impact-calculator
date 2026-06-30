@@ -90,7 +90,9 @@ function Kpi({
             {icon}
             {label}
           </div>
-          <span className="text-[10px] text-muted-foreground/80">Post-intervention pooled average</span>
+          {note && (
+            <span className="text-[10px] text-muted-foreground/80">{note}</span>
+          )}
         </div>
         {icon2}
       </div>
