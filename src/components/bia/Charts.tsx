@@ -97,20 +97,37 @@ export function CostChart({ result, currency }: Props) {
           Each arm shows two stacked bars: Status Quo (grey) and Intervention (orange), split into Commodity (solid) and Non-Commodity (lighter shade).
         </p>
       </CardHeader>
-      <CardContent className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
-            <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
-            <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
-            <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
-            <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent className="h-80 flex flex-col">
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
+              <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
+              <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
+              <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
+              <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
+              <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-2 flex flex-col gap-1 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: SQ_COMM }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: INT_COMM }} />
+              Commodity
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: SQ_NONCOMM }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: INT_NONCOMM }} />
+              Non-commodity
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
