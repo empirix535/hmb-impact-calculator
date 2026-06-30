@@ -64,6 +64,7 @@ function Kpi({
   icon,
   icon2,
   label,
+  note,
   value,
   sub,
   accent,
@@ -71,6 +72,7 @@ function Kpi({
   icon: React.ReactNode;
   icon2?: React.ReactNode;
   label: string;
+  note?: string;
   value: string;
   sub: string;
   accent?: "pos" | "neg";
