@@ -83,13 +83,16 @@ function Kpi({
   return (
     <Card>
       <CardContent className="p-5 space-y-2">
-        <div className="flex items-center justify-between text-muted-foreground">
+      <div className="flex items-start justify-between text-muted-foreground">
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
             {icon}
             {label}
           </div>
-          {icon2}
+          <span className="text-[10px] text-muted-foreground/80">Post-intervention pooled average</span>
         </div>
+        {icon2}
+      </div>
         <div className="text-2xl font-bold tracking-tight">{value}</div>
         <div className={`text-xs ${accentClass}`}>{sub}</div>
       </CardContent>
