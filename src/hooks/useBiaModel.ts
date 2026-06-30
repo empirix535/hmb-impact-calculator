@@ -14,6 +14,7 @@ import type {
   AltWeights,
   ArmValues,
   BiaInputs,
+  CostSplitValues,
   Currency,
   MarketShares,
 } from "@/lib/bia/types";
