@@ -66,20 +66,36 @@ interface Props {
 
 export function CostChart({ result, currency }: Props) {
   const { fmtCurrency } = currency;
-  const totalSq = result.breakdown.reduce((s, b) => s + b.cost0, 0);
-  const totalInt = result.breakdown.reduce((s, b) => s + b.cost1, 0);
+  const sum = (k: "cost0Comm" | "cost0NonComm" | "cost1Comm" | "cost1NonComm") =>
+    result.breakdown.reduce((s, b) => s + b[k], 0);
   const data = [
     ...result.breakdown.map((b) => ({
       arm: ARM_LABELS[b.arm],
-      "Status Quo": b.cost0,
-      Intervention: b.cost1,
+      "SQ Commodity": b.cost0Comm,
+      "SQ Non-Commodity": b.cost0NonComm,
+      "Int Commodity": b.cost1Comm,
+      "Int Non-Commodity": b.cost1NonComm,
     })),
-    { arm: "Grand Total", "Status Quo": totalSq, Intervention: totalInt },
+    {
+      arm: "Grand Total",
+      "SQ Commodity": sum("cost0Comm"),
+      "SQ Non-Commodity": sum("cost0NonComm"),
+      "Int Commodity": sum("cost1Comm"),
+      "Int Non-Commodity": sum("cost1NonComm"),
+    },
   ];
+  // Two shades per scenario: Commodity = solid, Non-Commodity = lighter tint.
+  const SQ_COMM = PALETTE.statusQuo;       // #94A3B8
+  const SQ_NONCOMM = "#CBD5E1";            // lighter grey
+  const INT_COMM = PALETTE.intervention;   // #FF4719
+  const INT_NONCOMM = "#FFB199";           // lighter orange
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm">Total Cost by Arm (incl. Grand Total)</CardTitle>
+        <p className="text-[11px] text-muted-foreground pt-1">
+          Each arm shows two stacked bars: Status Quo (grey) and Intervention (orange), split into Commodity (solid) and Non-Commodity (lighter shade).
+        </p>
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -88,9 +104,11 @@ export function CostChart({ result, currency }: Props) {
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Status Quo" fill={PALETTE.statusQuo} stroke="none" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Intervention" fill={PALETTE.intervention} stroke="none" radius={[4, 4, 0, 0]} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
+            <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
+            <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -174,17 +192,24 @@ export function WaterfallChart({ result, currency }: Props) {
     .filter((b) => Math.abs(b.deltaCost) > 0.01)
     .map((b) => ({
       arm: ARM_LABELS[b.arm],
-      armKey: b.arm,
-      delta: b.deltaCost,
+      armKey: b.arm as string,
+      deltaComm: b.cost1Comm - b.cost0Comm,
+      deltaNonComm: b.cost1NonComm - b.cost0NonComm,
       isTotal: false,
     }));
-  const totalDelta = result.breakdown.reduce((s, b) => s + b.deltaCost, 0);
+  const totalDeltaComm = result.breakdown.reduce((s, b) => s + (b.cost1Comm - b.cost0Comm), 0);
+  const totalDeltaNonComm = result.breakdown.reduce((s, b) => s + (b.cost1NonComm - b.cost0NonComm), 0);
   const data = [
     ...perArm,
-    { arm: "Net Budget Impact", armKey: "total" as const, delta: totalDelta, isTotal: true },
+    {
+      arm: "Net Budget Impact",
+      armKey: "total",
+      deltaComm: totalDeltaComm,
+      deltaNonComm: totalDeltaNonComm,
+      isTotal: true,
+    },
   ];
 
-  // Sequential greys for non-H-IUD arms (light → dark).
   const ARM_GREYS = ["#CBD5E1", "#94A3B8", "#64748B", "#475569"];
   const colorForArm = (armKey: string, isTotal: boolean, idx: number): string => {
     if (isTotal) return PALETTE.netTotal;
@@ -210,6 +235,15 @@ export function WaterfallChart({ result, currency }: Props) {
               <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.netTotal }} />
               Net Budget Impact
             </span>
+            <span className="mx-1 text-muted-foreground/50">·</span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8" }} />
+              Commodity
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8", opacity: 0.5 }} />
+              Non-Commodity
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -220,13 +254,14 @@ export function WaterfallChart({ result, currency }: Props) {
             <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="delta" stroke="none" radius={4}>
+            <Bar dataKey="deltaComm" stackId="d" stroke="none" name="Commodity Δ">
               {data.map((d, i) => (
-                <Cell
-                  key={i}
-                  stroke="none"
-                  fill={colorForArm(d.armKey, d.isTotal, i)}
-                />
+                <Cell key={`c-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} />
+              ))}
+            </Bar>
+            <Bar dataKey="deltaNonComm" stackId="d" stroke="none" name="Non-Commodity Δ">
+              {data.map((d, i) => (
+                <Cell key={`nc-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} fillOpacity={0.5} />
               ))}
             </Bar>
           </BarChart>
