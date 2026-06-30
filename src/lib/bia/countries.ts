@@ -12,7 +12,6 @@ interface ParsedCountry {
   key: string;
   preset: CountryPreset;
   costs: { hIud: number; ns: number; surgical: number; untreated: number };
-  costSplit: import("./types").CostSplitValues;
   effectiveness: { hIud: number; ns: number; surgical: number; untreated: number };
   dalys: { hIud: number; ns: number; surgical: number; untreated: number };
 }
@@ -63,19 +62,6 @@ function parseCsv(text: string): ParsedCountry[] {
       surgical: num(cells[idx("C_S")]),
       untreated: num(cells[idx("C_U")]),
     };
-    const splitFor = (commCol: string, nonCol: string, total: number) => {
-      const ci = idx(commCol);
-      const ni = idx(nonCol);
-      const commodity = ci >= 0 ? num(cells[ci]) : total;
-      const nonCommodity = ni >= 0 ? num(cells[ni]) : 0;
-      return { commodity, nonCommodity };
-    };
-    const costSplit = {
-      hIud: splitFor("C_H_Comm", "C_H_NonComm", costs.hIud),
-      ns: splitFor("C_NS_Comm", "C_NS_NonComm", costs.ns),
-      surgical: splitFor("C_S_Comm", "C_S_NonComm", costs.surgical),
-      untreated: splitFor("C_U_Comm", "C_U_NonComm", costs.untreated),
-    };
     const marketShares = {
       hIud: num(cells[idx("MS0_H")]),
       ns: num(cells[idx("MS0_NS")]),
@@ -115,7 +101,6 @@ function parseCsv(text: string): ParsedCountry[] {
         marketShares,
       },
       costs,
-      costSplit,
       effectiveness,
       dalys,
     });
@@ -138,10 +123,6 @@ export const COUNTRY_EFFECTIVENESS: Record<string, ParsedCountry["effectiveness"
 
 export const COUNTRY_DALYS: Record<string, ParsedCountry["dalys"]> = Object.fromEntries(
   PARSED.map((p) => [p.key, p.dalys]),
-);
-
-export const COUNTRY_COST_SPLIT: Record<string, ParsedCountry["costSplit"]> = Object.fromEntries(
-  PARSED.map((p) => [p.key, p.costSplit]),
 );
 
 export const DEFAULT_COUNTRY = PARSED[0]?.key ?? "KE";

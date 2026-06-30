@@ -196,6 +196,5 @@ export function runBia(inputs: BiaInputs): BiaResult {
     dalysAverted,
     dalysAvertedByArm,
     breakdown,
-    costSplit: inputs.costSplit,
   };
 }

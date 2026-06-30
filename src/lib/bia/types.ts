@@ -21,13 +21,6 @@ export interface ArmValues {
   untreated: number;
 }
 
-export interface CostSplitValues {
-  hIud: { commodity: number; nonCommodity: number };
-  ns: { commodity: number; nonCommodity: number };
-  surgical: { commodity: number; nonCommodity: number };
-  untreated: { commodity: number; nonCommodity: number };
-}
-
 export type Currency = "LCU" | "USD";
 
 export interface CountryPreset {
@@ -47,7 +40,6 @@ export interface BiaInputs {
   marketShares0: MarketShares;
   marketShares1: MarketShares; // user-controlled, sum = 1
   costs: ArmValues;
-  costSplit?: CostSplitValues;
   effectiveness: ArmValues; // 0..1 (HMB resolved share)
   anemia: ArmValues; // 0..1
   dalys: ArmValues; // discounted DALYs per woman over 5 years
@@ -93,5 +85,4 @@ export interface BiaResult {
   dalysAverted: number;
   dalysAvertedByArm: { ns: number; surgical: number; untreated: number };
   breakdown: ArmBreakdown[];
-  costSplit?: CostSplitValues;
 }
