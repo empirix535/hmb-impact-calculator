@@ -40,6 +40,8 @@ export interface BiaInputs {
   marketShares0: MarketShares;
   marketShares1: MarketShares; // user-controlled, sum = 1
   costs: ArmValues;
+  costsComm?: ArmValues; // commodity portion of per-patient cost
+  costsNonComm?: ArmValues; // non-commodity (service) portion of per-patient cost
   effectiveness: ArmValues; // 0..1 (HMB resolved share)
   anemia: ArmValues; // 0..1
   dalys: ArmValues; // discounted DALYs per woman over 5 years
@@ -72,6 +74,8 @@ export interface BiaResult {
   totalCostInt: number;
   perPatientSq: number;
   perPatientInt: number;
+  perPatientIntComm: number;
+  perPatientIntNonComm: number;
   budgetImpact: number;
   budgetImpactPct: number;
   weightedEffSq: number;

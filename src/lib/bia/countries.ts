@@ -12,6 +12,8 @@ interface ParsedCountry {
   key: string;
   preset: CountryPreset;
   costs: { hIud: number; ns: number; surgical: number; untreated: number };
+  costsComm: { hIud: number; ns: number; surgical: number; untreated: number };
+  costsNonComm: { hIud: number; ns: number; surgical: number; untreated: number };
   effectiveness: { hIud: number; ns: number; surgical: number; untreated: number };
   dalys: { hIud: number; ns: number; surgical: number; untreated: number };
 }
@@ -62,6 +64,18 @@ function parseCsv(text: string): ParsedCountry[] {
       surgical: num(cells[idx("C_S")]),
       untreated: num(cells[idx("C_U")]),
     };
+    const costsComm = {
+      hIud: num(cells[idx("C_H_Comm")]),
+      ns: num(cells[idx("C_NS_Comm")]),
+      surgical: num(cells[idx("C_S_Comm")]),
+      untreated: num(cells[idx("C_U_Comm")]),
+    };
+    const costsNonComm = {
+      hIud: num(cells[idx("C_H_NonComm")]),
+      ns: num(cells[idx("C_NS_NonComm")]),
+      surgical: num(cells[idx("C_S_NonComm")]),
+      untreated: num(cells[idx("C_U_NonComm")]),
+    };
     const marketShares = {
       hIud: num(cells[idx("MS0_H")]),
       ns: num(cells[idx("MS0_NS")]),
@@ -101,6 +115,8 @@ function parseCsv(text: string): ParsedCountry[] {
         marketShares,
       },
       costs,
+      costsComm,
+      costsNonComm,
       effectiveness,
       dalys,
     });
@@ -117,6 +133,13 @@ export const COUNTRIES: Record<string, CountryPreset> = Object.fromEntries(
 export const COUNTRY_COSTS: Record<string, ParsedCountry["costs"]> = Object.fromEntries(
   PARSED.map((p) => [p.key, p.costs]),
 );
+
+export const COUNTRY_COSTS_COMM: Record<string, ParsedCountry["costsComm"]> = Object.fromEntries(
+  PARSED.map((p) => [p.key, p.costsComm]),
+);
+
+export const COUNTRY_COSTS_NONCOMM: Record<string, ParsedCountry["costsNonComm"]> =
+  Object.fromEntries(PARSED.map((p) => [p.key, p.costsNonComm]));
 
 export const COUNTRY_EFFECTIVENESS: Record<string, ParsedCountry["effectiveness"]> =
   Object.fromEntries(PARSED.map((p) => [p.key, p.effectiveness]));

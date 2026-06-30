@@ -3,6 +3,8 @@ import { computeShift, runBia } from "@/lib/bia/engine";
 import {
   COUNTRIES,
   COUNTRY_COSTS,
+  COUNTRY_COSTS_COMM,
+  COUNTRY_COSTS_NONCOMM,
   COUNTRY_DALYS,
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
@@ -24,6 +26,8 @@ interface BaseInputs {
   hmbPrevalence: number;
   marketShares0: MarketShares;
   costs: ArmValues;
+  costsComm: ArmValues;
+  costsNonComm: ArmValues;
   effectiveness: ArmValues;
   anemia: ArmValues;
   dalys: ArmValues;
@@ -37,6 +41,8 @@ function presetToBase(countryKey: string): BaseInputs {
     hmbPrevalence: c.hmbPrevalence,
     marketShares0: { ...ms },
     costs: { ...COUNTRY_COSTS[countryKey] },
+    costsComm: { ...COUNTRY_COSTS_COMM[countryKey] },
+    costsNonComm: { ...COUNTRY_COSTS_NONCOMM[countryKey] },
     effectiveness: { ...COUNTRY_EFFECTIVENESS[countryKey] },
     anemia: { ...c.anemia },
     dalys: { ...COUNTRY_DALYS[countryKey] },
@@ -161,6 +167,8 @@ export function useBiaModel() {
       marketShares0: base.marketShares0,
       marketShares1: shift.marketShares1,
       costs: base.costs,
+      costsComm: base.costsComm,
+      costsNonComm: base.costsNonComm,
       effectiveness: base.effectiveness,
       anemia: base.anemia,
       dalys: base.dalys,
