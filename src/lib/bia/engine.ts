@@ -185,6 +185,8 @@ export function runBia(inputs: BiaInputs): BiaResult {
     totalCostInt,
     perPatientSq,
     perPatientInt,
+    perPatientIntComm,
+    perPatientIntNonComm,
     budgetImpact,
     budgetImpactPct,
     weightedEffSq,
