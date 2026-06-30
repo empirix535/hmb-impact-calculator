@@ -266,7 +266,7 @@ export function WaterfallChart({ result, currency }: Props) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
-              <XAxis dataKey="arm" tick={{ fontSize: 11 }} interval={0} />
+              <XAxis dataKey="arm" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={45} />
               <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
               <Bar dataKey="deltaComm" stackId="d" stroke="none" name="Commodity Δ">
