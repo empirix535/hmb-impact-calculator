@@ -26,13 +26,11 @@ export function BreakdownTable({ result, currency }: Props) {
       acc.cost1 += b.cost1;
       acc.deltaCost += b.deltaCost;
       acc.patientsShifted += b.patientsShifted;
-      acc.cost0Comm += b.cost0Comm;
-      acc.cost0NonComm += b.cost0NonComm;
       acc.cost1Comm += b.cost1Comm;
       acc.cost1NonComm += b.cost1NonComm;
       return acc;
     },
-    { cost0: 0, cost1: 0, deltaCost: 0, patientsShifted: 0, cost0Comm: 0, cost0NonComm: 0, cost1Comm: 0, cost1NonComm: 0 },
+    { cost0: 0, cost1: 0, deltaCost: 0, patientsShifted: 0, cost1Comm: 0, cost1NonComm: 0 },
   );
 
   const exportCsv = () => {
@@ -42,11 +40,9 @@ export function BreakdownTable({ result, currency }: Props) {
       "MS_1",
       "ΔMS",
       "Patients shifted",
-      `Cost SQ Comm (${unit})`,
-      `Cost SQ Non-Comm (${unit})`,
+      `Cost SQ (${unit})`,
       `Cost Int Comm (${unit})`,
       `Cost Int Non-Comm (${unit})`,
-      `Cost SQ Total (${unit})`,
       `Cost Int Total (${unit})`,
       `ΔCost (${unit})`,
     ];
@@ -56,11 +52,9 @@ export function BreakdownTable({ result, currency }: Props) {
       b.ms1.toFixed(4),
       b.deltaMs.toFixed(4),
       Math.round(b.patientsShifted),
-      Math.round(b.cost0Comm * rate),
-      Math.round(b.cost0NonComm * rate),
+      Math.round(b.cost0 * rate),
       Math.round(b.cost1Comm * rate),
       Math.round(b.cost1NonComm * rate),
-      Math.round(b.cost0 * rate),
       Math.round(b.cost1 * rate),
       Math.round(b.deltaCost * rate),
     ]);
@@ -70,11 +64,9 @@ export function BreakdownTable({ result, currency }: Props) {
       "",
       "",
       Math.round(totals.patientsShifted).toString(),
-      Math.round(totals.cost0Comm * rate).toString(),
-      Math.round(totals.cost0NonComm * rate).toString(),
+      Math.round(totals.cost0 * rate).toString(),
       Math.round(totals.cost1Comm * rate).toString(),
       Math.round(totals.cost1NonComm * rate).toString(),
-      Math.round(totals.cost0 * rate).toString(),
       Math.round(totals.cost1 * rate).toString(),
       Math.round(totals.deltaCost * rate).toString(),
     ]);
@@ -97,25 +89,24 @@ export function BreakdownTable({ result, currency }: Props) {
         </Button>
       </CardHeader>
       <CardContent className="overflow-x-auto">
-        <Table>
+        <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Arm</TableHead>
-              <TableHead className="text-right">MS₀</TableHead>
-              <TableHead className="text-right">MS₁</TableHead>
-              <TableHead className="text-right">ΔMS</TableHead>
-              <TableHead className="text-right">Patients shifted</TableHead>
-              <TableHead className="text-right">Cost SQ <span className="whitespace-nowrap">(Comm)</span></TableHead>
-              <TableHead className="text-right">Cost SQ <span className="whitespace-nowrap">(Non-Comm)</span></TableHead>
-              <TableHead className="text-right">Cost Int <span className="whitespace-nowrap">(Comm)</span></TableHead>
-              <TableHead className="text-right">Cost Int <span className="whitespace-nowrap">(Non-Comm)</span></TableHead>
-              <TableHead className="text-right">ΔCost</TableHead>
+              <TableHead className="w-[14%] text-left">Arm</TableHead>
+              <TableHead className="w-[9%] text-right">MS₀</TableHead>
+              <TableHead className="w-[9%] text-right">MS₁</TableHead>
+              <TableHead className="w-[10%] text-right">ΔMS</TableHead>
+              <TableHead className="w-[14%] text-right">Patients shifted</TableHead>
+              <TableHead className="w-[14%] text-right">Cost SQ</TableHead>
+              <TableHead className="w-[12%] text-right">Cost Int <span className="whitespace-nowrap">(Comm)</span></TableHead>
+              <TableHead className="w-[14%] text-right">Cost Int <span className="whitespace-nowrap">(Non-Comm)</span></TableHead>
+              <TableHead className="w-[12%] text-right">ΔCost</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {result.breakdown.map((b) => (
               <TableRow key={b.arm}>
-                <TableCell className="font-medium">{ARM_LABELS[b.arm]}</TableCell>
+                <TableCell className="font-medium truncate">{ARM_LABELS[b.arm]}</TableCell>
                 <TableCell className="text-right font-mono text-xs">{fmtPct(b.ms0)}</TableCell>
                 <TableCell className="text-right font-mono text-xs">{fmtPct(b.ms1)}</TableCell>
                 <TableCell
@@ -129,8 +120,7 @@ export function BreakdownTable({ result, currency }: Props) {
                 <TableCell className="text-right font-mono text-xs">
                   {fmtInt(b.patientsShifted)}
                 </TableCell>
-                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0Comm)}</TableCell>
-                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0NonComm)}</TableCell>
+                <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost0)}</TableCell>
                 <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost1Comm)}</TableCell>
                 <TableCell className="text-right font-mono text-xs">{fmtCurrency(b.cost1NonComm)}</TableCell>
                 <TableCell
@@ -151,10 +141,7 @@ export function BreakdownTable({ result, currency }: Props) {
                 {fmtInt(totals.patientsShifted)}
               </TableCell>
               <TableCell className="text-right font-mono text-xs">
-                {fmtCurrency(totals.cost0Comm)}
-              </TableCell>
-              <TableCell className="text-right font-mono text-xs">
-                {fmtCurrency(totals.cost0NonComm)}
+                {fmtCurrency(totals.cost0)}
               </TableCell>
               <TableCell className="text-right font-mono text-xs">
                 {fmtCurrency(totals.cost1Comm)}
