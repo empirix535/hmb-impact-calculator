@@ -12,6 +12,8 @@ interface ParsedCountry {
   key: string;
   preset: CountryPreset;
   costs: { hIud: number; ns: number; surgical: number; untreated: number };
+  costsComm: { hIud: number; ns: number; surgical: number; untreated: number };
+  costsNonComm: { hIud: number; ns: number; surgical: number; untreated: number };
   effectiveness: { hIud: number; ns: number; surgical: number; untreated: number };
   dalys: { hIud: number; ns: number; surgical: number; untreated: number };
 }
