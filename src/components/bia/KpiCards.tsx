@@ -51,6 +51,7 @@ export function KpiCards({ result, currency }: Props) {
         <Kpi
           icon={<Users className="h-4 w-4" />}
           label="Cost per patient"
+          note="Post-intervention pooled average"
           value={fmtCurrencyExact(result.perPatientInt)}
           sub={`Commodity: ${fmtCurrencyExact(result.perPatientIntComm)} | Service: ${fmtCurrencyExact(result.perPatientIntNonComm)} • Δ ${fmtCurrency(result.perPatientInt - result.perPatientSq)} vs SQ`}
         />
@@ -63,6 +64,7 @@ function Kpi({
   icon,
   icon2,
   label,
+  note,
   value,
   sub,
   accent,
@@ -70,6 +72,7 @@ function Kpi({
   icon: React.ReactNode;
   icon2?: React.ReactNode;
   label: string;
+  note?: string;
   value: string;
   sub: string;
   accent?: "pos" | "neg";
@@ -83,13 +86,18 @@ function Kpi({
   return (
     <Card>
       <CardContent className="p-5 space-y-2">
-        <div className="flex items-center justify-between text-muted-foreground">
+      <div className="flex items-start justify-between text-muted-foreground">
+        <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
             {icon}
             {label}
           </div>
-          {icon2}
+          {note && (
+            <span className="text-[10px] text-muted-foreground/80">{note}</span>
+          )}
         </div>
+        {icon2}
+      </div>
         <div className="text-2xl font-bold tracking-tight">{value}</div>
         <div className={`text-xs ${accentClass}`}>{sub}</div>
       </CardContent>
