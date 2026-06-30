@@ -97,20 +97,37 @@ export function CostChart({ result, currency }: Props) {
           Each arm shows two stacked bars: Status Quo (grey) and Intervention (orange), split into Commodity (solid) and Non-Commodity (lighter shade).
         </p>
       </CardHeader>
-      <CardContent className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
-            <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
-            <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
-            <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
-            <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent className="h-80 flex flex-col">
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
+              <XAxis dataKey="arm" tick={{ fontSize: 11 }} interval={0} />
+              <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
+              <Bar dataKey="SQ Commodity" stackId="sq" fill={SQ_COMM} stroke="none" />
+              <Bar dataKey="SQ Non-Commodity" stackId="sq" fill={SQ_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Int Commodity" stackId="int" fill={INT_COMM} stroke="none" />
+              <Bar dataKey="Int Non-Commodity" stackId="int" fill={INT_NONCOMM} stroke="none" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-2 flex flex-col gap-1 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: SQ_COMM }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: INT_COMM }} />
+              Commodity
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: SQ_NONCOMM }} />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: INT_NONCOMM }} />
+              Non-commodity
+            </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -188,21 +205,19 @@ export function ClinicalChart({ result }: { result: BiaResult }) {
 
 export function WaterfallChart({ result, currency }: Props) {
   const { fmtCurrency } = currency;
-  const perArm = result.breakdown
-    .filter((b) => Math.abs(b.deltaCost) > 0.01)
-    .map((b) => ({
-      arm: ARM_LABELS[b.arm],
-      armKey: b.arm as string,
-      deltaComm: b.cost1Comm - b.cost0Comm,
-      deltaNonComm: b.cost1NonComm - b.cost0NonComm,
-      isTotal: false,
-    }));
+  const perArm = result.breakdown.map((b) => ({
+    arm: ARM_LABELS[b.arm],
+    armKey: b.arm as string,
+    deltaComm: b.cost1Comm - b.cost0Comm,
+    deltaNonComm: b.cost1NonComm - b.cost0NonComm,
+    isTotal: false,
+  }));
   const totalDeltaComm = result.breakdown.reduce((s, b) => s + (b.cost1Comm - b.cost0Comm), 0);
   const totalDeltaNonComm = result.breakdown.reduce((s, b) => s + (b.cost1NonComm - b.cost0NonComm), 0);
   const data = [
     ...perArm,
     {
-      arm: "Net Budget Impact",
+      arm: "Net Impact",
       armKey: "total",
       deltaComm: totalDeltaComm,
       deltaNonComm: totalDeltaNonComm,
@@ -210,62 +225,63 @@ export function WaterfallChart({ result, currency }: Props) {
     },
   ];
 
-  const ARM_GREYS = ["#CBD5E1", "#94A3B8", "#64748B", "#475569"];
-  const colorForArm = (armKey: string, isTotal: boolean, idx: number): string => {
+
+
+  const ARM_GREY_DARK = "#64748B";
+  const ARM_GREY_LIGHT = "#CBD5E1";
+  const HIUD_LIGHT = "#FFB199";
+
+  const colorForArm = (armKey: string, isTotal: boolean, isComm: boolean): string => {
     if (isTotal) return PALETTE.netTotal;
-    if (armKey === "hIud") return PALETTE.intervention;
-    return ARM_GREYS[idx % ARM_GREYS.length];
+    if (armKey === "hIud") return isComm ? PALETTE.intervention : HIUD_LIGHT;
+    return isComm ? ARM_GREY_DARK : ARM_GREY_LIGHT;
   };
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex flex-col gap-2">
           <CardTitle className="text-sm">Per-Arm Contribution to Budget Δ (incl. Net Impact)</CardTitle>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.intervention }} />
-              H-IUD
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#94A3B8" }} />
-              Other arms
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.netTotal }} />
-              Net Budget Impact
-            </span>
-            <span className="mx-1 text-muted-foreground/50">·</span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8" }} />
-              Commodity
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-foreground/20" style={{ background: "#94A3B8", opacity: 0.5 }} />
-              Non-Commodity
-            </span>
+          <div className="flex flex-col gap-1 text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.intervention }} />
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: ARM_GREY_DARK }} />
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: PALETTE.netTotal }} />
+                Commodity
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: HIUD_LIGHT }} />
+                <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: ARM_GREY_LIGHT }} />
+                Non-commodity
+              </span>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
-            <XAxis dataKey="arm" tick={{ fontSize: 11 }} />
-            <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
-            <Bar dataKey="deltaComm" stackId="d" stroke="none" name="Commodity Δ">
-              {data.map((d, i) => (
-                <Cell key={`c-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} />
-              ))}
-            </Bar>
-            <Bar dataKey="deltaNonComm" stackId="d" stroke="none" name="Non-Commodity Δ">
-              {data.map((d, i) => (
-                <Cell key={`nc-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, i)} fillOpacity={0.5} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent className="h-80 flex flex-col">
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} strokeOpacity={PALETTE.gridOpacity} horizontal vertical={false} />
+              <XAxis dataKey="arm" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={45} />
+              <YAxis tickFormatter={(v) => fmtCurrency(Number(v))} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(v: number) => fmtCurrency(Number(v))} />
+              <Bar dataKey="deltaComm" stackId="d" stroke="none" name="Commodity Δ">
+                {data.map((d, i) => (
+                  <Cell key={`c-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, true)} />
+                ))}
+              </Bar>
+              <Bar dataKey="deltaNonComm" stackId="d" stroke="none" name="Non-Commodity Δ">
+                {data.map((d, i) => (
+                  <Cell key={`nc-${i}`} stroke="none" fill={colorForArm(d.armKey, d.isTotal, false)} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
