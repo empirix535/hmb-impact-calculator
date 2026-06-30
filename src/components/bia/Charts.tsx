@@ -224,6 +224,8 @@ export function WaterfallChart({ result, currency }: Props) {
       isTotal: true,
     },
   ];
+  console.log("Waterfall data", data);
+
 
   const ARM_GREY_DARK = "#64748B";
   const ARM_GREY_LIGHT = "#CBD5E1";
