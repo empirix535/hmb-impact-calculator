@@ -63,6 +63,19 @@ function parseCsv(text: string): ParsedCountry[] {
       surgical: num(cells[idx("C_S")]),
       untreated: num(cells[idx("C_U")]),
     };
+    const splitFor = (commCol: string, nonCol: string, total: number) => {
+      const ci = idx(commCol);
+      const ni = idx(nonCol);
+      const commodity = ci >= 0 ? num(cells[ci]) : total;
+      const nonCommodity = ni >= 0 ? num(cells[ni]) : 0;
+      return { commodity, nonCommodity };
+    };
+    const costSplit = {
+      hIud: splitFor("C_H_Comm", "C_H_NonComm", costs.hIud),
+      ns: splitFor("C_NS_Comm", "C_NS_NonComm", costs.ns),
+      surgical: splitFor("C_S_Comm", "C_S_NonComm", costs.surgical),
+      untreated: splitFor("C_U_Comm", "C_U_NonComm", costs.untreated),
+    };
     const marketShares = {
       hIud: num(cells[idx("MS0_H")]),
       ns: num(cells[idx("MS0_NS")]),
