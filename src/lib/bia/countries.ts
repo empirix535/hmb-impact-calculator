@@ -12,6 +12,7 @@ interface ParsedCountry {
   key: string;
   preset: CountryPreset;
   costs: { hIud: number; ns: number; surgical: number; untreated: number };
+  costSplit: import("./types").CostSplitValues;
   effectiveness: { hIud: number; ns: number; surgical: number; untreated: number };
   dalys: { hIud: number; ns: number; surgical: number; untreated: number };
 }
