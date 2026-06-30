@@ -140,4 +140,8 @@ export const COUNTRY_DALYS: Record<string, ParsedCountry["dalys"]> = Object.from
   PARSED.map((p) => [p.key, p.dalys]),
 );
 
+export const COUNTRY_COST_SPLIT: Record<string, ParsedCountry["costSplit"]> = Object.fromEntries(
+  PARSED.map((p) => [p.key, p.costSplit]),
+);
+
 export const DEFAULT_COUNTRY = PARSED[0]?.key ?? "KE";
