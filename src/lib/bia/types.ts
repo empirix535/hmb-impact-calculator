@@ -47,6 +47,7 @@ export interface BiaInputs {
   marketShares0: MarketShares;
   marketShares1: MarketShares; // user-controlled, sum = 1
   costs: ArmValues;
+  costSplit?: CostSplitValues;
   effectiveness: ArmValues; // 0..1 (HMB resolved share)
   anemia: ArmValues; // 0..1
   dalys: ArmValues; // discounted DALYs per woman over 5 years
