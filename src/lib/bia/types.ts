@@ -93,4 +93,5 @@ export interface BiaResult {
   dalysAverted: number;
   dalysAvertedByArm: { ns: number; surgical: number; untreated: number };
   breakdown: ArmBreakdown[];
+  costSplit?: CostSplitValues;
 }
