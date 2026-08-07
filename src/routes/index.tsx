@@ -62,7 +62,10 @@ function BiaDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{country.name}</Badge>
+            <Badge variant="outline">
+              {country.name}
+              {!isBaseline && <span className="ml-0.5 text-amber-600">*</span>}
+            </Badge>
             {model.isCustom && <Badge variant="secondary">Custom</Badge>}
           </div>
         </div>
