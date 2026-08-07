@@ -14,10 +14,11 @@ import {
 
 import { SankeyChart } from "@/components/bia/SankeyChart";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
-import { COUNTRIES } from "@/lib/bia/countries";
+import { COUNTRIES, isBaselineCountry } from "@/lib/bia/countries";
 import { makeCurrencyFormatters } from "@/lib/bia/format";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const Route = createFileRoute("/")({
   component: BiaDashboard,
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/")({
 function BiaDashboard() {
   const model = useBiaModel();
   const country = COUNTRIES[model.countryKey];
+  const isBaseline = isBaselineCountry(model.countryKey);
   const currencyFmt = useMemo(
     () => makeCurrencyFormatters({ unit: model.currency.label, rate: model.currency.rate }),
     [model.currency.label, model.currency.rate],
@@ -60,7 +62,10 @@ function BiaDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{country.name}</Badge>
+            <Badge variant="outline">
+              {country.name}
+              {!isBaseline && <span className="ml-0.5 text-amber-600">*</span>}
+            </Badge>
             {model.isCustom && <Badge variant="secondary">Custom</Badge>}
           </div>
         </div>
@@ -101,6 +106,16 @@ function BiaDashboard() {
               Monetary values are shown in LCU or in 2025 constant USD. LCU = Local Currency Unit.
             </p>
           </section>
+
+          {!isBaseline && (
+            <Alert className="border-amber-500/30 bg-amber-500/10">
+              <AlertDescription className="text-xs text-amber-900/80">
+                <span className="font-semibold text-amber-700">*</span> Clinical and cost
+                estimates for {country.name} are simulated using purchasing-power-adjusted
+                proxy data derived from the Kenya and Nigeria baseline models.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
