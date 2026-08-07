@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "impact-navigator",
+      "version": "0.1.0",
+      "title": "Impact Navigator"
+    },
+    "tools": [
+      {
+        "name": "list_countries",
+        "title": "List countries",
+        "description": "List every country available in the H-IUD budget impact model, with its currency, women of childbearing age, and HMB prevalence.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_country_inputs",
+        "title": "Get country model inputs",
+        "description": "Return the full model input set for one country: baseline market shares, per-patient costs (total, commodity, non-commodity), effectiveness, anemia rates, and DALYs per patient by treatment arm.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "description": "Country key or name, e.g. \"KE\" or \"Kenya\". Use list_countries to see options."
+            }
+          },
+          "required": [
+            "country"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "run_budget_impact",
+        "title": "Run budget impact scenario",
+        "description": "Run the 5-year budget impact analysis for a country at a given H-IUD coverage target. Returns population, market shares before/after, total and per-patient costs, budget impact, DALYs averted, HMB cases resolved, anemia cases avoided, and a per-arm breakdown.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "description": "Country key or name, e.g. \"KE\" or \"Kenya\"."
+            },
+            "targetHIud": {
+              "type": "number",
+              "description": "Target H-IUD market share after intervention, as a fraction 0-1 (e.g. 0.25)."
+            },
+            "hmbPrevalence": {
+              "description": "Override HMB prevalence as a fraction 0-1. Defaults to the country value.",
+              "type": "number"
+            },
+            "deltaNs": {
+              "description": "Cannibalization weight for non-surgical patients (relative, default 0.15).",
+              "type": "number"
+            },
+            "deltaSurgical": {
+              "description": "Cannibalization weight for surgical patients (relative, default 0.05).",
+              "type": "number"
+            },
+            "deltaUntreated": {
+              "description": "Cannibalization weight for untreated patients (relative, default 0.8).",
+              "type": "number"
+            },
+            "currency": {
+              "description": "Money unit: \"LCU\" local currency (default) or \"USD\" 2025 constant.",
+              "type": "string",
+              "enum": [
+                "LCU",
+                "USD"
+              ]
+            }
+          },
+          "required": [
+            "country",
+            "targetHIud"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "compare_coverage_targets",
+        "title": "Compare H-IUD coverage targets",
+        "description": "Run the budget impact model across several H-IUD coverage targets for one country and return a compact comparison of budget impact, DALYs averted, and HMB cases resolved for each.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "description": "Country key or name, e.g. \"KE\" or \"Kenya\"."
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "H-IUD coverage targets as fractions 0-1, e.g. [0.1, 0.25, 0.5]. Max 10 values."
+            },
+            "currency": {
+              "description": "\"LCU\" (default) or \"USD\".",
+              "type": "string",
+              "enum": [
+                "LCU",
+                "USD"
+              ]
+            }
+          },
+          "required": [
+            "country",
+            "targets"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
