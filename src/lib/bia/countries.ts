@@ -144,3 +144,9 @@ export const COUNTRY_DALYS: Record<string, ParsedCountry["dalys"]> = Object.from
 );
 
 export const DEFAULT_COUNTRY = PARSED[0]?.key ?? "KE";
+
+export const BASELINE_COUNTRY_KEYS = ["KENYA", "NIGERIA"];
+
+export function isBaselineCountry(key: string): boolean {
+  return BASELINE_COUNTRY_KEYS.includes(key);
+}
