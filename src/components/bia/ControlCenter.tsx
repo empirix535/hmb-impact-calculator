@@ -61,7 +61,9 @@ export function ControlCenter({ model }: Props) {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Country</CardTitle>
+              <CardTitle className="text-sm font-semibold">
+                Country{!isBaseline && <span className="ml-0.5 text-amber-600">*</span>}
+              </CardTitle>
               {isCustom ? (
                 <Badge variant="secondary">Custom</Badge>
               ) : (
@@ -78,6 +80,9 @@ export function ControlCenter({ model }: Props) {
                 {Object.entries(COUNTRIES).map(([key, c]) => (
                   <SelectItem key={key} value={key}>
                     {c.name}
+                    {!isBaselineCountry(key) && (
+                      <span className="ml-1 text-amber-600">*</span>
+                    )}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -108,6 +113,13 @@ export function ControlCenter({ model }: Props) {
             <Button variant="ghost" size="sm" className="w-full" onClick={model.reset}>
               <RotateCcw /> Reset to country defaults
             </Button>
+            {!isBaseline && (
+              <p className="text-[11px] text-muted-foreground leading-relaxed border-t pt-3">
+                <span className="text-amber-600 font-semibold">*</span> Clinical and cost
+                estimates for this country are simulated using purchasing-power-adjusted proxy
+                data derived from the Kenya and Nigeria baseline models.
+              </p>
+            )}
           </CardContent>
         </Card>
 
