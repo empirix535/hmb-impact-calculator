@@ -24,20 +24,15 @@ function num(v: string): number {
 }
 
 function countryCodeFor(name: string): string {
-  // Minimal ISO-2 mapping; falls back to first 2 letters uppercased.
-  const map: Record<string, string> = {
-    Kenya: "KE",
-    Nigeria: "NG",
-    Ghana: "GH",
-    SouthAfrica: "ZA",
-    "South Africa": "ZA",
-    Uganda: "UG",
-    Tanzania: "TZ",
-    Ethiopia: "ET",
-    Rwanda: "RW",
-  };
-  return map[name] ?? name.replace(/\s+/g, "").slice(0, 2).toUpperCase();
+  // Stable, unique key derived from the country name.
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toUpperCase();
 }
+
 
 function parseCsv(text: string): ParsedCountry[] {
   const lines = text
