@@ -25,7 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { COUNTRIES } from "@/lib/bia/countries";
+import { COUNTRIES, isBaselineCountry } from "@/lib/bia/countries";
 import { ARM_LABELS, fmtInt, fmtPct } from "@/lib/bia/format";
 import type { useBiaModel } from "@/hooks/useBiaModel";
 import type { AltArm, ArmValues, MarketShares } from "@/lib/bia/types";
