@@ -9,7 +9,7 @@ import {
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
 } from "@/lib/bia/countries";
-import { DEFAULT_DELTAS } from "@/lib/bia/defaults";
+import { DEFAULT_DELTAS, DEFAULT_TARGET_HIUD } from "@/lib/bia/defaults";
 import type {
   AltArm,
   AltWeights,
@@ -20,6 +20,10 @@ import type {
 } from "@/lib/bia/types";
 
 const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
+
+// Baselines can have 0% H-IUD; start the lever at a meaningful target so the
+// before/after contrast is non-trivial on first load.
+const initialTarget = (ms0HIud: number) => Math.max(ms0HIud, DEFAULT_TARGET_HIUD);
 
 interface BaseInputs {
   wcba: number;
@@ -53,7 +57,7 @@ export function useBiaModel() {
   const [countryKey, setCountryKey] = useState<string>(DEFAULT_COUNTRY);
   const [isCustom, setIsCustom] = useState(false);
   const [base, setBase] = useState<BaseInputs>(() => presetToBase(DEFAULT_COUNTRY));
-  const [targetHIud, setTargetHIud] = useState<number>(() => base.marketShares0.hIud);
+  const [targetHIud, setTargetHIud] = useState<number>(() => initialTarget(base.marketShares0.hIud));
   const [deltas, setDeltas] = useState<AltWeights>({ ...DEFAULT_DELTAS });
   const [currencyMode, setCurrencyMode] = useState<Currency>("LCU");
 
@@ -63,7 +67,7 @@ export function useBiaModel() {
     setCountryKey(key);
     setIsCustom(false);
     setBase(next);
-    setTargetHIud(next.marketShares0.hIud);
+    setTargetHIud(initialTarget(next.marketShares0.hIud));
     setDeltas({ ...DEFAULT_DELTAS });
   }, []);
 
@@ -71,7 +75,7 @@ export function useBiaModel() {
     const next = presetToBase(countryKey);
     setIsCustom(false);
     setBase(next);
-    setTargetHIud(next.marketShares0.hIud);
+    setTargetHIud(initialTarget(next.marketShares0.hIud));
     setDeltas({ ...DEFAULT_DELTAS });
   }, [countryKey]);
 
