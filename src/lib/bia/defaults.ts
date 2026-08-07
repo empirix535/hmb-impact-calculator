@@ -31,4 +31,3 @@ export const DEFAULT_DELTAS: AltWeights = {
   untreated: 0.8,
 };
 
-export const DEFAULT_TARGET_HIUD = 0.25;

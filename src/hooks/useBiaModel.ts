@@ -9,7 +9,7 @@ import {
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
 } from "@/lib/bia/countries";
-import { DEFAULT_DELTAS, DEFAULT_TARGET_HIUD } from "@/lib/bia/defaults";
+import { DEFAULT_DELTAS } from "@/lib/bia/defaults";
 import type {
   AltArm,
   AltWeights,
@@ -21,9 +21,8 @@ import type {
 
 const ALT_ARMS: AltArm[] = ["ns", "surgical", "untreated"];
 
-// Baselines can have 0% H-IUD; start the lever at a meaningful target so the
-// before/after contrast is non-trivial on first load.
-const initialTarget = (ms0HIud: number) => Math.max(ms0HIud, DEFAULT_TARGET_HIUD);
+// Default the intervention lever to the baseline H-IUD share (often 0%).
+const initialTarget = (ms0HIud: number) => ms0HIud;
 
 interface BaseInputs {
   wcba: number;

@@ -7,11 +7,11 @@ import {
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
 } from "@/lib/bia/countries";
-import { DEFAULT_DELTAS, DEFAULT_TARGET_HIUD } from "@/lib/bia/defaults";
+import { DEFAULT_DELTAS } from "@/lib/bia/defaults";
 import { computeShift, runBia } from "@/lib/bia/engine";
 import type { BiaResult, MarketShares } from "@/lib/bia/types";
 
-export { DEFAULT_COUNTRY, DEFAULT_TARGET_HIUD };
+export { DEFAULT_COUNTRY };
 
 export function countryKeys(): string[] {
   return Object.keys(COUNTRIES);
@@ -84,7 +84,7 @@ export function runScenario(args: ScenarioArgs) {
         }
       : DEFAULT_DELTAS;
 
-  const targetHIud = clamp01(args.targetHIud ?? DEFAULT_TARGET_HIUD);
+  const targetHIud = clamp01(args.targetHIud ?? ms0.hIud);
   const shift = computeShift(ms0, targetHIud, deltas);
 
   const result: BiaResult = runBia({
