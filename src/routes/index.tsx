@@ -14,10 +14,11 @@ import {
 
 import { SankeyChart } from "@/components/bia/SankeyChart";
 import { BreakdownTable } from "@/components/bia/BreakdownTable";
-import { COUNTRIES } from "@/lib/bia/countries";
+import { COUNTRIES, isBaselineCountry } from "@/lib/bia/countries";
 import { makeCurrencyFormatters } from "@/lib/bia/format";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const Route = createFileRoute("/")({
   component: BiaDashboard,
