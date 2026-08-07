@@ -40,6 +40,7 @@ const ALL_ARMS: (keyof MarketShares)[] = ["hIud", "ns", "surgical", "untreated"]
 
 export function ControlCenter({ model }: Props) {
   const { inputs, isCustom, countryKey } = model;
+  const isBaseline = isBaselineCountry(countryKey);
   const population = Math.round(inputs.wcba * inputs.hmbPrevalence);
   const ms0Sum =
     inputs.marketShares0.hIud +
