@@ -37,6 +37,7 @@ export const Route = createFileRoute("/")({
 function BiaDashboard() {
   const model = useBiaModel();
   const country = COUNTRIES[model.countryKey];
+  const isBaseline = isBaselineCountry(model.countryKey);
   const currencyFmt = useMemo(
     () => makeCurrencyFormatters({ unit: model.currency.label, rate: model.currency.rate }),
     [model.currency.label, model.currency.rate],
