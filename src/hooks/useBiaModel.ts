@@ -9,7 +9,7 @@ import {
   COUNTRY_EFFECTIVENESS,
   DEFAULT_COUNTRY,
 } from "@/lib/bia/countries";
-import { DEFAULT_DELTAS, DEFAULT_TARGET_HIUD } from "@/lib/bia/defaults";
+import { DEFAULT_DELTAS } from "@/lib/bia/defaults";
 import type {
   AltArm,
   AltWeights,
