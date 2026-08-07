@@ -107,6 +107,16 @@ function BiaDashboard() {
             </p>
           </section>
 
+          {!isBaseline && (
+            <Alert className="border-amber-500/30 bg-amber-500/10">
+              <AlertDescription className="text-xs text-amber-900/80">
+                <span className="font-semibold text-amber-700">*</span> Clinical and cost
+                estimates for {country.name} are simulated using purchasing-power-adjusted
+                proxy data derived from the Kenya and Nigeria baseline models.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <KpiCards result={model.result} currency={currencyFmt} />
           <BreakdownTable result={model.result} currency={currencyFmt} />
 
