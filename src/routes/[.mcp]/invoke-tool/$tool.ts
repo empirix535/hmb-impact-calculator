@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { createFileRoute } from "@tanstack/react-start";
 
 import { createTanStackInvokeToolHandler } from "@lovable.dev/mcp-js/stacks/tanstack";
 
